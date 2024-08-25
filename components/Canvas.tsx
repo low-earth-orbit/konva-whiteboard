@@ -13,12 +13,10 @@ export default function Canvas() {
   const [tool, setTool] = useState<string>("pen");
   const [lines, setLines] = useState<LineType[]>([]);
   const isDrawing = useRef<boolean>(false);
-  const [stageSize, setStageSize] = useState<{ width: number; height: number }>(
-    {
-      width: 0,
-      height: 0,
-    }
-  );
+  const [stageSize, setStageSize] = useState<{
+    width: number;
+    height: number;
+  }>();
 
   const handleMouseDown = (e: any) => {
     isDrawing.current = true;
@@ -54,11 +52,19 @@ export default function Canvas() {
       });
     };
 
+    // Update the size on mount
+    handleResize();
+
     window.addEventListener("resize", handleResize);
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  // component has not finished loading the window size
+  if (!stageSize) {
+    return null;
+  }
 
   return (
     <div>
