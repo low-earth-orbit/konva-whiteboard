@@ -8,7 +8,7 @@ A whiteboard app made with Konva library.
 - TypeScript
 - Next.js
 - Tailwind CSS
-- Mantine (React component library)
+- MUI/Material UI (React component library)
 - Konva (Canvas graphics library)
 
 ## Getting Started

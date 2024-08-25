@@ -15,8 +15,8 @@ export default function Canvas() {
   const isDrawing = useRef<boolean>(false);
   const [stageSize, setStageSize] = useState<{ width: number; height: number }>(
     {
-      width: window.innerWidth,
-      height: window.innerHeight,
+      width: 0,
+      height: 0,
     }
   );
 
@@ -63,8 +63,8 @@ export default function Canvas() {
   return (
     <div>
       <Stage
-        width={window.innerWidth}
-        height={window.innerHeight}
+        width={stageSize.width}
+        height={stageSize.height}
         onMouseDown={handleMouseDown}
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
