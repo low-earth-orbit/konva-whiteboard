@@ -14,17 +14,9 @@ import PaletteIcon from "@mui/icons-material/Palette";
 import { HexColorPicker } from "react-colorful";
 import { useState } from "react";
 import LineWeightRoundedIcon from "@mui/icons-material/LineWeightRounded";
+import CropSquareRoundedIcon from "@mui/icons-material/CropSquareRounded";
 
-type ToolbarProps = {
-  selectTool: (tool: string) => void;
-  resetCanvas: () => void;
-  color: string;
-  selectColor: (newColor: string) => void;
-  strokeWidth: number;
-  setStrokeWidth: (newWidth: number) => void;
-};
-
-function LineWeightSliderValueLabelComponent(props: SliderValueLabelProps) {
+function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
   const { children, value } = props;
 
   return (
@@ -34,6 +26,16 @@ function LineWeightSliderValueLabelComponent(props: SliderValueLabelProps) {
   );
 }
 
+type ToolbarProps = {
+  selectTool: (tool: string) => void;
+  resetCanvas: () => void;
+  color: string;
+  selectColor: (newColor: string) => void;
+  strokeWidth: number;
+  setStrokeWidth: (newWidth: number) => void;
+  handleAddRectangle: () => void;
+};
+
 function Toolbar({
   selectTool,
   resetCanvas,
@@ -41,6 +43,7 @@ function Toolbar({
   selectColor,
   strokeWidth,
   setStrokeWidth,
+  handleAddRectangle,
 }: ToolbarProps) {
   // color picker
   const [colorPickerAnchorEl, setColorPickerAnchorEl] =
@@ -79,14 +82,20 @@ function Toolbar({
   const isLineWeightSliderAnchorElOpen = Boolean(lineWeightAnchorEl);
 
   return (
-    <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 ">
+    <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 bg-white">
       <ButtonGroup
         variant="contained"
         aria-label="toolbar buttons"
-        className="flex gap-2"
+        className="flex gap-2 p-1"
       >
+        {/* pen */}
         <IconButton aria-label="draw" onClick={() => selectTool("pen")}>
           <DrawIcon />
+        </IconButton>
+
+        {/* shapes */}
+        <IconButton aria-label="add rectangle" onClick={handleAddRectangle}>
+          <CropSquareRoundedIcon />
         </IconButton>
 
         {/* line weight */}
@@ -105,10 +114,13 @@ function Toolbar({
           <PaletteIcon />
         </IconButton>
 
+        {/* eraser */}
         <IconButton aria-label="erase" onClick={() => selectTool("eraser")}>
           <EraserIcon />
         </IconButton>
-        <IconButton aria-label="delete" onClick={resetCanvas}>
+
+        {/* delete */}
+        <IconButton aria-label="delete everything" onClick={resetCanvas}>
           <DeleteIcon />
         </IconButton>
       </ButtonGroup>
@@ -150,7 +162,7 @@ function Toolbar({
             max={100}
             min={1}
             slots={{
-              valueLabel: LineWeightSliderValueLabelComponent,
+              valueLabel: LineWeightSliderValueLabel,
             }}
             aria-label="custom thumb label"
             value={strokeWidth}
