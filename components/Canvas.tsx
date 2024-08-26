@@ -7,11 +7,14 @@ import Toolbar from "./Toolbar";
 interface LineType {
   tool: string;
   points: number[];
+  color: string;
 }
 
 export default function Canvas() {
   const [tool, setTool] = useState<string>("pen");
   const [lines, setLines] = useState<LineType[]>([]);
+  const [color, setColor] = useState<string>("blue");
+
   const isDrawing = useRef<boolean>(false);
   const [stageSize, setStageSize] = useState<{
     width: number;
@@ -21,7 +24,7 @@ export default function Canvas() {
   const handleMouseDown = (e: any) => {
     isDrawing.current = true;
     const pos = e.target.getStage().getPointerPosition();
-    setLines([...lines, { tool, points: [pos.x, pos.y] }]);
+    setLines([...lines, { tool, points: [pos.x, pos.y], color: color }]);
   };
 
   const handleMouseMove = (e: any) => {
@@ -80,7 +83,7 @@ export default function Canvas() {
             <Line
               key={i}
               points={line.points}
-              stroke="blue"
+              stroke={line.color}
               strokeWidth={5}
               tension={0.5}
               lineCap="round"
@@ -92,7 +95,12 @@ export default function Canvas() {
           ))}
         </Layer>
       </Stage>
-      <Toolbar selectTool={setTool} resetCanvas={() => setLines([])} />
+      <Toolbar
+        selectTool={setTool}
+        color={color}
+        selectColor={setColor}
+        resetCanvas={() => setLines([])}
+      />
     </div>
   );
 }
