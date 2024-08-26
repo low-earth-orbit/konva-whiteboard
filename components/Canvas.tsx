@@ -8,12 +8,14 @@ interface LineType {
   tool: string;
   points: number[];
   color: string;
+  strokeWidth: number;
 }
 
 export default function Canvas() {
   const [tool, setTool] = useState<string>("pen");
   const [lines, setLines] = useState<LineType[]>([]);
   const [color, setColor] = useState<string>("blue");
+  const [strokeWidth, setStrokeWidth] = useState<number>(5);
 
   const isDrawing = useRef<boolean>(false);
   const [stageSize, setStageSize] = useState<{
@@ -24,7 +26,15 @@ export default function Canvas() {
   const handleMouseDown = (e: any) => {
     isDrawing.current = true;
     const pos = e.target.getStage().getPointerPosition();
-    setLines([...lines, { tool, points: [pos.x, pos.y], color: color }]);
+    setLines([
+      ...lines,
+      {
+        tool,
+        points: [pos.x, pos.y],
+        color: color,
+        strokeWidth: strokeWidth,
+      },
+    ]);
   };
 
   const handleMouseMove = (e: any) => {
@@ -84,7 +94,7 @@ export default function Canvas() {
               key={i}
               points={line.points}
               stroke={line.color}
-              strokeWidth={5}
+              strokeWidth={line.strokeWidth}
               tension={0.5}
               lineCap="round"
               lineJoin="round"
@@ -100,6 +110,8 @@ export default function Canvas() {
         color={color}
         selectColor={setColor}
         resetCanvas={() => setLines([])}
+        strokeWidth={strokeWidth}
+        setStrokeWidth={setStrokeWidth}
       />
     </div>
   );
