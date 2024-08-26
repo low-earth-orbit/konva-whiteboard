@@ -2,6 +2,8 @@
 
 A whiteboard app made with Konva library.
 
+Latest deployed version: [Click Me](https://whiteboard.leohong.dev)
+
 ## Tech
 
 - React
@@ -11,7 +13,7 @@ A whiteboard app made with Konva library.
 - MUI/Material UI (React component library)
 - Konva (Canvas graphics library)
 
-## Getting Started
+## Run
 
 First, run the development server:
 
