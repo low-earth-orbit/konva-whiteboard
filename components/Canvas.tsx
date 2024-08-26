@@ -14,7 +14,7 @@ interface LineType {
 export default function Canvas() {
   const [tool, setTool] = useState<string>("pen");
   const [lines, setLines] = useState<LineType[]>([]);
-  const [color, setColor] = useState<string>("blue");
+  const [color, setColor] = useState<string>("#0000FF");
   const [strokeWidth, setStrokeWidth] = useState<number>(5);
 
   const isDrawing = useRef<boolean>(false);
