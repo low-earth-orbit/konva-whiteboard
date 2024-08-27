@@ -1,22 +1,22 @@
 import React, { useEffect, useRef } from "react";
-import { Rect, Transformer } from "react-konva";
+import { Line, Transformer } from "react-konva";
 import { ShapeType } from "../Canvas";
 import Konva from "konva";
 
-type RectangleShapeProps = {
+type LineShapeProps = {
   shapeProps: Partial<ShapeType>;
   isSelected: boolean;
   onSelect: () => void;
   onChange: (newAttrs: Partial<ShapeType>) => void;
 };
 
-export default function RectangleShape({
+export default function LineShape({
   shapeProps,
   isSelected,
   onSelect,
   onChange,
-}: RectangleShapeProps) {
-  const shapeRef = useRef<Konva.Rect>(null);
+}: LineShapeProps) {
+  const shapeRef = useRef<Konva.Line>(null);
   const trRef = useRef<Konva.Transformer>(null);
 
   useEffect(() => {
@@ -27,23 +27,19 @@ export default function RectangleShape({
     }
   }, [isSelected]);
 
-  const { shapeName, id, x, y, width, height, stroke, strokeWidth } =
-    shapeProps;
+  const { shapeName, id, points, stroke, strokeWidth } = shapeProps;
 
   const selectedProps = {
     shapeName,
     id,
-    x,
-    y,
-    width,
-    height,
+    points,
     stroke,
     strokeWidth,
   };
 
   return (
     <>
-      <Rect
+      <Line
         onClick={onSelect}
         onTap={onSelect}
         ref={shapeRef}
@@ -57,31 +53,26 @@ export default function RectangleShape({
           });
         }}
         onTransformEnd={(e) => {
-          // transformer is changing scale of the node
-          // and NOT its width or height
-          // but in the store we have only width and height
-          // to match the data better we will reset scale on transform end
           const node = shapeRef.current;
           if (node) {
             const scaleX = node.scaleX();
             const scaleY = node.scaleY();
 
-            // we will reset it back
+            // Reset scale to 1
             node.scaleX(1);
             node.scaleY(1);
+
+            const newPoints = node
+              .points()
+              .map((point, index) =>
+                index % 2 === 0 ? point * scaleX : point * scaleY
+              );
+
             onChange({
               ...selectedProps,
               x: node.x(),
               y: node.y(),
-              // set minimal value
-              width: Math.max(
-                5,
-                (selectedProps.width ?? node.width()) * scaleX
-              ),
-              height: Math.max(
-                5,
-                (selectedProps.height ?? node.height()) * scaleY
-              ),
+              points: newPoints,
             });
           }
         }}
@@ -89,6 +80,7 @@ export default function RectangleShape({
       {isSelected && (
         <Transformer
           ref={trRef}
+          enabledAnchors={["top-left", "top-right"]}
           flipEnabled={false}
           boundBoxFunc={(oldBox, newBox) => {
             // limit resize

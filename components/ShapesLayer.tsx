@@ -1,8 +1,9 @@
-import { MutableRefObject, useState } from "react";
-import { Stage, Layer } from "react-konva";
+import { MutableRefObject } from "react";
+import { Layer } from "react-konva";
 import { ShapeType, StageSizeType } from "./Canvas";
 import RectangleShape from "./shapes/RectangleShape";
 import EllipseShape from "./shapes/EllipseShape";
+import LineShape from "./shapes/LineShape";
 
 type ShapesLayerProps = {
   shapes: ShapeType[];
@@ -17,17 +18,11 @@ type ShapesLayerProps = {
 };
 
 export default function ShapesLayer({
-  tool,
   shapes,
   setShapes,
-  color,
-  strokeWidth,
-  stageSize,
-  isFreeDrawing,
   selectedShapeId,
   setSelectedShapeId,
 }: ShapesLayerProps) {
-
   function onShapeChange(newAttrs: Partial<ShapeType>, i: number) {
     console.log(newAttrs);
     const newShapes = shapes.slice(); // Create a shallow copy of the shapes array
@@ -35,43 +30,26 @@ export default function ShapesLayer({
     setShapes(newShapes);
   }
 
-  return (
-    <Layer>
-      {shapes.map((shape, i) => {
-        switch (shape.shapeName) {
-          case "rectangle":
-            return (
-              <RectangleShape
-                key={shape.id}
-                shapeProps={shape}
-                isSelected={shape.id === selectedShapeId}
-                onSelect={() => {
-                  setSelectedShapeId(shape.id);
-                }}
-                onChange={(newAttrs: Partial<ShapeType>) =>
-                  onShapeChange(newAttrs, i)
-                }
-              />
-            );
-          case "ellipse":
-            return (
-              <EllipseShape
-                shapeProps={shape}
-                key={shape.id}
-                isSelected={shape.id === selectedShapeId}
-                onSelect={() => {
-                  setSelectedShapeId(shape.id);
-                }}
-                onChange={(newAttrs: Partial<ShapeType>) =>
-                  onShapeChange(newAttrs, i)
-                }
-              />
-            );
-          default:
-            console.warn(`Unknown shape: ${shape.shapeName}`);
-            return null;
-        }
-      })}
-    </Layer>
-  );
+  const renderShape = (shape: ShapeType, i: number) => {
+    const commonProps = {
+      shapeProps: shape,
+      isSelected: shape.id === selectedShapeId,
+      onSelect: () => setSelectedShapeId(shape.id),
+      onChange: (newAttrs: Partial<ShapeType>) => onShapeChange(newAttrs, i),
+    };
+
+    switch (shape.shapeName) {
+      case "rectangle":
+        return <RectangleShape key={shape.id} {...commonProps} />;
+      case "ellipse":
+        return <EllipseShape key={shape.id} {...commonProps} />;
+      case "line":
+        return <LineShape key={shape.id} {...commonProps} />;
+      default:
+        console.warn(`Unknown shape: ${shape.shapeName}`);
+        return null;
+    }
+  };
+
+  return <Layer>{shapes.map((shape, i) => renderShape(shape, i))}</Layer>;
 }

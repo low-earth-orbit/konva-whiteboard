@@ -17,12 +17,13 @@ export interface LineType {
 export interface ShapeType {
   shapeName: string;
   id: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  radiusX: number;
-  radiusY: number;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  radiusX?: number;
+  radiusY?: number;
+  points?: number[];
   fill?: string;
   stroke: string;
   strokeWidth: number;
@@ -49,22 +50,65 @@ export default function Canvas() {
 
   const addShape = (shapeName: string) => {
     const newShapeId = uuid();
-    setShapes([
-      ...shapes,
-      {
-        shapeName: shapeName,
-        id: newShapeId,
-        x: stageSize ? stageSize.width / 2 - 100 : 0,
-        y: stageSize ? stageSize.height / 2 - 50 : 0,
-        width: 200,
-        height: 100,
-        radiusX: 50,
-        radiusY: 50,
-        stroke: color,
-        strokeWidth: strokeWidth,
-        fill: undefined, // TODO
-      },
-    ]);
+
+    switch (shapeName) {
+      case "rectangle":
+        setShapes([
+          ...shapes,
+          {
+            shapeName: shapeName,
+            id: newShapeId,
+            x: stageSize ? stageSize.width / 2 - 100 : 0,
+            y: stageSize ? stageSize.height / 2 - 50 : 0,
+            width: 200,
+            height: 100,
+            stroke: color,
+            strokeWidth: strokeWidth,
+          },
+        ]);
+        break;
+
+      case "ellipse":
+        console.log("inside ellipse case");
+        console.log("shapes = ", shapes);
+        setShapes([
+          ...shapes,
+          {
+            shapeName: shapeName,
+            id: newShapeId,
+            x: stageSize ? stageSize.width / 2 : 0,
+            y: stageSize ? stageSize.height / 2 : 0,
+            radiusX: 100,
+            radiusY: 100,
+            stroke: color,
+            strokeWidth: strokeWidth,
+          },
+        ]);
+        break;
+
+      case "line":
+        setShapes([
+          ...shapes,
+          {
+            shapeName: shapeName,
+            id: newShapeId,
+            points: [
+              stageSize ? stageSize.width / 2 - 50: 0,
+              stageSize ? stageSize.height / 2 : 0,
+              stageSize ? stageSize.width / 2 + 50 : 0,
+              stageSize ? stageSize.height / 2 : 0,
+            ],
+            stroke: color,
+            strokeWidth: strokeWidth,
+          },
+        ]);
+        break;
+
+      default:
+        console.warn(`Unknown shapeName: ${shapeName}`);
+        break;
+    }
+
     setSelectedShapeId(newShapeId);
   };
 

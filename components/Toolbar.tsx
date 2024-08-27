@@ -16,6 +16,7 @@ import { useState } from "react";
 import LineWeightRoundedIcon from "@mui/icons-material/LineWeightRounded";
 import CropSquareRoundedIcon from "@mui/icons-material/CropSquareRounded";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
+import HorizontalRuleRoundedIcon from "@mui/icons-material/HorizontalRuleRounded";
 
 function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
   const { children, value } = props;
@@ -96,16 +97,22 @@ function Toolbar({
 
         {/* shapes */}
         <IconButton
-          aria-label="add rectangle"
+          aria-label="add a rectangle"
           onClick={() => handleAddShape("rectangle")}
         >
           <CropSquareRoundedIcon />
         </IconButton>
         <IconButton
-          aria-label="add ellipse"
+          aria-label="add an ellipse"
           onClick={() => handleAddShape("ellipse")}
         >
           <CircleOutlinedIcon />
+        </IconButton>
+        <IconButton
+          aria-label="add a line"
+          onClick={() => handleAddShape("line")}
+        >
+          <HorizontalRuleRoundedIcon />
         </IconButton>
 
         {/* line weight */}

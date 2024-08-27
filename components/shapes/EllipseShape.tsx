@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Ellipse, Transformer } from "react-konva";
 import { ShapeType } from "../Canvas";
-import { Node } from "konva/lib/Node";
 import Konva from "konva";
 
 type EllipseShapeProps = {
@@ -28,19 +27,33 @@ export default function EllipseShape({
     }
   }, [isSelected]);
 
+  const { shapeName, id, x, y, radiusX, radiusY, stroke, strokeWidth } =
+    shapeProps;
+
+  const selectedProps = {
+    shapeName,
+    id,
+    x,
+    y,
+    radiusX,
+    radiusY,
+    stroke,
+    strokeWidth,
+  };
+
   return (
     <>
       <Ellipse
         onClick={onSelect}
         onTap={onSelect}
         ref={shapeRef}
-        {...shapeProps}
+        {...selectedProps}
         draggable
-        radiusX={shapeProps.radiusX!}
-        radiusY={shapeProps.radiusY!}
+        radiusX={selectedProps.radiusX!}
+        radiusY={selectedProps.radiusY!}
         onDragEnd={(e) => {
           onChange({
-            ...shapeProps,
+            ...selectedProps,
             x: e.target.x(),
             y: e.target.y(),
           });
@@ -60,19 +73,17 @@ export default function EllipseShape({
             node.scaleY(1);
 
             onChange({
-              ...shapeProps,
+              ...selectedProps,
               x: node.x(),
               y: node.y(),
               // set minimal value
               radiusX: Math.max(
                 5,
-                shapeProps.strokeWidth!,
-                (shapeProps.radiusX ?? node.width() / 2) * scaleX
+                (selectedProps.radiusX ?? node.width() / 2) * scaleX
               ),
               radiusY: Math.max(
                 5,
-                shapeProps.strokeWidth!,
-                (shapeProps.radiusY ?? node.height() / 2) * scaleY
+                (selectedProps.radiusY ?? node.height() / 2) * scaleY
               ),
             });
           }
