@@ -15,12 +15,15 @@ export interface LineType {
 }
 
 export interface ShapeType {
+  shapeName: string;
   id: string;
-  // shapeType: string;
   x: number;
   y: number;
   width: number;
   height: number;
+  radiusX: number;
+  radiusY: number;
+  fill?: string;
   stroke: string;
   strokeWidth: number;
 }
@@ -44,19 +47,25 @@ export default function Canvas() {
 
   const [selectedShapeId, setSelectedShapeId] = useState<string>("");
 
-  const addRectangle = () => {
+  const addShape = (shapeName: string) => {
+    const newShapeId = uuid();
     setShapes([
       ...shapes,
       {
-        id: uuid(),
+        shapeName: shapeName,
+        id: newShapeId,
         x: stageSize ? stageSize.width / 2 - 100 : 0,
         y: stageSize ? stageSize.height / 2 - 50 : 0,
         width: 200,
         height: 100,
+        radiusX: 50,
+        radiusY: 50,
         stroke: color,
         strokeWidth: strokeWidth,
+        fill: undefined, // TODO
       },
     ]);
+    setSelectedShapeId(newShapeId);
   };
 
   function resetCanvas() {
@@ -166,7 +175,7 @@ export default function Canvas() {
         resetCanvas={resetCanvas}
         strokeWidth={strokeWidth}
         setStrokeWidth={setStrokeWidth}
-        handleAddRectangle={addRectangle}
+        handleAddShape={addShape}
       />
     </>
   );

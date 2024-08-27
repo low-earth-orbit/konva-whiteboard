@@ -15,6 +15,7 @@ import { HexColorPicker } from "react-colorful";
 import { useState } from "react";
 import LineWeightRoundedIcon from "@mui/icons-material/LineWeightRounded";
 import CropSquareRoundedIcon from "@mui/icons-material/CropSquareRounded";
+import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 
 function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
   const { children, value } = props;
@@ -33,7 +34,7 @@ type ToolbarProps = {
   selectColor: (newColor: string) => void;
   strokeWidth: number;
   setStrokeWidth: (newWidth: number) => void;
-  handleAddRectangle: () => void;
+  handleAddShape: (shapeName: string) => void;
 };
 
 function Toolbar({
@@ -43,7 +44,7 @@ function Toolbar({
   selectColor,
   strokeWidth,
   setStrokeWidth,
-  handleAddRectangle,
+  handleAddShape,
 }: ToolbarProps) {
   // color picker
   const [colorPickerAnchorEl, setColorPickerAnchorEl] =
@@ -94,8 +95,17 @@ function Toolbar({
         </IconButton>
 
         {/* shapes */}
-        <IconButton aria-label="add rectangle" onClick={handleAddRectangle}>
+        <IconButton
+          aria-label="add rectangle"
+          onClick={() => handleAddShape("rectangle")}
+        >
           <CropSquareRoundedIcon />
+        </IconButton>
+        <IconButton
+          aria-label="add ellipse"
+          onClick={() => handleAddShape("ellipse")}
+        >
+          <CircleOutlinedIcon />
         </IconButton>
 
         {/* line weight */}
