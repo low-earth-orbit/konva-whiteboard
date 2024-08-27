@@ -212,19 +212,28 @@ function Toolbar({
         {/* shapes */}
         <IconButton
           aria-label="add a rectangle"
-          onClick={() => handleAddShape("rectangle")}
+          onClick={() => {
+            handleAddShape("rectangle");
+            handleCloseShapesPopover();
+          }}
         >
           <CropSquareRoundedIcon />
         </IconButton>
         <IconButton
           aria-label="add an ellipse"
-          onClick={() => handleAddShape("ellipse")}
+          onClick={() => {
+            handleAddShape("ellipse");
+            handleCloseShapesPopover();
+          }}
         >
           <CircleOutlinedIcon />
         </IconButton>
         <IconButton
           aria-label="add a line"
-          onClick={() => handleAddShape("line")}
+          onClick={() => {
+            handleAddShape("line");
+            handleCloseShapesPopover();
+          }}
         >
           <HorizontalRuleRoundedIcon />
         </IconButton>
