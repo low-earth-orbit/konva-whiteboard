@@ -2,7 +2,7 @@
 
 A whiteboard app made with Konva library.
 
-Latest deployed version: [Click Me](https://whiteboard.leohong.dev)
+Demo: [Click Me](https://whiteboard.leohong.dev)
 
 ## Tech
 

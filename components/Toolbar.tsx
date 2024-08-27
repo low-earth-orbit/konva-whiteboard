@@ -17,6 +17,7 @@ import LineWeightRoundedIcon from "@mui/icons-material/LineWeightRounded";
 import CropSquareRoundedIcon from "@mui/icons-material/CropSquareRounded";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import HorizontalRuleRoundedIcon from "@mui/icons-material/HorizontalRuleRounded";
+import ShapeLineOutlinedIcon from "@mui/icons-material/ShapeLineOutlined";
 
 function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
   const { children, value } = props;
@@ -51,6 +52,8 @@ function Toolbar({
   const [colorPickerAnchorEl, setColorPickerAnchorEl] =
     useState<HTMLButtonElement | null>(null);
 
+  const isColorPickerAnchorElOpen = Boolean(colorPickerAnchorEl);
+
   const handleClickColorPickerButton = (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
@@ -61,11 +64,27 @@ function Toolbar({
     setColorPickerAnchorEl(null);
   };
 
-  const isColorPickerAnchorElOpen = Boolean(colorPickerAnchorEl);
+  // shapes
+  const [shapesAnchorEl, setShapesAnchorEl] =
+    useState<HTMLButtonElement | null>(null);
 
-  // line weight
+  const isShapesAnchorElOpen = Boolean(shapesAnchorEl);
+
+  const handleClickShapesButton = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    setShapesAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseShapesPopover = () => {
+    setShapesAnchorEl(null);
+  };
+
+  // stroke width
   const [lineWeightAnchorEl, setLineWeightAnchorEl] =
     useState<HTMLButtonElement | null>(null);
+
+  const isLineWeightSliderAnchorElOpen = Boolean(lineWeightAnchorEl);
 
   const handleClickLineWeightButton = (
     event: React.MouseEvent<HTMLButtonElement>
@@ -80,9 +99,6 @@ function Toolbar({
   const handleChangeStrokeWidth = (value: number) => {
     setStrokeWidth(value);
   };
-
-  const isLineWeightSliderAnchorElOpen = Boolean(lineWeightAnchorEl);
-
   return (
     <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 bg-white">
       <ButtonGroup
@@ -97,22 +113,10 @@ function Toolbar({
 
         {/* shapes */}
         <IconButton
-          aria-label="add a rectangle"
-          onClick={() => handleAddShape("rectangle")}
+          aria-label="open to select a shape"
+          onClick={handleClickShapesButton}
         >
-          <CropSquareRoundedIcon />
-        </IconButton>
-        <IconButton
-          aria-label="add an ellipse"
-          onClick={() => handleAddShape("ellipse")}
-        >
-          <CircleOutlinedIcon />
-        </IconButton>
-        <IconButton
-          aria-label="add a line"
-          onClick={() => handleAddShape("line")}
-        >
-          <HorizontalRuleRoundedIcon />
+          <ShapeLineOutlinedIcon />
         </IconButton>
 
         {/* line weight */}
@@ -142,6 +146,7 @@ function Toolbar({
         </IconButton>
       </ButtonGroup>
 
+      {/* colorPickerPopover */}
       <Popover
         id="colorPickerPopover"
         open={isColorPickerAnchorElOpen}
@@ -159,6 +164,7 @@ function Toolbar({
         <HexColorPicker className="p-2" color={color} onChange={selectColor} />
       </Popover>
 
+      {/* lineWeightPopover */}
       <Popover
         id="lineWeightPopover"
         open={isLineWeightSliderAnchorElOpen}
@@ -186,6 +192,42 @@ function Toolbar({
             onChange={(_, value) => handleChangeStrokeWidth(value as number)}
           />
         </Box>
+      </Popover>
+
+      {/* shapesPopover */}
+      <Popover
+        id="shapesPopover"
+        open={isShapesAnchorElOpen}
+        anchorEl={shapesAnchorEl}
+        onClose={handleCloseShapesPopover}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+      >
+        {/* shapes */}
+        <IconButton
+          aria-label="add a rectangle"
+          onClick={() => handleAddShape("rectangle")}
+        >
+          <CropSquareRoundedIcon />
+        </IconButton>
+        <IconButton
+          aria-label="add an ellipse"
+          onClick={() => handleAddShape("ellipse")}
+        >
+          <CircleOutlinedIcon />
+        </IconButton>
+        <IconButton
+          aria-label="add a line"
+          onClick={() => handleAddShape("line")}
+        >
+          <HorizontalRuleRoundedIcon />
+        </IconButton>
       </Popover>
     </div>
   );
