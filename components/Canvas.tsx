@@ -15,12 +15,16 @@ export interface LineType {
 }
 
 export interface ShapeType {
+  shapeName: string;
   id: string;
-  // shapeType: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  radiusX?: number;
+  radiusY?: number;
+  points?: number[];
+  fill?: string;
   stroke: string;
   strokeWidth: number;
 }
@@ -35,7 +39,7 @@ export default function Canvas() {
   const [lines, setLines] = useState<LineType[]>([]);
   const [shapes, setShapes] = useState<ShapeType[]>([]);
 
-  const [color, setColor] = useState<string>("#0000FF");
+  const [strokeColor, setStrokeColor] = useState<string>("#0000FF");
   const [strokeWidth, setStrokeWidth] = useState<number>(5);
 
   const [stageSize, setStageSize] = useState<StageSizeType>();
@@ -44,19 +48,88 @@ export default function Canvas() {
 
   const [selectedShapeId, setSelectedShapeId] = useState<string>("");
 
-  const addRectangle = () => {
-    setShapes([
-      ...shapes,
-      {
-        id: uuid(),
-        x: stageSize ? stageSize.width / 2 - 100 : 0,
-        y: stageSize ? stageSize.height / 2 - 50 : 0,
-        width: 200,
-        height: 100,
-        stroke: color,
-        strokeWidth: strokeWidth,
-      },
-    ]);
+  function updateShapeProperty(property: keyof ShapeType, value: any) {
+    // Dynamically update state
+    if (property === "strokeWidth") {
+      setStrokeWidth(value);
+    } else if (property === "stroke") {
+      setStrokeColor(value);
+    }
+
+    // Update shape property
+    if (selectedShapeId !== "") {
+      setShapes((prevShapes) => {
+        return prevShapes.map((shape) =>
+          shape.id === selectedShapeId
+            ? { ...shape, [property]: value } // Update the selected shape property
+            : shape
+        );
+      });
+    }
+  }
+
+  const addShape = (shapeName: string) => {
+    const newShapeId = uuid();
+
+    switch (shapeName) {
+      case "rectangle":
+        setShapes([
+          ...shapes,
+          {
+            shapeName: shapeName,
+            id: newShapeId,
+            x: stageSize ? stageSize.width / 2 - 100 : 0,
+            y: stageSize ? stageSize.height / 2 - 50 : 0,
+            width: 200,
+            height: 100,
+            stroke: strokeColor,
+            strokeWidth: strokeWidth,
+          },
+        ]);
+        break;
+
+      case "ellipse":
+        console.log("inside ellipse case");
+        console.log("shapes = ", shapes);
+        setShapes([
+          ...shapes,
+          {
+            shapeName: shapeName,
+            id: newShapeId,
+            x: stageSize ? stageSize.width / 2 : 0,
+            y: stageSize ? stageSize.height / 2 : 0,
+            radiusX: 100,
+            radiusY: 100,
+            stroke: strokeColor,
+            strokeWidth: strokeWidth,
+          },
+        ]);
+        break;
+
+      case "line":
+        setShapes([
+          ...shapes,
+          {
+            shapeName: shapeName,
+            id: newShapeId,
+            points: [
+              stageSize ? stageSize.width / 2 - 50 : 0,
+              stageSize ? stageSize.height / 2 : 0,
+              stageSize ? stageSize.width / 2 + 50 : 0,
+              stageSize ? stageSize.height / 2 : 0,
+            ],
+            stroke: strokeColor,
+            strokeWidth: strokeWidth,
+          },
+        ]);
+        break;
+
+      default:
+        console.warn(`Unknown shapeName: ${shapeName}`);
+        break;
+    }
+
+    setSelectedShapeId(newShapeId);
   };
 
   function resetCanvas() {
@@ -95,7 +168,7 @@ export default function Canvas() {
         {
           tool,
           points: [pos.x, pos.y],
-          stroke: color,
+          stroke: strokeColor,
           strokeWidth: strokeWidth,
         },
       ]);
@@ -138,35 +211,37 @@ export default function Canvas() {
         onMouseup={handleMouseUp}
         onTouchStart={handleMouseDown}
       >
+        <FreeDrawLayer
+          lines={lines}
+          setLines={setLines}
+          tool={tool}
+          color={strokeColor}
+          strokeWidth={strokeWidth}
+          stageSize={stageSize}
+          isFreeDrawing={isFreeDrawing}
+        />
         <ShapesLayer
           shapes={shapes}
           setShapes={setShapes}
           tool={tool}
-          color={color}
+          color={strokeColor}
           strokeWidth={strokeWidth}
           stageSize={stageSize}
           isFreeDrawing={isFreeDrawing}
           selectedShapeId={selectedShapeId}
           setSelectedShapeId={setSelectedShapeId}
         />
-        <FreeDrawLayer
-          lines={lines}
-          setLines={setLines}
-          tool={tool}
-          color={color}
-          strokeWidth={strokeWidth}
-          stageSize={stageSize}
-          isFreeDrawing={isFreeDrawing}
-        />
       </Stage>
       <Toolbar
         selectTool={setTool}
-        color={color}
-        selectColor={setColor}
+        color={strokeColor}
+        selectColor={(newColor) => updateShapeProperty("stroke", newColor)}
         resetCanvas={resetCanvas}
         strokeWidth={strokeWidth}
-        setStrokeWidth={setStrokeWidth}
-        handleAddRectangle={addRectangle}
+        setStrokeWidth={(newWidth) =>
+          updateShapeProperty("strokeWidth", newWidth)
+        }
+        handleAddShape={addShape}
       />
     </>
   );

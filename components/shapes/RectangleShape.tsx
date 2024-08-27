@@ -1,33 +1,45 @@
-import React, { useEffect } from "react";
-import { createRoot } from "react-dom/client";
-import { Stage, Layer, Rect, Transformer } from "react-konva";
+import React, { useEffect, useRef } from "react";
+import { Rect, Transformer } from "react-konva";
 import { ShapeType } from "../Canvas";
-import { Node } from "konva/lib/Node";
 import Konva from "konva";
 
-type RectangleProps = {
-  shapeProps: ShapeType;
+type RectangleShapeProps = {
+  shapeProps: Partial<ShapeType>;
   isSelected: boolean;
   onSelect: () => void;
-  onChange: (newAttrs: ShapeType) => void;
+  onChange: (newAttrs: Partial<ShapeType>) => void;
 };
 
-export default function Rectangle({
+export default function RectangleShape({
   shapeProps,
   isSelected,
   onSelect,
   onChange,
-}: RectangleProps) {
-  const shapeRef = React.useRef<Konva.Rect>(null);
-  const trRef = React.useRef<Konva.Transformer>(null);
+}: RectangleShapeProps) {
+  const shapeRef = useRef<Konva.Rect>(null);
+  const trRef = useRef<Konva.Transformer>(null);
 
   useEffect(() => {
-    if (isSelected && trRef.current) {
+    if (isSelected && trRef.current && shapeRef.current) {
       // we need to attach transformer manually
-      trRef.current.nodes([shapeRef.current as unknown as Node]);
+      trRef.current.nodes([shapeRef.current]);
       trRef.current.getLayer()?.batchDraw();
     }
   }, [isSelected]);
+
+  const { shapeName, id, x, y, width, height, stroke, strokeWidth } =
+    shapeProps;
+
+  const selectedProps = {
+    shapeName,
+    id,
+    x,
+    y,
+    width,
+    height,
+    stroke,
+    strokeWidth,
+  };
 
   return (
     <>
@@ -35,11 +47,12 @@ export default function Rectangle({
         onClick={onSelect}
         onTap={onSelect}
         ref={shapeRef}
-        {...shapeProps}
+        {...selectedProps}
         draggable
+        lineJoin="round" // round corners
         onDragEnd={(e) => {
           onChange({
-            ...shapeProps,
+            ...selectedProps,
             x: e.target.x(),
             y: e.target.y(),
           });
@@ -49,7 +62,7 @@ export default function Rectangle({
           // and NOT its width or height
           // but in the store we have only width and height
           // to match the data better we will reset scale on transform end
-          const node: Node = shapeRef.current as unknown as Node;
+          const node = shapeRef.current;
           if (node) {
             const scaleX = node.scaleX();
             const scaleY = node.scaleY();
@@ -58,12 +71,18 @@ export default function Rectangle({
             node.scaleX(1);
             node.scaleY(1);
             onChange({
-              ...shapeProps,
+              ...selectedProps,
               x: node.x(),
               y: node.y(),
               // set minimal value
-              width: Math.max(5, node.width() * scaleX),
-              height: Math.max(node.height() * scaleY),
+              width: Math.max(
+                5,
+                (selectedProps.width ?? node.width()) * scaleX
+              ),
+              height: Math.max(
+                5,
+                (selectedProps.height ?? node.height()) * scaleY
+              ),
             });
           }
         }}
