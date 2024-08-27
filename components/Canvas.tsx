@@ -39,7 +39,7 @@ export default function Canvas() {
   const [lines, setLines] = useState<LineType[]>([]);
   const [shapes, setShapes] = useState<ShapeType[]>([]);
 
-  const [color, setColor] = useState<string>("#0000FF");
+  const [strokeColor, setStrokeColor] = useState<string>("#0000FF");
   const [strokeWidth, setStrokeWidth] = useState<number>(5);
 
   const [stageSize, setStageSize] = useState<StageSizeType>();
@@ -47,6 +47,26 @@ export default function Canvas() {
   const isFreeDrawing = useRef<boolean>(false);
 
   const [selectedShapeId, setSelectedShapeId] = useState<string>("");
+
+  function updateShapeProperty(property: keyof ShapeType, value: any) {
+    // Dynamically update state
+    if (property === "strokeWidth") {
+      setStrokeWidth(value);
+    } else if (property === "stroke") {
+      setStrokeColor(value);
+    }
+
+    // Update shape property
+    if (selectedShapeId !== "") {
+      setShapes((prevShapes) => {
+        return prevShapes.map((shape) =>
+          shape.id === selectedShapeId
+            ? { ...shape, [property]: value } // Update the selected shape property
+            : shape
+        );
+      });
+    }
+  }
 
   const addShape = (shapeName: string) => {
     const newShapeId = uuid();
@@ -62,7 +82,7 @@ export default function Canvas() {
             y: stageSize ? stageSize.height / 2 - 50 : 0,
             width: 200,
             height: 100,
-            stroke: color,
+            stroke: strokeColor,
             strokeWidth: strokeWidth,
           },
         ]);
@@ -80,7 +100,7 @@ export default function Canvas() {
             y: stageSize ? stageSize.height / 2 : 0,
             radiusX: 100,
             radiusY: 100,
-            stroke: color,
+            stroke: strokeColor,
             strokeWidth: strokeWidth,
           },
         ]);
@@ -93,12 +113,12 @@ export default function Canvas() {
             shapeName: shapeName,
             id: newShapeId,
             points: [
-              stageSize ? stageSize.width / 2 - 50: 0,
+              stageSize ? stageSize.width / 2 - 50 : 0,
               stageSize ? stageSize.height / 2 : 0,
               stageSize ? stageSize.width / 2 + 50 : 0,
               stageSize ? stageSize.height / 2 : 0,
             ],
-            stroke: color,
+            stroke: strokeColor,
             strokeWidth: strokeWidth,
           },
         ]);
@@ -148,7 +168,7 @@ export default function Canvas() {
         {
           tool,
           points: [pos.x, pos.y],
-          stroke: color,
+          stroke: strokeColor,
           strokeWidth: strokeWidth,
         },
       ]);
@@ -195,7 +215,7 @@ export default function Canvas() {
           lines={lines}
           setLines={setLines}
           tool={tool}
-          color={color}
+          color={strokeColor}
           strokeWidth={strokeWidth}
           stageSize={stageSize}
           isFreeDrawing={isFreeDrawing}
@@ -204,7 +224,7 @@ export default function Canvas() {
           shapes={shapes}
           setShapes={setShapes}
           tool={tool}
-          color={color}
+          color={strokeColor}
           strokeWidth={strokeWidth}
           stageSize={stageSize}
           isFreeDrawing={isFreeDrawing}
@@ -214,11 +234,13 @@ export default function Canvas() {
       </Stage>
       <Toolbar
         selectTool={setTool}
-        color={color}
-        selectColor={setColor}
+        color={strokeColor}
+        selectColor={(newColor) => updateShapeProperty("stroke", newColor)}
         resetCanvas={resetCanvas}
         strokeWidth={strokeWidth}
-        setStrokeWidth={setStrokeWidth}
+        setStrokeWidth={(newWidth) =>
+          updateShapeProperty("strokeWidth", newWidth)
+        }
         handleAddShape={addShape}
       />
     </>
