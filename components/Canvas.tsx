@@ -138,6 +138,15 @@ export default function Canvas() {
         onMouseup={handleMouseUp}
         onTouchStart={handleMouseDown}
       >
+        <FreeDrawLayer
+          lines={lines}
+          setLines={setLines}
+          tool={tool}
+          color={color}
+          strokeWidth={strokeWidth}
+          stageSize={stageSize}
+          isFreeDrawing={isFreeDrawing}
+        />
         <ShapesLayer
           shapes={shapes}
           setShapes={setShapes}
@@ -148,15 +157,6 @@ export default function Canvas() {
           isFreeDrawing={isFreeDrawing}
           selectedShapeId={selectedShapeId}
           setSelectedShapeId={setSelectedShapeId}
-        />
-        <FreeDrawLayer
-          lines={lines}
-          setLines={setLines}
-          tool={tool}
-          color={color}
-          strokeWidth={strokeWidth}
-          stageSize={stageSize}
-          isFreeDrawing={isFreeDrawing}
         />
       </Stage>
       <Toolbar
