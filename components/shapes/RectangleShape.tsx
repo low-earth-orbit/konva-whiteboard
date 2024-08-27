@@ -49,6 +49,7 @@ export default function RectangleShape({
         ref={shapeRef}
         {...selectedProps}
         draggable
+        lineJoin="round" // round corners
         onDragEnd={(e) => {
           onChange({
             ...selectedProps,

@@ -45,6 +45,7 @@ export default function LineShape({
         ref={shapeRef}
         {...selectedProps}
         draggable
+        lineCap="round" // round ends
         onDragEnd={(e) => {
           onChange({
             ...selectedProps,
@@ -80,7 +81,7 @@ export default function LineShape({
       {isSelected && (
         <Transformer
           ref={trRef}
-          enabledAnchors={["top-left", "top-right"]}
+          enabledAnchors={["middle-right", "middle-left"]} // anchor at two ends
           flipEnabled={false}
           boundBoxFunc={(oldBox, newBox) => {
             // limit resize
