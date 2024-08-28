@@ -24,7 +24,6 @@ export default function ShapesLayer({
   setSelectedShapeId,
 }: ShapesLayerProps) {
   function onShapeChange(newAttrs: Partial<ShapeType>, i: number) {
-    console.log(newAttrs);
     const newShapes = shapes.slice(); // Create a shallow copy of the shapes array
     newShapes[i] = { ...newShapes[i], ...newAttrs }; // Update the specific shape with new attributes
     setShapes(newShapes);

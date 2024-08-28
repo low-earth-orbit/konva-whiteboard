@@ -18,6 +18,7 @@ import CropSquareRoundedIcon from "@mui/icons-material/CropSquareRounded";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import HorizontalRuleRoundedIcon from "@mui/icons-material/HorizontalRuleRounded";
 import ShapeLineOutlinedIcon from "@mui/icons-material/ShapeLineOutlined";
+import { LineType, ShapeType } from "./Canvas";
 
 function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
   const { children, value } = props;
@@ -30,20 +31,24 @@ function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
 }
 
 type ToolbarProps = {
-  selectTool: (tool: string) => void;
-  resetCanvas: () => void;
+  lines: LineType[];
+  shapes: ShapeType[];
+  onSelectTool: (tool: string) => void;
+  onDelete: () => void;
   color: string;
-  selectColor: (newColor: string) => void;
+  onSelectColor: (newColor: string) => void;
   strokeWidth: number;
   setStrokeWidth: (newWidth: number) => void;
   handleAddShape: (shapeName: string) => void;
 };
 
 function Toolbar({
-  selectTool,
-  resetCanvas,
+  lines,
+  shapes,
+  onSelectTool,
+  onDelete,
   color,
-  selectColor,
+  onSelectColor,
   strokeWidth,
   setStrokeWidth,
   handleAddShape,
@@ -99,7 +104,7 @@ function Toolbar({
   const handleChangeStrokeWidth = (value: number) => {
     setStrokeWidth(value);
   };
-  
+
   return (
     <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 bg-white">
       <ButtonGroup
@@ -108,7 +113,7 @@ function Toolbar({
         className="flex gap-2 p-1"
       >
         {/* pen */}
-        <IconButton aria-label="draw" onClick={() => selectTool("pen")}>
+        <IconButton aria-label="draw" onClick={() => onSelectTool("pen")}>
           <DrawIcon />
         </IconButton>
 
@@ -137,12 +142,17 @@ function Toolbar({
         </IconButton>
 
         {/* eraser */}
-        <IconButton aria-label="erase" onClick={() => selectTool("eraser")}>
+        <IconButton aria-label="erase" onClick={() => onSelectTool("eraser")}>
           <EraserIcon />
         </IconButton>
 
         {/* delete */}
-        <IconButton aria-label="delete everything" onClick={resetCanvas}>
+        <IconButton
+          aria-label="delete"
+          onClick={onDelete}
+          color="warning"
+          disabled={lines.length === 0 && shapes.length === 0}
+        >
           <DeleteIcon />
         </IconButton>
       </ButtonGroup>
@@ -162,7 +172,11 @@ function Toolbar({
           horizontal: "center",
         }}
       >
-        <HexColorPicker className="p-2" color={color} onChange={selectColor} />
+        <HexColorPicker
+          className="p-2"
+          color={color}
+          onChange={onSelectColor}
+        />
       </Popover>
 
       {/* lineWeightPopover */}

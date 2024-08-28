@@ -6,6 +6,7 @@ import FreeDrawLayer from "./FreeDrawLayer";
 import { v4 as uuid } from "uuid";
 import { Stage } from "react-konva";
 import ShapesLayer from "./ShapesLayer";
+import ConfirmationDialog from "./ComfirmationDialog";
 
 export interface LineType {
   tool: string;
@@ -89,8 +90,6 @@ export default function Canvas() {
         break;
 
       case "ellipse":
-        console.log("inside ellipse case");
-        console.log("shapes = ", shapes);
         setShapes([
           ...shapes,
           {
@@ -132,10 +131,28 @@ export default function Canvas() {
     setSelectedShapeId(newShapeId);
   };
 
+  function handleDelete() {
+    if (selectedShapeId === "") {
+      if (lines.length > 0 || shapes.length > 0) {
+        // open a modal that props the user to confirm this action will clear the canvas and can't be redone.
+        setOpen(() => true);
+      }
+    } else {
+      setShapes((prevShapes) =>
+        prevShapes.filter((shape) => shape.id !== selectedShapeId)
+      );
+      setSelectedShapeId(""); // reset the selected shape ID
+    }
+  }
+
   function resetCanvas() {
+    // reset canvas
     setLines([]);
     setShapes([]);
   }
+
+  // confirmation modal for delete button - clear canvas
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -233,15 +250,24 @@ export default function Canvas() {
         />
       </Stage>
       <Toolbar
-        selectTool={setTool}
+        lines={lines}
+        shapes={shapes}
+        onSelectTool={setTool}
         color={strokeColor}
-        selectColor={(newColor) => updateShapeProperty("stroke", newColor)}
-        resetCanvas={resetCanvas}
+        onSelectColor={(newColor) => updateShapeProperty("stroke", newColor)}
+        onDelete={handleDelete}
         strokeWidth={strokeWidth}
         setStrokeWidth={(newWidth) =>
           updateShapeProperty("strokeWidth", newWidth)
         }
         handleAddShape={addShape}
+      />
+      <ConfirmationDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        onConfirm={resetCanvas}
+        title="Clear Canvas"
+        description="Are you sure you want to clear the canvas? This action cannot be undone."
       />
     </>
   );
