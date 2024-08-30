@@ -18,7 +18,8 @@ import CropSquareRoundedIcon from "@mui/icons-material/CropSquareRounded";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import HorizontalRuleRoundedIcon from "@mui/icons-material/HorizontalRuleRounded";
 import ShapeLineOutlinedIcon from "@mui/icons-material/ShapeLineOutlined";
-import { LineType, ShapeType } from "./Canvas";
+import TextFieldsIcon from "@mui/icons-material/TextFields";
+import { CanvasObjectType, ShapeName, ToolType } from "./Canvas";
 
 function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
   const { children, value } = props;
@@ -31,27 +32,27 @@ function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
 }
 
 type ToolbarProps = {
-  lines: LineType[];
-  shapes: ShapeType[];
-  onSelectTool: (tool: string) => void;
+  objects: CanvasObjectType[];
+  setTool: (tool: ToolType) => void;
   onDelete: () => void;
   color: string;
   onSelectColor: (newColor: string) => void;
   strokeWidth: number;
   setStrokeWidth: (newWidth: number) => void;
-  handleAddShape: (shapeName: string) => void;
+  handleAddShape: (shapeName: ShapeName) => void;
+  handleAddTextField: () => void;
 };
 
 function Toolbar({
-  lines,
-  shapes,
-  onSelectTool,
+  objects,
+  setTool,
   onDelete,
   color,
   onSelectColor,
   strokeWidth,
   setStrokeWidth,
   handleAddShape,
+  handleAddTextField,
 }: ToolbarProps) {
   // color picker
   const [colorPickerAnchorEl, setColorPickerAnchorEl] =
@@ -113,8 +114,13 @@ function Toolbar({
         className="flex gap-2 p-1"
       >
         {/* pen */}
-        <IconButton aria-label="draw" onClick={() => onSelectTool("pen")}>
+        <IconButton aria-label="draw" onClick={() => setTool("pen")}>
           <DrawIcon />
+        </IconButton>
+
+        {/* text */}
+        <IconButton aria-label="add a text field" onClick={handleAddTextField}>
+          <TextFieldsIcon />
         </IconButton>
 
         {/* shapes */}
@@ -142,7 +148,7 @@ function Toolbar({
         </IconButton>
 
         {/* eraser */}
-        <IconButton aria-label="erase" onClick={() => onSelectTool("eraser")}>
+        <IconButton aria-label="erase" onClick={() => setTool("eraser")}>
           <EraserIcon />
         </IconButton>
 
@@ -151,7 +157,7 @@ function Toolbar({
           aria-label="delete"
           onClick={onDelete}
           color="warning"
-          disabled={lines.length === 0 && shapes.length === 0}
+          disabled={objects.length === 0}
         >
           <DeleteIcon />
         </IconButton>

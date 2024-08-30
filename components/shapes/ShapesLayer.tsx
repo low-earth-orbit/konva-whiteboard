@@ -1,40 +1,42 @@
 import { MutableRefObject } from "react";
 import { Layer } from "react-konva";
-import { ShapeType, StageSizeType } from "./Canvas";
-import RectangleShape from "./shapes/RectangleShape";
-import EllipseShape from "./shapes/EllipseShape";
-import LineShape from "./shapes/LineShape";
+import { CanvasObjectType, StageSizeType } from "../Canvas";
+import RectangleShape from "./RectangleShape";
+import EllipseShape from "./EllipseShape";
+import LineShape from "./LineShape";
 
 type ShapesLayerProps = {
-  shapes: ShapeType[];
-  setShapes: (newShapes: ShapeType[]) => void;
+  objects: CanvasObjectType[];
+  onChange: (
+    newAttrs: Partial<CanvasObjectType>,
+    selectedObjectId: string
+  ) => void;
   tool: string;
   color: string;
   strokeWidth: number;
   stageSize: StageSizeType;
   isFreeDrawing: MutableRefObject<boolean>;
-  selectedShapeId: string;
+  selectedObjectId: string;
   setSelectedShapeId: (id: string) => void;
 };
 
 export default function ShapesLayer({
-  shapes,
-  setShapes,
-  selectedShapeId,
+  objects,
+  onChange,
+  selectedObjectId,
   setSelectedShapeId,
 }: ShapesLayerProps) {
-  function onShapeChange(newAttrs: Partial<ShapeType>, i: number) {
-    const newShapes = shapes.slice(); // Create a shallow copy of the shapes array
-    newShapes[i] = { ...newShapes[i], ...newAttrs }; // Update the specific shape with new attributes
-    setShapes(newShapes);
-  }
+  const shapes = objects.filter(
+    (obj: CanvasObjectType) => obj.type === "shape"
+  );
 
-  const renderShape = (shape: ShapeType, i: number) => {
+  const renderShape = (shape: CanvasObjectType, i: number) => {
     const commonProps = {
       shapeProps: shape,
-      isSelected: shape.id === selectedShapeId,
+      isSelected: shape.id === selectedObjectId,
       onSelect: () => setSelectedShapeId(shape.id),
-      onChange: (newAttrs: Partial<ShapeType>) => onShapeChange(newAttrs, i),
+      onChange: (newAttrs: Partial<CanvasObjectType>) =>
+        onChange(newAttrs, shape.id),
     };
 
     switch (shape.shapeName) {

@@ -2,32 +2,32 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Toolbar from "./Toolbar";
-import FreeDrawLayer from "./FreeDrawLayer";
+import LinesLayer from "./lines/LinesLayer";
 import { v4 as uuid } from "uuid";
 import { Stage } from "react-konva";
-import ShapesLayer from "./ShapesLayer";
-import ConfirmationDialog from "./ComfirmationDialog";
+import ShapesLayer from "./shapes/ShapesLayer";
+import ConfirmationDialog from "./ConfirmationDialog";
+import TextFieldsLayer from "./textFields/TextFieldsLayer";
 
-export interface LineType {
-  tool: string;
-  points: number[];
-  stroke: string;
-  strokeWidth: number;
-}
-
-export interface ShapeType {
-  shapeName: string;
+export interface CanvasObjectType {
   id: string;
+  type: "line" | "shape" | "text";
+  tool?: ToolType;
+  shapeName?: ShapeName;
+  stroke: string;
+  strokeWidth?: number;
+  fill?: string;
+  points?: number[];
   x?: number;
   y?: number;
   width?: number;
   height?: number;
   radiusX?: number;
   radiusY?: number;
-  points?: number[];
-  fill?: string;
-  stroke: string;
-  strokeWidth: number;
+  text?: string;
+  fontSize?: number;
+  fontFamily?: string;
+  rotation?: number;
 }
 
 export interface StageSizeType {
@@ -35,121 +35,22 @@ export interface StageSizeType {
   height: number;
 }
 
-export default function Canvas() {
-  const [tool, setTool] = useState<string>("pen");
-  const [lines, setLines] = useState<LineType[]>([]);
-  const [shapes, setShapes] = useState<ShapeType[]>([]);
+export type ToolType = "eraser" | "pen";
 
+export type ShapeName = "rectangle" | "line" | "ellipse";
+
+export default function Canvas() {
+  const [stageSize, setStageSize] = useState<StageSizeType>();
+
+  const [tool, setTool] = useState<ToolType>("pen");
   const [strokeColor, setStrokeColor] = useState<string>("#0000FF");
   const [strokeWidth, setStrokeWidth] = useState<number>(5);
 
-  const [stageSize, setStageSize] = useState<StageSizeType>();
-
   const isFreeDrawing = useRef<boolean>(false);
 
-  const [selectedShapeId, setSelectedShapeId] = useState<string>("");
+  const [canvasObjects, setCanvasObjects] = useState<CanvasObjectType[]>([]);
 
-  function updateShapeProperty(property: keyof ShapeType, value: any) {
-    // Dynamically update state
-    if (property === "strokeWidth") {
-      setStrokeWidth(value);
-    } else if (property === "stroke") {
-      setStrokeColor(value);
-    }
-
-    // Update shape property
-    if (selectedShapeId !== "") {
-      setShapes((prevShapes) => {
-        return prevShapes.map((shape) =>
-          shape.id === selectedShapeId
-            ? { ...shape, [property]: value } // Update the selected shape property
-            : shape
-        );
-      });
-    }
-  }
-
-  const addShape = (shapeName: string) => {
-    const newShapeId = uuid();
-
-    switch (shapeName) {
-      case "rectangle":
-        setShapes([
-          ...shapes,
-          {
-            shapeName: shapeName,
-            id: newShapeId,
-            x: stageSize ? stageSize.width / 2 - 100 : 0,
-            y: stageSize ? stageSize.height / 2 - 50 : 0,
-            width: 200,
-            height: 100,
-            stroke: strokeColor,
-            strokeWidth: strokeWidth,
-          },
-        ]);
-        break;
-
-      case "ellipse":
-        setShapes([
-          ...shapes,
-          {
-            shapeName: shapeName,
-            id: newShapeId,
-            x: stageSize ? stageSize.width / 2 : 0,
-            y: stageSize ? stageSize.height / 2 : 0,
-            radiusX: 100,
-            radiusY: 100,
-            stroke: strokeColor,
-            strokeWidth: strokeWidth,
-          },
-        ]);
-        break;
-
-      case "line":
-        setShapes([
-          ...shapes,
-          {
-            shapeName: shapeName,
-            id: newShapeId,
-            points: [
-              stageSize ? stageSize.width / 2 - 50 : 0,
-              stageSize ? stageSize.height / 2 : 0,
-              stageSize ? stageSize.width / 2 + 50 : 0,
-              stageSize ? stageSize.height / 2 : 0,
-            ],
-            stroke: strokeColor,
-            strokeWidth: strokeWidth,
-          },
-        ]);
-        break;
-
-      default:
-        console.warn(`Unknown shapeName: ${shapeName}`);
-        break;
-    }
-
-    setSelectedShapeId(newShapeId);
-  };
-
-  function handleDelete() {
-    if (selectedShapeId === "") {
-      if (lines.length > 0 || shapes.length > 0) {
-        // open a modal that props the user to confirm this action will clear the canvas and can't be redone.
-        setOpen(() => true);
-      }
-    } else {
-      setShapes((prevShapes) =>
-        prevShapes.filter((shape) => shape.id !== selectedShapeId)
-      );
-      setSelectedShapeId(""); // reset the selected shape ID
-    }
-  }
-
-  function resetCanvas() {
-    // reset canvas
-    setLines([]);
-    setShapes([]);
-  }
+  const [selectedObjectId, setSelectedObjectId] = useState<string>("");
 
   // confirmation modal for delete button - clear canvas
   const [open, setOpen] = useState(false);
@@ -171,47 +72,165 @@ export default function Canvas() {
     };
   }, []);
 
+  function updateStyle(property: keyof CanvasObjectType, value: any) {
+    // Dynamically update state
+    if (property === "strokeWidth") {
+      setStrokeWidth(value);
+    } else if (property === "stroke") {
+      setStrokeColor(value);
+    }
+
+    // Update object property
+    if (selectedObjectId !== "") {
+      setCanvasObjects((prevObjects) =>
+        prevObjects.map((object) =>
+          object.id === selectedObjectId
+            ? { ...object, [property]: value } // Update the selected property
+            : object
+        )
+      );
+    }
+  }
+
+  function updateSelectedObject(
+    newAttrs: Partial<CanvasObjectType>,
+    selectedObjectId: string
+  ) {
+    setCanvasObjects((prevObjects) =>
+      prevObjects.map((object: CanvasObjectType) =>
+        object.id === selectedObjectId
+          ? { ...object, ...newAttrs } // Merge newAttrs with the existing object
+          : object
+      )
+    );
+  }
+
+  const addTextField = () => {
+    const newObjectId = uuid();
+    let newObject: CanvasObjectType = {
+      id: newObjectId,
+      type: "text" as const,
+      x: stageSize ? stageSize.width / 2 - 250 : 0,
+      y: stageSize ? stageSize.height / 2 - 100 : 0,
+      width: 500,
+      height: 100,
+      stroke: strokeColor,
+      // strokeWidth not applied to text field for now
+      text: "Double click to edit.",
+      fontSize: 28,
+      fontFamily: "Arial",
+    };
+    setCanvasObjects([...canvasObjects, newObject]);
+    setSelectedObjectId(newObjectId);
+  };
+
+  const addShape = (shapeName: ShapeName) => {
+    const newShapeId = uuid();
+    const baseShape = {
+      id: newShapeId,
+      shapeName,
+      type: "shape" as const,
+      stroke: strokeColor,
+      strokeWidth,
+    }; // common shape properties
+
+    let newShape: CanvasObjectType;
+    switch (shapeName) {
+      case "rectangle":
+        newShape = {
+          ...baseShape,
+          x: stageSize ? stageSize.width / 2 - 100 : 0,
+          y: stageSize ? stageSize.height / 2 - 50 : 0,
+          width: 200,
+          height: 100,
+        };
+        break;
+      case "ellipse":
+        newShape = {
+          ...baseShape,
+          x: stageSize ? stageSize.width / 2 : 0,
+          y: stageSize ? stageSize.height / 2 : 0,
+          radiusX: 100,
+          radiusY: 100,
+        };
+        break;
+      case "line":
+        newShape = {
+          ...baseShape,
+          points: [
+            stageSize ? stageSize.width / 2 - 50 : 0,
+            stageSize ? stageSize.height / 2 : 0,
+            stageSize ? stageSize.width / 2 + 50 : 0,
+            stageSize ? stageSize.height / 2 : 0,
+          ],
+        };
+        break;
+      default:
+        console.warn(`Unknown shapeName: ${shapeName}`);
+        return;
+    }
+
+    setCanvasObjects([...canvasObjects, newShape]);
+    setSelectedObjectId(newShapeId);
+  };
+
+  function handleDelete() {
+    if (selectedObjectId === "") {
+      if (canvasObjects.length > 0) {
+        setOpen(true);
+      }
+    } else {
+      setCanvasObjects((prevObjects) =>
+        prevObjects.filter((obj) => obj.id !== selectedObjectId)
+      );
+      setSelectedObjectId("");
+    }
+  }
+
+  function resetCanvas() {
+    setCanvasObjects([]);
+    setSelectedObjectId("");
+  }
+
   // component has not finished loading the window size
   if (!stageSize) {
     return null;
   }
 
   const handleMouseDown = (e: any) => {
-    if (selectedShapeId === "") {
+    if (selectedObjectId === "") {
       isFreeDrawing.current = true;
       const pos = e.target.getStage().getPointerPosition();
-      setLines([
-        ...lines,
-        {
-          tool,
-          points: [pos.x, pos.y],
-          stroke: strokeColor,
-          strokeWidth: strokeWidth,
-        },
-      ]);
+      const newLine: CanvasObjectType = {
+        id: uuid(),
+        tool,
+        type: "line",
+        points: [pos.x, pos.y],
+        stroke: strokeColor,
+        strokeWidth: strokeWidth,
+      };
+      setCanvasObjects([...canvasObjects, newLine]);
     } else {
       // deselect shapes when clicked on empty area
       const clickedOnEmpty = e.target === e.target.getStage();
       if (clickedOnEmpty) {
-        setSelectedShapeId("");
+        setSelectedObjectId("");
       }
     }
   };
 
   const handleMouseMove = (e: any) => {
-    // no drawing - skipping
-    if (!isFreeDrawing.current || selectedShapeId !== "") {
+    if (!isFreeDrawing.current || selectedObjectId !== "") {
       return;
     }
     const stage = e.target.getStage();
     const point = stage.getPointerPosition();
-    let lastLine = lines[lines.length - 1];
-    // add point
-    lastLine.points = lastLine.points.concat([point.x, point.y]);
+    let lastObject = canvasObjects[canvasObjects.length - 1];
 
-    // replace last
-    lines.splice(lines.length - 1, 1, lastLine);
-    setLines(lines.concat());
+    if (lastObject.type === "line") {
+      lastObject.points = lastObject.points!.concat([point.x, point.y]);
+      setCanvasObjects(canvasObjects.concat());
+    }
   };
 
   const handleMouseUp = () => {
@@ -228,39 +247,35 @@ export default function Canvas() {
         onMouseup={handleMouseUp}
         onTouchStart={handleMouseDown}
       >
-        <FreeDrawLayer
-          lines={lines}
-          setLines={setLines}
-          tool={tool}
-          color={strokeColor}
-          strokeWidth={strokeWidth}
-          stageSize={stageSize}
-          isFreeDrawing={isFreeDrawing}
-        />
+        <LinesLayer objects={canvasObjects} />
         <ShapesLayer
-          shapes={shapes}
-          setShapes={setShapes}
+          objects={canvasObjects}
+          onChange={updateSelectedObject}
           tool={tool}
           color={strokeColor}
           strokeWidth={strokeWidth}
           stageSize={stageSize}
           isFreeDrawing={isFreeDrawing}
-          selectedShapeId={selectedShapeId}
-          setSelectedShapeId={setSelectedShapeId}
+          selectedObjectId={selectedObjectId}
+          setSelectedShapeId={setSelectedObjectId}
+        />
+        <TextFieldsLayer
+          objects={canvasObjects}
+          selectedObjectId={selectedObjectId}
+          setSelectedObjectId={setSelectedObjectId}
+          onChange={updateSelectedObject}
         />
       </Stage>
       <Toolbar
-        lines={lines}
-        shapes={shapes}
-        onSelectTool={setTool}
+        objects={canvasObjects}
+        setTool={setTool}
         color={strokeColor}
-        onSelectColor={(newColor) => updateShapeProperty("stroke", newColor)}
+        onSelectColor={(newColor) => updateStyle("stroke", newColor)}
         onDelete={handleDelete}
         strokeWidth={strokeWidth}
-        setStrokeWidth={(newWidth) =>
-          updateShapeProperty("strokeWidth", newWidth)
-        }
+        setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
         handleAddShape={addShape}
+        handleAddTextField={addTextField}
       />
       <ConfirmationDialog
         open={open}
