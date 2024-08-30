@@ -27,6 +27,7 @@ export interface CanvasObjectType {
   text?: string;
   fontSize?: number;
   fontFamily?: string;
+  rotation?: number;
 }
 
 export interface StageSizeType {
@@ -112,12 +113,12 @@ export default function Canvas() {
       x: stageSize ? stageSize.width / 2 - 250 : 0,
       y: stageSize ? stageSize.height / 2 - 100 : 0,
       width: 500,
-      // height: 100,
+      height: 100,
       stroke: strokeColor,
       // strokeWidth not applied to text field for now
       text: "This is a text field. In the future, user will be able to edit it.",
       fontSize: 28,
-      // fontFamily: "Arial",
+      fontFamily: "Arial",
     };
     setCanvasObjects([...canvasObjects, newObject]);
     setSelectedObjectId(newObjectId);
