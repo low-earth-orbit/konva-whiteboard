@@ -6,7 +6,7 @@ import FreeDrawLayer from "./FreeDrawLayer";
 import { v4 as uuid } from "uuid";
 import { Stage } from "react-konva";
 import ShapesLayer from "./ShapesLayer";
-import ConfirmationDialog from "./ComfirmationDialog";
+import ConfirmationDialog from "./ConfirmationDialog";
 
 export interface LineType {
   tool: string;
@@ -28,6 +28,18 @@ export interface ShapeType {
   fill?: string;
   stroke: string;
   strokeWidth: number;
+}
+
+export interface TextBoxType {
+  id: string;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  text: string;
+  fontSize: number;
+  fontFamily: string;
+  fill: string;
 }
 
 export interface StageSizeType {
