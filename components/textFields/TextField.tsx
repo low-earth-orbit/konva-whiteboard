@@ -227,19 +227,14 @@ export default function TextField({
             // we will reset it back
             node.scaleX(1);
             node.scaleY(1);
+
             onChange({
               ...selectedProps,
               x: node.x(),
               y: node.y(),
               // set minimal value
-              width: Math.max(
-                5,
-                (selectedProps.width ?? node.width()) * scaleX
-              ),
-              height: Math.max(
-                5,
-                (selectedProps.height ?? node.height()) * scaleY
-              ),
+              width: Math.max(5, objectProps.width! * scaleX),
+              height: Math.max(5, objectProps.height! * scaleY),
             });
           }
         }}

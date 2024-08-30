@@ -116,7 +116,7 @@ export default function Canvas() {
       height: 100,
       stroke: strokeColor,
       // strokeWidth not applied to text field for now
-      text: "This is a text field. In the future, user will be able to edit it.",
+      text: "Double click to edit.",
       fontSize: 28,
       fontFamily: "Arial",
     };
