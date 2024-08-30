@@ -1,13 +1,13 @@
 import { MutableRefObject } from "react";
 import { Layer } from "react-konva";
-import { ShapeType, StageSizeType } from "./Canvas";
+import { CanvasObjectType, StageSizeType } from "./Canvas";
 import RectangleShape from "./shapes/RectangleShape";
 import EllipseShape from "./shapes/EllipseShape";
 import LineShape from "./shapes/LineShape";
 
 type ShapesLayerProps = {
-  shapes: ShapeType[];
-  setShapes: (newShapes: ShapeType[]) => void;
+  objects: CanvasObjectType[];
+  setShapes: (newShapes: CanvasObjectType[]) => void;
   tool: string;
   color: string;
   strokeWidth: number;
@@ -18,23 +18,27 @@ type ShapesLayerProps = {
 };
 
 export default function ShapesLayer({
-  shapes,
+  objects,
   setShapes,
   selectedShapeId,
   setSelectedShapeId,
 }: ShapesLayerProps) {
-  function onShapeChange(newAttrs: Partial<ShapeType>, i: number) {
+  function onShapeChange(newAttrs: Partial<CanvasObjectType>, i: number) {
     const newShapes = shapes.slice(); // Create a shallow copy of the shapes array
     newShapes[i] = { ...newShapes[i], ...newAttrs }; // Update the specific shape with new attributes
     setShapes(newShapes);
   }
+  const shapes = objects.filter(
+    (obj: CanvasObjectType) => obj.type === "shape"
+  );
 
-  const renderShape = (shape: ShapeType, i: number) => {
+  const renderShape = (shape: CanvasObjectType, i: number) => {
     const commonProps = {
       shapeProps: shape,
       isSelected: shape.id === selectedShapeId,
       onSelect: () => setSelectedShapeId(shape.id),
-      onChange: (newAttrs: Partial<ShapeType>) => onShapeChange(newAttrs, i),
+      onChange: (newAttrs: Partial<CanvasObjectType>) =>
+        onShapeChange(newAttrs, i),
     };
 
     switch (shape.shapeName) {

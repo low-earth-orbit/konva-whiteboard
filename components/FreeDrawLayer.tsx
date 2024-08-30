@@ -1,10 +1,10 @@
-import { MutableRefObject, useRef } from "react";
-import { Stage, Layer, Line, Rect } from "react-konva";
-import { LineType, StageSizeType } from "./Canvas";
+import { MutableRefObject } from "react";
+import { Layer, Line } from "react-konva";
+import { CanvasObjectType, StageSizeType } from "./Canvas";
 
 type FreeDrawLayerProps = {
-  lines: LineType[];
-  setLines: (newLines: LineType[]) => void;
+  objects: CanvasObjectType[];
+  setLines: (newLines: CanvasObjectType[]) => void;
   tool: string;
   color: string;
   strokeWidth: number;
@@ -12,7 +12,9 @@ type FreeDrawLayerProps = {
   isFreeDrawing: MutableRefObject<boolean>;
 };
 
-export default function FreeDrawLayer({ lines }: FreeDrawLayerProps) {
+export default function FreeDrawLayer({ objects }: FreeDrawLayerProps) {
+  const lines = objects.filter((obj: CanvasObjectType) => obj.type === "line");
+
   return (
     <Layer>
       {lines.map((line, i) => (
