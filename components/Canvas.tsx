@@ -2,11 +2,12 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Toolbar from "./Toolbar";
-import FreeDrawLayer from "./FreeDrawLayer";
+import LinesLayer from "./lines/LinesLayer";
 import { v4 as uuid } from "uuid";
 import { Stage } from "react-konva";
-import ShapesLayer from "./ShapesLayer";
+import ShapesLayer from "./shapes/ShapesLayer";
 import ConfirmationDialog from "./ConfirmationDialog";
+import TextFieldsLayer from "./textFields/TextFieldsLayer";
 
 export interface CanvasObjectType {
   id: string;
@@ -14,7 +15,7 @@ export interface CanvasObjectType {
   tool?: ToolType;
   shapeName?: ShapeName;
   stroke: string;
-  strokeWidth: number;
+  strokeWidth?: number;
   fill?: string;
   points?: number[];
   x?: number;
@@ -102,6 +103,25 @@ export default function Canvas() {
       )
     );
   }
+
+  const addTextField = () => {
+    const newObjectId = uuid();
+    let newObject: CanvasObjectType = {
+      id: newObjectId,
+      type: "text" as const,
+      x: stageSize ? stageSize.width / 2 - 250 : 0,
+      y: stageSize ? stageSize.height / 2 - 100 : 0,
+      width: 500,
+      // height: 100,
+      stroke: strokeColor,
+      // strokeWidth not applied to text field for now
+      text: "This is a text field. In the future, user will be able to edit it.",
+      fontSize: 28,
+      // fontFamily: "Arial",
+    };
+    setCanvasObjects([...canvasObjects, newObject]);
+    setSelectedObjectId(newObjectId);
+  };
 
   const addShape = (shapeName: ShapeName) => {
     const newShapeId = uuid();
@@ -226,7 +246,7 @@ export default function Canvas() {
         onMouseup={handleMouseUp}
         onTouchStart={handleMouseDown}
       >
-        <FreeDrawLayer objects={canvasObjects} />
+        <LinesLayer objects={canvasObjects} />
         <ShapesLayer
           objects={canvasObjects}
           onChange={updateSelectedObject}
@@ -235,8 +255,14 @@ export default function Canvas() {
           strokeWidth={strokeWidth}
           stageSize={stageSize}
           isFreeDrawing={isFreeDrawing}
-          selectedShapeId={selectedObjectId}
+          selectedObjectId={selectedObjectId}
           setSelectedShapeId={setSelectedObjectId}
+        />
+        <TextFieldsLayer
+          objects={canvasObjects}
+          selectedObjectId={selectedObjectId}
+          setSelectedObjectId={setSelectedObjectId}
+          onChange={updateSelectedObject}
         />
       </Stage>
       <Toolbar
@@ -248,6 +274,7 @@ export default function Canvas() {
         strokeWidth={strokeWidth}
         setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
         handleAddShape={addShape}
+        handleAddTextField={addTextField}
       />
       <ConfirmationDialog
         open={open}

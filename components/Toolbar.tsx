@@ -18,6 +18,7 @@ import CropSquareRoundedIcon from "@mui/icons-material/CropSquareRounded";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import HorizontalRuleRoundedIcon from "@mui/icons-material/HorizontalRuleRounded";
 import ShapeLineOutlinedIcon from "@mui/icons-material/ShapeLineOutlined";
+import TextFieldsIcon from "@mui/icons-material/TextFields";
 import { CanvasObjectType, ShapeName, ToolType } from "./Canvas";
 
 function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
@@ -39,6 +40,7 @@ type ToolbarProps = {
   strokeWidth: number;
   setStrokeWidth: (newWidth: number) => void;
   handleAddShape: (shapeName: ShapeName) => void;
+  handleAddTextField: () => void;
 };
 
 function Toolbar({
@@ -50,6 +52,7 @@ function Toolbar({
   strokeWidth,
   setStrokeWidth,
   handleAddShape,
+  handleAddTextField,
 }: ToolbarProps) {
   // color picker
   const [colorPickerAnchorEl, setColorPickerAnchorEl] =
@@ -113,6 +116,11 @@ function Toolbar({
         {/* pen */}
         <IconButton aria-label="draw" onClick={() => setTool("pen")}>
           <DrawIcon />
+        </IconButton>
+
+        {/* text */}
+        <IconButton aria-label="add a text field" onClick={handleAddTextField}>
+          <TextFieldsIcon />
         </IconButton>
 
         {/* shapes */}

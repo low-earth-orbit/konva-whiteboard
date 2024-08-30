@@ -1,9 +1,9 @@
 import { MutableRefObject } from "react";
 import { Layer } from "react-konva";
-import { CanvasObjectType, StageSizeType } from "./Canvas";
-import RectangleShape from "./shapes/RectangleShape";
-import EllipseShape from "./shapes/EllipseShape";
-import LineShape from "./shapes/LineShape";
+import { CanvasObjectType, StageSizeType } from "../Canvas";
+import RectangleShape from "./RectangleShape";
+import EllipseShape from "./EllipseShape";
+import LineShape from "./LineShape";
 
 type ShapesLayerProps = {
   objects: CanvasObjectType[];
@@ -16,14 +16,14 @@ type ShapesLayerProps = {
   strokeWidth: number;
   stageSize: StageSizeType;
   isFreeDrawing: MutableRefObject<boolean>;
-  selectedShapeId: string;
+  selectedObjectId: string;
   setSelectedShapeId: (id: string) => void;
 };
 
 export default function ShapesLayer({
   objects,
   onChange,
-  selectedShapeId,
+  selectedObjectId,
   setSelectedShapeId,
 }: ShapesLayerProps) {
   const shapes = objects.filter(
@@ -33,7 +33,7 @@ export default function ShapesLayer({
   const renderShape = (shape: CanvasObjectType, i: number) => {
     const commonProps = {
       shapeProps: shape,
-      isSelected: shape.id === selectedShapeId,
+      isSelected: shape.id === selectedObjectId,
       onSelect: () => setSelectedShapeId(shape.id),
       onChange: (newAttrs: Partial<CanvasObjectType>) =>
         onChange(newAttrs, shape.id),

@@ -1,11 +1,11 @@
 import { Layer, Line } from "react-konva";
-import { CanvasObjectType } from "./Canvas";
+import { CanvasObjectType } from "../Canvas";
 
-type FreeDrawLayerProps = {
+type Props = {
   objects: CanvasObjectType[];
 };
 
-export default function FreeDrawLayer({ objects }: FreeDrawLayerProps) {
+export default function LinesLayer({ objects }: Props) {
   const lines = objects.filter((obj: CanvasObjectType) => obj.type === "line");
 
   return (
