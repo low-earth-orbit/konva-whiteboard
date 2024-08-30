@@ -7,7 +7,10 @@ import LineShape from "./shapes/LineShape";
 
 type ShapesLayerProps = {
   objects: CanvasObjectType[];
-  setShapes: (newShapes: CanvasObjectType[]) => void;
+  onChange: (
+    newAttrs: Partial<CanvasObjectType>,
+    selectedObjectId: string
+  ) => void;
   tool: string;
   color: string;
   strokeWidth: number;
@@ -19,15 +22,10 @@ type ShapesLayerProps = {
 
 export default function ShapesLayer({
   objects,
-  setShapes,
+  onChange,
   selectedShapeId,
   setSelectedShapeId,
 }: ShapesLayerProps) {
-  function onShapeChange(newAttrs: Partial<CanvasObjectType>, i: number) {
-    const newShapes = shapes.slice(); // Create a shallow copy of the shapes array
-    newShapes[i] = { ...newShapes[i], ...newAttrs }; // Update the specific shape with new attributes
-    setShapes(newShapes);
-  }
   const shapes = objects.filter(
     (obj: CanvasObjectType) => obj.type === "shape"
   );
@@ -38,7 +36,7 @@ export default function ShapesLayer({
       isSelected: shape.id === selectedShapeId,
       onSelect: () => setSelectedShapeId(shape.id),
       onChange: (newAttrs: Partial<CanvasObjectType>) =>
-        onShapeChange(newAttrs, i),
+        onChange(newAttrs, shape.id),
     };
 
     switch (shape.shapeName) {

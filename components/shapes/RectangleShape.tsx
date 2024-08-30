@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import { Rect, Transformer } from "react-konva";
-import { ShapeType } from "../Canvas";
+import { CanvasObjectType } from "../Canvas";
 import Konva from "konva";
 
 type RectangleShapeProps = {
-  shapeProps: Partial<ShapeType>;
+  shapeProps: Partial<CanvasObjectType>;
   isSelected: boolean;
   onSelect: () => void;
-  onChange: (newAttrs: Partial<ShapeType>) => void;
+  onChange: (newAttrs: Partial<CanvasObjectType>) => void;
 };
 
 export default function RectangleShape({

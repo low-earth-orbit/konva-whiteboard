@@ -50,7 +50,27 @@ export default function Canvas() {
 
   const [selectedObjectId, setSelectedObjectId] = useState<string>("");
 
-  function updateObjectProperty(property: keyof CanvasObjectType, value: any) {
+  // confirmation modal for delete button - clear canvas
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setStageSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    // Update the size on mount
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  function updateStyle(property: keyof CanvasObjectType, value: any) {
     // Dynamically update state
     if (property === "strokeWidth") {
       setStrokeWidth(value);
@@ -60,14 +80,27 @@ export default function Canvas() {
 
     // Update object property
     if (selectedObjectId !== "") {
-      setCanvasObjects((prevObjects) => {
-        return prevObjects.map((object) =>
+      setCanvasObjects((prevObjects) =>
+        prevObjects.map((object) =>
           object.id === selectedObjectId
             ? { ...object, [property]: value } // Update the selected property
             : object
-        );
-      });
+        )
+      );
     }
+  }
+
+  function updateSelectedObject(
+    newAttrs: Partial<CanvasObjectType>,
+    selectedObjectId: string
+  ) {
+    setCanvasObjects((prevObjects) =>
+      prevObjects.map((object: CanvasObjectType) =>
+        object.id === selectedObjectId
+          ? { ...object, ...newAttrs } // Merge newAttrs with the existing object
+          : object
+      )
+    );
   }
 
   const addShape = (shapeName: ShapeName) => {
@@ -138,26 +171,6 @@ export default function Canvas() {
     setSelectedObjectId("");
   }
 
-  // confirmation modal for delete button - clear canvas
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setStageSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    };
-
-    // Update the size on mount
-    handleResize();
-
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
   // component has not finished loading the window size
   if (!stageSize) {
     return null;
@@ -192,6 +205,7 @@ export default function Canvas() {
     const stage = e.target.getStage();
     const point = stage.getPointerPosition();
     let lastObject = canvasObjects[canvasObjects.length - 1];
+
     if (lastObject.type === "line") {
       lastObject.points = lastObject.points!.concat([point.x, point.y]);
       setCanvasObjects(canvasObjects.concat());
@@ -212,18 +226,10 @@ export default function Canvas() {
         onMouseup={handleMouseUp}
         onTouchStart={handleMouseDown}
       >
-        <FreeDrawLayer
-          objects={canvasObjects}
-          setLines={setCanvasObjects}
-          tool={tool}
-          color={strokeColor}
-          strokeWidth={strokeWidth}
-          stageSize={stageSize}
-          isFreeDrawing={isFreeDrawing}
-        />
+        <FreeDrawLayer objects={canvasObjects} />
         <ShapesLayer
           objects={canvasObjects}
-          setShapes={setCanvasObjects}
+          onChange={updateSelectedObject}
           tool={tool}
           color={strokeColor}
           strokeWidth={strokeWidth}
@@ -237,12 +243,10 @@ export default function Canvas() {
         objects={canvasObjects}
         setTool={setTool}
         color={strokeColor}
-        onSelectColor={(newColor) => updateObjectProperty("stroke", newColor)}
+        onSelectColor={(newColor) => updateStyle("stroke", newColor)}
         onDelete={handleDelete}
         strokeWidth={strokeWidth}
-        setStrokeWidth={(newWidth) =>
-          updateObjectProperty("strokeWidth", newWidth)
-        }
+        setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
         handleAddShape={addShape}
       />
       <ConfirmationDialog
