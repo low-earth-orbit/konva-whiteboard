@@ -48,6 +48,7 @@ export default function TextField({
     height,
     fill,
     text,
+    lineHeight: 1.5,
     fontSize,
     fontFamily,
     fontStyle: "normal",
@@ -67,9 +68,7 @@ export default function TextField({
   const handleDoubleClick = () => {
     const node = textRef.current;
     if (node) {
-      // hide node and transformer
       node.hide();
-      trRef.current?.hide();
 
       // get the position for creating textarea
       const textPosition = node.absolutePosition();
@@ -97,6 +96,7 @@ export default function TextField({
       textarea.style.background = "none";
       textarea.style.outline = "none";
       textarea.style.resize = "none";
+      textarea.style.lineHeight = `${node.lineHeight()}`;
       textarea.style.fontFamily = node.fontFamily();
       textarea.style.fontStyle = node.fontStyle();
       textarea.style.textAlign = node.align();
@@ -111,22 +111,12 @@ export default function TextField({
         transform = `rotateZ(${rotation}deg)`;
       }
 
-      let px = 0;
-      // also we need to slightly move textarea on firefox
+      // slightly move textarea up
       // because it jumps a bit
-      const isFirefox =
-        navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
-      if (isFirefox) {
-        px += 2 + Math.round(node.fontSize() / 20);
-      }
-      transform += `translateY(-${px}px)`;
+      const moveUpPx = Math.round(node.fontSize() / 20);
+      transform += `translateY(-${moveUpPx}px)`;
 
       textarea.style.transform = transform;
-
-      // reset height
-      textarea.style.height = "auto";
-      // after browsers resized it we can set actual value
-      textarea.style.height = textarea.scrollHeight + 3 + "px";
 
       textarea.focus();
 
@@ -136,33 +126,6 @@ export default function TextField({
         node.show();
         trRef.current?.show();
         trRef.current?.forceUpdate();
-      };
-
-      const setTextareaWidth = (newWidth: number) => {
-        if (!newWidth) {
-          const placeholderText = (node as any)?.placeholder || ""; // check placeholder text
-          newWidth = placeholderText.length * node.fontSize();
-        }
-
-        // Browser checks
-        const isSafari = /^((?!chrome|android).)*safari/i.test(
-          navigator.userAgent
-        );
-        const isFirefox =
-          navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
-
-        if (isSafari || isFirefox) {
-          newWidth = Math.ceil(newWidth);
-        }
-
-        // Edge browser
-        const isEdge = /Edg/.test(navigator.userAgent);
-
-        if (isEdge) {
-          newWidth = (Number(newWidth) || 0) + 1;
-        }
-
-        textarea.style.width = `${newWidth}px`;
       };
 
       textarea.addEventListener("keydown", function (e) {
@@ -175,12 +138,6 @@ export default function TextField({
         // on esc do not set value back to node
         if (e.key === "Escape") {
           removeTextarea();
-        } else {
-          const scale = node.getAbsoluteScale().x;
-          setTextareaWidth(node.width() * scale);
-          textarea.style.height = "auto";
-          textarea.style.height =
-            textarea.scrollHeight + node.fontSize() + "px";
         }
       });
 
