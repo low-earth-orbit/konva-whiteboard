@@ -14,7 +14,7 @@ export interface CanvasObjectType {
   type: "line" | "shape" | "text";
   tool?: ToolType;
   shapeName?: ShapeName;
-  stroke: string;
+  stroke?: string;
   strokeWidth?: number;
   fill?: string;
   points?: number[];
@@ -114,7 +114,7 @@ export default function Canvas() {
       y: stageSize ? stageSize.height / 2 - 100 : 0,
       width: 500,
       height: 100,
-      stroke: strokeColor,
+      fill: strokeColor, // use strokeColor for fill for now
       // strokeWidth not applied to text field for now
       text: "Double click to edit.",
       fontSize: 28,

@@ -33,7 +33,7 @@ export default function TextField({
     y,
     width,
     height,
-    stroke,
+    fill,
     text,
     fontSize,
     fontFamily,
@@ -46,7 +46,7 @@ export default function TextField({
     y,
     width,
     height,
-    stroke,
+    fill,
     text,
     fontSize,
     fontFamily,
@@ -97,11 +97,10 @@ export default function TextField({
       textarea.style.background = "none";
       textarea.style.outline = "none";
       textarea.style.resize = "none";
-      textarea.style.lineHeight = `${node.lineHeight()}`;
       textarea.style.fontFamily = node.fontFamily();
       textarea.style.fontStyle = node.fontStyle();
       textarea.style.textAlign = node.align();
-      textarea.style.color = node.stroke() as string;
+      textarea.style.color = node.fill() as string;
       textarea.style.transformOrigin = "left top";
 
       // set rotation
