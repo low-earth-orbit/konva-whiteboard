@@ -39,22 +39,31 @@ export type ToolType = "eraser" | "pen";
 
 export type ShapeName = "rectangle" | "line" | "ellipse";
 
+const isBrowser = typeof window !== 'undefined';
+
 export default function Canvas() {
   const [stageSize, setStageSize] = useState<StageSizeType>();
 
   const [tool, setTool] = useState<ToolType>("pen");
-  const [strokeColor, setStrokeColor] = useState<string>("#0000FF");
-  const [strokeWidth, setStrokeWidth] = useState<number>(5);
+  const [color, setColor] = useState<string>("#0000FF");
+  const [width, setWidth] = useState<number>(5);
 
   const isFreeDrawing = useRef<boolean>(false);
 
-  const [canvasObjects, setCanvasObjects] = useState<CanvasObjectType[]>([]);
+  const [canvasObjects, setCanvasObjects] = useState<CanvasObjectType[]>(() => {
+    if (isBrowser) {
+      const savedState = localStorage.getItem("canvasState");
+      return savedState ? JSON.parse(savedState) : [];
+    }
+    return [];
+  });
 
   const [selectedObjectId, setSelectedObjectId] = useState<string>("");
 
   // confirmation modal for delete button - clear canvas
   const [open, setOpen] = useState(false);
 
+  // update browser window size
   useEffect(() => {
     const handleResize = () => {
       setStageSize({
@@ -72,12 +81,18 @@ export default function Canvas() {
     };
   }, []);
 
+  // store to local storage so changes are not lost after refreshing the page
+  useEffect(() => {
+    // Save state to local storage whenever it changes
+    localStorage.setItem("canvasState", JSON.stringify(canvasObjects));
+  }, [canvasObjects]);
+
   function updateStyle(property: keyof CanvasObjectType, value: any) {
     // Dynamically update state
     if (property === "strokeWidth") {
-      setStrokeWidth(value);
+      setWidth(value);
     } else if (property === "stroke") {
-      setStrokeColor(value);
+      setColor(value);
     }
 
     // Update object property
@@ -114,7 +129,7 @@ export default function Canvas() {
       y: stageSize ? stageSize.height / 2 - 100 : 0,
       width: 500,
       height: 100,
-      fill: strokeColor, // use strokeColor for fill for now
+      fill: color, // use strokeColor for fill for now
       // strokeWidth not applied to text field for now
       text: "Double click to edit.",
       fontSize: 28,
@@ -130,8 +145,8 @@ export default function Canvas() {
       id: newShapeId,
       shapeName,
       type: "shape" as const,
-      stroke: strokeColor,
-      strokeWidth,
+      stroke: color,
+      strokeWidth: width,
     }; // common shape properties
 
     let newShape: CanvasObjectType;
@@ -206,8 +221,8 @@ export default function Canvas() {
         tool,
         type: "line",
         points: [pos.x, pos.y],
-        stroke: strokeColor,
-        strokeWidth: strokeWidth,
+        stroke: color,
+        strokeWidth: width,
       };
       setCanvasObjects([...canvasObjects, newLine]);
     } else {
@@ -252,8 +267,8 @@ export default function Canvas() {
           objects={canvasObjects}
           onChange={updateSelectedObject}
           tool={tool}
-          color={strokeColor}
-          strokeWidth={strokeWidth}
+          color={color}
+          strokeWidth={width}
           stageSize={stageSize}
           isFreeDrawing={isFreeDrawing}
           selectedObjectId={selectedObjectId}
@@ -269,10 +284,10 @@ export default function Canvas() {
       <Toolbar
         objects={canvasObjects}
         setTool={setTool}
-        color={strokeColor}
+        color={color}
         onSelectColor={(newColor) => updateStyle("stroke", newColor)}
         onDelete={handleDelete}
-        strokeWidth={strokeWidth}
+        strokeWidth={width}
         setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
         handleAddShape={addShape}
         handleAddTextField={addTextField}
