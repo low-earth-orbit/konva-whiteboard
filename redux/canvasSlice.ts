@@ -9,7 +9,10 @@ interface CanvasState {
 }
 
 const initialState: CanvasState = {
-  canvasObjects: [],
+  canvasObjects:
+    typeof window !== "undefined" && localStorage.getItem("canvasState")
+      ? JSON.parse(localStorage.getItem("canvasState") || "[]")
+      : [],
   undoStack: [],
   redoStack: [],
   selectedObjectId: "",

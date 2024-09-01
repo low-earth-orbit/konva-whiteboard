@@ -73,12 +73,9 @@ export default function Canvas() {
     }
   }, [dispatch]);
 
-  // store to local storage so changes are not lost after refreshing the page
+  // Save state to local storage whenever it changes
   useEffect(() => {
-    // Save state to local storage whenever it changes
-    // if (canvasObjects.length > 0) {
     localStorage.setItem("canvasState", JSON.stringify(canvasObjects));
-    // }
   }, [canvasObjects]);
 
   const handleDelete = useCallback(() => {
