@@ -76,9 +76,9 @@ export default function Canvas() {
   // store to local storage so changes are not lost after refreshing the page
   useEffect(() => {
     // Save state to local storage whenever it changes
-    if (canvasObjects.length > 0) {
-      localStorage.setItem("canvasState", JSON.stringify(canvasObjects));
-    }
+    // if (canvasObjects.length > 0) {
+    localStorage.setItem("canvasState", JSON.stringify(canvasObjects));
+    // }
   }, [canvasObjects]);
 
   const handleDelete = useCallback(() => {
@@ -118,21 +118,24 @@ export default function Canvas() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Delete" || event.key === "Backspace") {
         handleDelete();
-      } else if (event.ctrlKey && event.key === "z") {
+      } else if (
+        (event.ctrlKey && event.key === "z") || // Ctrl+Z for Windows/Linux
+        (event.metaKey && event.key === "z" && !event.shiftKey) // Cmd+Z for macOS
+      ) {
         dispatch(undo());
-      } else if (event.ctrlKey && event.key === "y") {
+      } else if (
+        (event.ctrlKey && event.key === "y") || // Ctrl+Y for Windows/Linux
+        (event.metaKey && event.shiftKey && event.key === "z") // Cmd+Shift+Z for macOS
+      ) {
         dispatch(redo());
       }
     };
 
-    // Add event listener for keydown
     document.addEventListener("keydown", handleKeyDown);
-
-    // Clean up event listener on component unmount
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [selectedObjectId, canvasObjects, handleDelete, dispatch]);
+  }, [handleDelete, dispatch]);
 
   function updateStyle(property: keyof CanvasObjectType, value: any) {
     // Dynamically update state
