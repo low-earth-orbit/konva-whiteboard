@@ -49,8 +49,6 @@ export type ToolType = "eraser" | "pen";
 
 export type ShapeName = "rectangle" | "line" | "ellipse";
 
-const isBrowser = typeof window !== "undefined";
-
 export default function Canvas() {
   const dispatch = useDispatch();
   const { canvasObjects, selectedObjectId } = useSelector(
@@ -299,13 +297,10 @@ export default function Canvas() {
         <ShapesLayer
           objects={canvasObjects}
           onChange={updateSelectedObject}
-          tool={tool}
-          color={color}
-          strokeWidth={width}
-          stageSize={stageSize}
-          isFreeDrawing={isFreeDrawing}
+          setColor={setColor}
+          setWidth={setWidth}
           selectedObjectId={selectedObjectId}
-          setSelectedShapeId={(newObjectId) =>
+          setSelectedObjectId={(newObjectId) =>
             dispatch(selectCanvasObject(newObjectId))
           }
         />

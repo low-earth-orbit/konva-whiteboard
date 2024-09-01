@@ -11,20 +11,19 @@ type ShapesLayerProps = {
     newAttrs: Partial<CanvasObjectType>,
     selectedObjectId: string
   ) => void;
-  tool: string;
-  color: string;
-  strokeWidth: number;
-  stageSize: StageSizeType;
-  isFreeDrawing: MutableRefObject<boolean>;
+  setColor: (newColor: string) => void;
+  setWidth: (newWidth: number) => void;
   selectedObjectId: string;
-  setSelectedShapeId: (id: string) => void;
+  setSelectedObjectId: (id: string) => void;
 };
 
 export default function ShapesLayer({
   objects,
   onChange,
+  setColor,
+  setWidth,
   selectedObjectId,
-  setSelectedShapeId,
+  setSelectedObjectId,
 }: ShapesLayerProps) {
   const shapes = objects.filter(
     (obj: CanvasObjectType) => obj.type === "shape"
@@ -34,7 +33,11 @@ export default function ShapesLayer({
     const commonProps = {
       shapeProps: shape,
       isSelected: shape.id === selectedObjectId,
-      onSelect: () => setSelectedShapeId(shape.id),
+      onSelect: () => {
+        setSelectedObjectId(shape.id);
+        setColor(shape.stroke as string);
+        setWidth(shape.strokeWidth as number);
+      },
       onChange: (newAttrs: Partial<CanvasObjectType>) =>
         onChange(newAttrs, shape.id),
     };
