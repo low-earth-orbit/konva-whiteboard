@@ -87,6 +87,23 @@ export default function Canvas() {
     localStorage.setItem("canvasState", JSON.stringify(canvasObjects));
   }, [canvasObjects]);
 
+  // keyboard shortcut
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Delete" || event.key === "Backspace") {
+        handleDelete();
+      }
+    };
+
+    // Add event listener for keydown
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Clean up event listener on component unmount
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedObjectId, canvasObjects, handleDelete]);
+
   function updateStyle(property: keyof CanvasObjectType, value: any) {
     // Dynamically update state
     if (property === "strokeWidth") {
