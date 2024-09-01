@@ -19,7 +19,13 @@ import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import HorizontalRuleRoundedIcon from "@mui/icons-material/HorizontalRuleRounded";
 import ShapeLineOutlinedIcon from "@mui/icons-material/ShapeLineOutlined";
 import TextFieldsIcon from "@mui/icons-material/TextFields";
+import UndoRoundedIcon from "@mui/icons-material/UndoRounded";
+import RedoRoundedIcon from "@mui/icons-material/RedoRounded";
+
 import { CanvasObjectType, ShapeName, ToolType } from "./Canvas";
+import { useDispatch, useSelector } from "react-redux";
+import { redo, undo } from "@/redux/canvasSlice";
+import { RootState } from "@/redux/store";
 
 function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
   const { children, value } = props;
@@ -54,6 +60,12 @@ function Toolbar({
   handleAddShape,
   handleAddTextField,
 }: ToolbarProps) {
+  const dispatch = useDispatch();
+
+  const { undoStack, redoStack } = useSelector(
+    (state: RootState) => state.canvas
+  );
+
   // color picker
   const [colorPickerAnchorEl, setColorPickerAnchorEl] =
     useState<HTMLButtonElement | null>(null);
@@ -150,6 +162,24 @@ function Toolbar({
         {/* eraser */}
         <IconButton aria-label="erase" onClick={() => setTool("eraser")}>
           <EraserIcon />
+        </IconButton>
+
+        {/* undo */}
+        <IconButton
+          aria-label="undo"
+          disabled={undoStack.length === 0}
+          onClick={() => dispatch(undo())}
+        >
+          <UndoRoundedIcon />
+        </IconButton>
+
+        {/* redo */}
+        <IconButton
+          aria-label="redo"
+          disabled={redoStack.length === 0}
+          onClick={() => dispatch(redo())}
+        >
+          <RedoRoundedIcon />
         </IconButton>
 
         {/* delete */}

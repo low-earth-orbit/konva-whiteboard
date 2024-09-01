@@ -51,7 +51,7 @@ const canvasSlice = createSlice({
       state.selectedObjectId = action.payload;
     },
     resetCanvas(state) {
-      state.undoStack.push(state.canvasObjects);
+      state.undoStack = [];
       state.canvasObjects = [];
       state.selectedObjectId = "";
       state.redoStack = [];
