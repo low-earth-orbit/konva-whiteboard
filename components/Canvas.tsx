@@ -113,7 +113,10 @@ export default function Canvas() {
   // keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Delete" || event.key === "Backspace") {
+      if (
+        event.key === "Delete" || // Del for Windows/Linux
+        (event.metaKey && event.key === "Backspace") // Cmd+delete for macOS
+      ) {
         handleDelete();
       } else if (
         (event.ctrlKey && event.key === "z") || // Ctrl+Z for Windows/Linux
