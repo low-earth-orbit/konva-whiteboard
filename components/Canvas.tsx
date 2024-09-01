@@ -16,6 +16,7 @@ import {
   resetCanvas,
   undo,
   redo,
+  setCanvasObjects,
 } from "../redux/canvasSlice";
 
 export interface CanvasObjectType {
@@ -63,15 +64,22 @@ export default function Canvas() {
   const isFreeDrawing = useRef<boolean>(false);
   const [open, setOpen] = useState(false); // confirmation modal for delete button - clear canvas
 
-  // const [canvasObjects, setCanvasObjects] = useState<CanvasObjectType[]>(() => {
-  //   if (isBrowser) {
-  //     const savedState = localStorage.getItem("canvasState");
-  //     return savedState ? JSON.parse(savedState) : [];
-  //   }
-  //   return [];
-  // });
+  // load from local storage
+  useEffect(() => {
+    const savedState = localStorage.getItem("canvasState");
+    if (savedState) {
+      const canvasObjects = JSON.parse(savedState);
+      dispatch(setCanvasObjects(canvasObjects));
+    }
+  }, [dispatch]);
 
-  // const [selectedObjectId, setSelectedObjectId] = useState<string>("");
+  // store to local storage so changes are not lost after refreshing the page
+  useEffect(() => {
+    // Save state to local storage whenever it changes
+    if (canvasObjects.length > 0) {
+      localStorage.setItem("canvasState", JSON.stringify(canvasObjects));
+    }
+  }, [canvasObjects]);
 
   const handleDelete = useCallback(() => {
     if (selectedObjectId === "") {
@@ -104,12 +112,6 @@ export default function Canvas() {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-
-  // store to local storage so changes are not lost after refreshing the page
-  useEffect(() => {
-    // Save state to local storage whenever it changes
-    localStorage.setItem("canvasState", JSON.stringify(canvasObjects));
-  }, [canvasObjects]);
 
   // keyboard shortcuts
   useEffect(() => {
@@ -261,16 +263,18 @@ export default function Canvas() {
     const stage = e.target.getStage();
     const point = stage.getPointerPosition();
     const lastObject = canvasObjects[canvasObjects.length - 1];
-  
+
     if (lastObject.type === "line") {
       // Create a new object that copies the lastObject and updates points
       const updatedObject = {
         ...lastObject,
         points: lastObject.points!.concat([point.x, point.y]),
       };
-  
+
       // Dispatch the update with the new object
-      dispatch(updateCanvasObject({ id: lastObject.id, updates: updatedObject }));
+      dispatch(
+        updateCanvasObject({ id: lastObject.id, updates: updatedObject })
+      );
     }
   };
 

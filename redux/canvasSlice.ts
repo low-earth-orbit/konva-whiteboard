@@ -19,6 +19,9 @@ const canvasSlice = createSlice({
   name: "canvas",
   initialState,
   reducers: {
+    setCanvasObjects(state, action: PayloadAction<CanvasObjectType[]>) {
+      state.canvasObjects = action.payload;
+    },
     addCanvasObject(state, action: PayloadAction<CanvasObjectType>) {
       state.undoStack.push(state.canvasObjects);
       state.canvasObjects = [...state.canvasObjects, action.payload];
@@ -69,6 +72,7 @@ const canvasSlice = createSlice({
 });
 
 export const {
+  setCanvasObjects,
   addCanvasObject,
   updateCanvasObject,
   deleteCanvasObject,
