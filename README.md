@@ -6,12 +6,13 @@ Demo: [Click Me](https://whiteboard.leohong.dev)
 
 ## Tech
 
-- React
 - TypeScript
+- React
 - Next.js
+- Redux
 - Tailwind CSS
-- MUI/Material UI (React component library)
-- Konva (Canvas graphics library)
+- MUI (Material UI)
+- Konva.js
 
 ## Run
 

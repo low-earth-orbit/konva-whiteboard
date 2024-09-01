@@ -82,6 +82,7 @@ export default function TextField({
       document.body.appendChild(textarea);
 
       // adjust the styles to match
+      textarea.id = `textarea-${node.id()}`;
       textarea.value = node.text();
       textarea.style.position = "absolute";
       textarea.style.top = `${areaPosition.y}px`;

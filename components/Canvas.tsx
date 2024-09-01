@@ -1,13 +1,23 @@
-"use client";
-
-import React, { useEffect, useRef, useState } from "react";
-import Toolbar from "./Toolbar";
-import LinesLayer from "./lines/LinesLayer";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuid } from "uuid";
 import { Stage } from "react-konva";
+import Toolbar from "./Toolbar";
+import LinesLayer from "./lines/LinesLayer";
 import ShapesLayer from "./shapes/ShapesLayer";
 import ConfirmationDialog from "./ConfirmationDialog";
 import TextFieldsLayer from "./textFields/TextFieldsLayer";
+import { RootState } from "../redux/store";
+import {
+  addCanvasObject,
+  updateCanvasObject,
+  deleteCanvasObject,
+  selectCanvasObject,
+  resetCanvas,
+  undo,
+  redo,
+  setCanvasObjects,
+} from "../redux/canvasSlice";
 
 export interface CanvasObjectType {
   id: string;
@@ -39,29 +49,48 @@ export type ToolType = "eraser" | "pen";
 
 export type ShapeName = "rectangle" | "line" | "ellipse";
 
-const isBrowser = typeof window !== 'undefined';
+const isBrowser = typeof window !== "undefined";
 
 export default function Canvas() {
-  const [stageSize, setStageSize] = useState<StageSizeType>();
+  const dispatch = useDispatch();
+  const { canvasObjects, selectedObjectId } = useSelector(
+    (state: RootState) => state.canvas
+  );
 
+  const [stageSize, setStageSize] = useState<StageSizeType>();
   const [tool, setTool] = useState<ToolType>("pen");
   const [color, setColor] = useState<string>("#0000FF");
   const [width, setWidth] = useState<number>(5);
-
   const isFreeDrawing = useRef<boolean>(false);
+  const [open, setOpen] = useState(false); // confirmation modal for delete button - clear canvas
 
-  const [canvasObjects, setCanvasObjects] = useState<CanvasObjectType[]>(() => {
-    if (isBrowser) {
-      const savedState = localStorage.getItem("canvasState");
-      return savedState ? JSON.parse(savedState) : [];
+  // load from local storage
+  useEffect(() => {
+    const savedState = localStorage.getItem("canvasState");
+    if (savedState) {
+      const canvasObjects = JSON.parse(savedState);
+      dispatch(setCanvasObjects(canvasObjects));
     }
-    return [];
-  });
+  }, [dispatch]);
 
-  const [selectedObjectId, setSelectedObjectId] = useState<string>("");
+  // Save state to local storage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("canvasState", JSON.stringify(canvasObjects));
+  }, [canvasObjects]);
 
-  // confirmation modal for delete button - clear canvas
-  const [open, setOpen] = useState(false);
+  const handleDelete = useCallback(() => {
+    if (selectedObjectId === "") {
+      if (canvasObjects.length > 0) {
+        setOpen(true);
+      }
+    } else {
+      dispatch(deleteCanvasObject(selectedObjectId));
+    }
+  }, [dispatch, selectedObjectId, canvasObjects]);
+
+  const resetCanvasState = useCallback(() => {
+    dispatch(resetCanvas());
+  }, [dispatch]);
 
   // update browser window size
   useEffect(() => {
@@ -81,28 +110,29 @@ export default function Canvas() {
     };
   }, []);
 
-  // store to local storage so changes are not lost after refreshing the page
-  useEffect(() => {
-    // Save state to local storage whenever it changes
-    localStorage.setItem("canvasState", JSON.stringify(canvasObjects));
-  }, [canvasObjects]);
-
-  // keyboard shortcut
+  // keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Delete" || event.key === "Backspace") {
         handleDelete();
+      } else if (
+        (event.ctrlKey && event.key === "z") || // Ctrl+Z for Windows/Linux
+        (event.metaKey && event.key === "z" && !event.shiftKey) // Cmd+Z for macOS
+      ) {
+        dispatch(undo());
+      } else if (
+        (event.ctrlKey && event.key === "y") || // Ctrl+Y for Windows/Linux
+        (event.metaKey && event.shiftKey && event.key === "z") // Cmd+Shift+Z for macOS
+      ) {
+        dispatch(redo());
       }
     };
 
-    // Add event listener for keydown
     document.addEventListener("keydown", handleKeyDown);
-
-    // Clean up event listener on component unmount
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [selectedObjectId, canvasObjects, handleDelete]);
+  }, [handleDelete, dispatch]);
 
   function updateStyle(property: keyof CanvasObjectType, value: any) {
     // Dynamically update state
@@ -114,12 +144,11 @@ export default function Canvas() {
 
     // Update object property
     if (selectedObjectId !== "") {
-      setCanvasObjects((prevObjects) =>
-        prevObjects.map((object) =>
-          object.id === selectedObjectId
-            ? { ...object, [property]: value } // Update the selected property
-            : object
-        )
+      dispatch(
+        updateCanvasObject({
+          id: selectedObjectId,
+          updates: { [property]: value },
+        })
       );
     }
   }
@@ -128,13 +157,7 @@ export default function Canvas() {
     newAttrs: Partial<CanvasObjectType>,
     selectedObjectId: string
   ) {
-    setCanvasObjects((prevObjects) =>
-      prevObjects.map((object: CanvasObjectType) =>
-        object.id === selectedObjectId
-          ? { ...object, ...newAttrs } // Merge newAttrs with the existing object
-          : object
-      )
-    );
+    dispatch(updateCanvasObject({ id: selectedObjectId, updates: newAttrs }));
   }
 
   const addTextField = () => {
@@ -152,8 +175,8 @@ export default function Canvas() {
       fontSize: 28,
       fontFamily: "Arial",
     };
-    setCanvasObjects([...canvasObjects, newObject]);
-    setSelectedObjectId(newObjectId);
+    dispatch(addCanvasObject(newObject));
+    dispatch(selectCanvasObject(newObjectId));
   };
 
   const addShape = (shapeName: ShapeName) => {
@@ -202,27 +225,9 @@ export default function Canvas() {
         return;
     }
 
-    setCanvasObjects([...canvasObjects, newShape]);
-    setSelectedObjectId(newShapeId);
+    dispatch(addCanvasObject(newShape));
+    dispatch(selectCanvasObject(newShapeId));
   };
-
-  function handleDelete() {
-    if (selectedObjectId === "") {
-      if (canvasObjects.length > 0) {
-        setOpen(true);
-      }
-    } else {
-      setCanvasObjects((prevObjects) =>
-        prevObjects.filter((obj) => obj.id !== selectedObjectId)
-      );
-      setSelectedObjectId("");
-    }
-  }
-
-  function resetCanvas() {
-    setCanvasObjects([]);
-    setSelectedObjectId("");
-  }
 
   // component has not finished loading the window size
   if (!stageSize) {
@@ -241,12 +246,12 @@ export default function Canvas() {
         stroke: color,
         strokeWidth: width,
       };
-      setCanvasObjects([...canvasObjects, newLine]);
+      dispatch(addCanvasObject(newLine));
     } else {
       // deselect shapes when clicked on empty area
       const clickedOnEmpty = e.target === e.target.getStage();
       if (clickedOnEmpty) {
-        setSelectedObjectId("");
+        dispatch(selectCanvasObject(""));
       }
     }
   };
@@ -257,11 +262,19 @@ export default function Canvas() {
     }
     const stage = e.target.getStage();
     const point = stage.getPointerPosition();
-    let lastObject = canvasObjects[canvasObjects.length - 1];
+    const lastObject = canvasObjects[canvasObjects.length - 1];
 
     if (lastObject.type === "line") {
-      lastObject.points = lastObject.points!.concat([point.x, point.y]);
-      setCanvasObjects(canvasObjects.concat());
+      // Create a new object that copies the lastObject and updates points
+      const updatedObject = {
+        ...lastObject,
+        points: lastObject.points!.concat([point.x, point.y]),
+      };
+
+      // Dispatch the update with the new object
+      dispatch(
+        updateCanvasObject({ id: lastObject.id, updates: updatedObject })
+      );
     }
   };
 
@@ -289,12 +302,16 @@ export default function Canvas() {
           stageSize={stageSize}
           isFreeDrawing={isFreeDrawing}
           selectedObjectId={selectedObjectId}
-          setSelectedShapeId={setSelectedObjectId}
+          setSelectedShapeId={(newObjectId) =>
+            dispatch(selectCanvasObject(newObjectId))
+          }
         />
         <TextFieldsLayer
           objects={canvasObjects}
           selectedObjectId={selectedObjectId}
-          setSelectedObjectId={setSelectedObjectId}
+          setSelectedObjectId={(newObjectId) =>
+            dispatch(selectCanvasObject(newObjectId))
+          }
           onChange={updateSelectedObject}
         />
       </Stage>
@@ -312,7 +329,7 @@ export default function Canvas() {
       <ConfirmationDialog
         open={open}
         onClose={() => setOpen(false)}
-        onConfirm={resetCanvas}
+        onConfirm={resetCanvasState}
         title="Clear Canvas"
         description="Are you sure you want to clear the canvas? This action cannot be undone."
       />
