@@ -57,7 +57,7 @@ export default function Canvas() {
 
   const [stageSize, setStageSize] = useState<StageSizeType>();
   const [tool, setTool] = useState<ToolType>("pen");
-  const [color, setColor] = useState<string>("#0000FF");
+  const [color, setColor] = useState<string>("#00FFFF");
   const [width, setWidth] = useState<number>(5);
   const isFreeDrawing = useRef<boolean>(false);
   const [open, setOpen] = useState(false); // confirmation modal for delete button - clear canvas
