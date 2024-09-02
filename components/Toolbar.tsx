@@ -1,6 +1,4 @@
-import EraserIcon from "./icons/EraserIcon";
-import DrawIcon from "./icons/DrawIcon";
-import DeleteIcon from "./icons/DeleteIcon";
+import { useState } from "react";
 import {
   Box,
   ButtonGroup,
@@ -10,22 +8,28 @@ import {
   SliderValueLabelProps,
   Tooltip,
 } from "@mui/material";
-import PaletteIcon from "@mui/icons-material/Palette";
+
 import { HexColorPicker } from "react-colorful";
-import { useState } from "react";
-import LineWeightRoundedIcon from "@mui/icons-material/LineWeightRounded";
-import CropSquareRoundedIcon from "@mui/icons-material/CropSquareRounded";
-import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
-import HorizontalRuleRoundedIcon from "@mui/icons-material/HorizontalRuleRounded";
-import ShapeLineOutlinedIcon from "@mui/icons-material/ShapeLineOutlined";
-import TextFieldsIcon from "@mui/icons-material/TextFields";
-import UndoRoundedIcon from "@mui/icons-material/UndoRounded";
-import RedoRoundedIcon from "@mui/icons-material/RedoRounded";
+import EraserIcon from "./icons/EraserIcon";
+import DrawIcon from "./icons/DrawIcon";
+import DeleteIcon from "./icons/DeleteIcon";
+import ShapesIcon from "./icons/ShapesIcon";
+import {
+  Palette,
+  LineWeightRounded,
+  CropSquareRounded,
+  CircleOutlined,
+  HorizontalRuleRounded,
+  TextFields,
+  UndoRounded,
+  RedoRounded,
+} from "@mui/icons-material";
 
 import { CanvasObjectType, ShapeName, ToolType } from "./Canvas";
+
+import { RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { redo, undo } from "@/redux/canvasSlice";
-import { RootState } from "@/redux/store";
 
 function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
   const { children, value } = props;
@@ -132,7 +136,7 @@ function Toolbar({
 
         {/* text */}
         <IconButton aria-label="add a text field" onClick={handleAddTextField}>
-          <TextFieldsIcon />
+          <TextFields />
         </IconButton>
 
         {/* shapes */}
@@ -140,7 +144,7 @@ function Toolbar({
           aria-label="open to select a shape"
           onClick={handleClickShapesButton}
         >
-          <ShapeLineOutlinedIcon />
+          <ShapesIcon />
         </IconButton>
 
         {/* line weight */}
@@ -148,7 +152,7 @@ function Toolbar({
           aria-label="change line weight"
           onClick={handleClickLineWeightButton}
         >
-          <LineWeightRoundedIcon />
+          <LineWeightRounded />
         </IconButton>
 
         {/* color picker */}
@@ -156,7 +160,7 @@ function Toolbar({
           aria-label="open color palette"
           onClick={handleClickColorPickerButton}
         >
-          <PaletteIcon />
+          <Palette />
         </IconButton>
 
         {/* eraser */}
@@ -170,7 +174,7 @@ function Toolbar({
           disabled={undoStack.length === 0}
           onClick={() => dispatch(undo())}
         >
-          <UndoRoundedIcon />
+          <UndoRounded />
         </IconButton>
 
         {/* redo */}
@@ -179,7 +183,7 @@ function Toolbar({
           disabled={redoStack.length === 0}
           onClick={() => dispatch(redo())}
         >
-          <RedoRoundedIcon />
+          <RedoRounded />
         </IconButton>
 
         {/* delete */}
@@ -268,7 +272,7 @@ function Toolbar({
             handleCloseShapesPopover();
           }}
         >
-          <CropSquareRoundedIcon />
+          <CropSquareRounded />
         </IconButton>
         <IconButton
           aria-label="add an ellipse"
@@ -277,7 +281,7 @@ function Toolbar({
             handleCloseShapesPopover();
           }}
         >
-          <CircleOutlinedIcon />
+          <CircleOutlined />
         </IconButton>
         <IconButton
           aria-label="add a line"
@@ -286,7 +290,7 @@ function Toolbar({
             handleCloseShapesPopover();
           }}
         >
-          <HorizontalRuleRoundedIcon />
+          <HorizontalRuleRounded />
         </IconButton>
       </Popover>
     </div>
