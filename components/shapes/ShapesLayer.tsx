@@ -1,8 +1,6 @@
-import { MutableRefObject } from "react";
 import { Layer } from "react-konva";
-import { CanvasObjectType, StageSizeType } from "../Canvas";
+import { CanvasObjectType } from "../Canvas";
 import RectangleShape from "./RectangleShape";
-import LineShape from "./LineShape";
 import OvalShape from "./OvalShape";
 
 type ShapesLayerProps = {
@@ -50,8 +48,6 @@ export default function ShapesLayer({
         return <RectangleShape key={shape.id} {...commonProps} />;
       case "oval":
         return <OvalShape key={shape.id} {...commonProps} />;
-      case "line":
-        return <LineShape key={shape.id} {...commonProps} />;
       default:
         console.warn(`Unknown shape: ${shape.shapeName}`);
         return null;

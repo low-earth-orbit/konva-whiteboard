@@ -19,13 +19,12 @@ import {
   LineWeightRounded,
   CropSquareRounded,
   CircleOutlined,
-  HorizontalRuleRounded,
   TextFields,
   UndoRounded,
   RedoRounded,
 } from "@mui/icons-material";
 
-import { CanvasObjectType, ShapeName, ToolType } from "./Canvas";
+import { CanvasObjectType, ToolType } from "./Canvas";
 
 import { RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -308,18 +307,6 @@ function Toolbar({
             }}
           >
             <CircleOutlined />
-          </IconButton>
-        </Tooltip>
-
-        <Tooltip title="Add line">
-          <IconButton
-            aria-label="Add line"
-            onClick={() => {
-              handleCloseShapesPopover();
-              setTool("addLine");
-            }}
-          >
-            <HorizontalRuleRounded />
           </IconButton>
         </Tooltip>
       </Popover>

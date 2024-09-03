@@ -49,11 +49,10 @@ export type ToolType =
   | "eraser"
   | "pen"
   | "addText"
-  | "addLine"
   | "addOval"
   | "addRectangle";
 
-export type ShapeName = "rectangle" | "line" | "oval";
+export type ShapeName = "rectangle" | "oval";
 
 export default function Canvas() {
   const dispatch = useDispatch();
@@ -230,12 +229,6 @@ export default function Canvas() {
           radiusY: 5,
         };
         break;
-      case "line":
-        newShape = {
-          ...baseShape,
-          points: [x, y, x + 5, y],
-        };
-        break;
       default:
         console.warn(`Unknown shapeName: ${shapeName}`);
         return;
@@ -264,9 +257,6 @@ export default function Canvas() {
           break;
         case "addOval":
           addShape("oval", x + 5, y + 5);
-          break;
-        case "addLine":
-          addShape("line", x, y);
           break;
         default:
           console.warn(`Unknown tool: ${tool}`);
@@ -315,8 +305,6 @@ export default function Canvas() {
       } else if (tool === "addOval") {
         const radiusX = Math.abs((point.x - newObject.x!) / 2);
         const radiusY = Math.abs((point.y - newObject.y!) / 2);
-        const deltaX = point.x - newObject.x!;
-        const deltaY = point.y - newObject.y!;
         setNewObject({
           ...newObject,
           x: point.x + radiusX,
@@ -324,17 +312,8 @@ export default function Canvas() {
           radiusX,
           radiusY,
         });
-      } else if (tool === "addLine") {
-        console.log(newObject);
-        setNewObject({
-          ...newObject,
-          points: [
-            newObject.points![0],
-            newObject.points![1],
-            point.x,
-            point.y,
-          ],
-        });
+      } else {
+        console.warn(`Unknown tool: ${tool}`);
       }
 
       return;
