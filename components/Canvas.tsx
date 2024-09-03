@@ -45,9 +45,15 @@ export interface StageSizeType {
   height: number;
 }
 
-export type ToolType = "eraser" | "pen";
+export type ToolType =
+  | "eraser"
+  | "pen"
+  | "addText"
+  | "addLine"
+  | "addOval"
+  | "addRectangle";
 
-export type ShapeName = "rectangle" | "line" | "ellipse";
+export type ShapeName = "rectangle" | "line" | "oval";
 
 export default function Canvas() {
   const dispatch = useDispatch();
@@ -57,9 +63,13 @@ export default function Canvas() {
 
   const [stageSize, setStageSize] = useState<StageSizeType>();
   const [tool, setTool] = useState<ToolType>("pen");
-  const [color, setColor] = useState<string>("#00FFFF");
-  const [width, setWidth] = useState<number>(5);
-  const isFreeDrawing = useRef<boolean>(false);
+  const [strokeColor, setStrokeColor] = useState<string>("#4A4A4A");
+  const [strokeWidth, setStrokeWidth] = useState<number>(5);
+  const isDrawing = useRef<boolean>(false);
+
+  const isAddingObject = useRef<boolean>(false);
+  const [newObject, setNewObject] = useState<CanvasObjectType>(); // new text/shape object to be added to the canvas
+
   const [open, setOpen] = useState(false); // confirmation modal for delete button - clear canvas
 
   // load from local storage
@@ -135,12 +145,17 @@ export default function Canvas() {
     };
   }, [handleDelete, dispatch]);
 
+  // component has not finished loading the window size
+  if (!stageSize) {
+    return null;
+  }
+
   function updateStyle(property: keyof CanvasObjectType, value: any) {
     // Dynamically update state
     if (property === "strokeWidth") {
-      setWidth(value);
+      setStrokeWidth(value);
     } else if (property === "stroke") {
-      setColor(value);
+      setStrokeColor(value);
     }
 
     // Update object property
@@ -161,33 +176,38 @@ export default function Canvas() {
     dispatch(updateCanvasObject({ id: selectedObjectId, updates: newAttrs }));
   }
 
-  const addTextField = () => {
+  const addTextField = (x: number, y: number) => {
     const newObjectId = uuid();
     let newObject: CanvasObjectType = {
       id: newObjectId,
       type: "text" as const,
-      x: stageSize ? stageSize.width / 2 - 250 : 0,
-      y: stageSize ? stageSize.height / 2 - 100 : 0,
-      width: 500,
-      height: 100,
-      fill: color, // use strokeColor for fill for now
+      x: x,
+      y: y,
+      width: 10,
+      height: 10,
+      fill: strokeColor, // use strokeColor for fill for now
       // strokeWidth not applied to text field for now
       text: "Double click to edit.",
       fontSize: 28,
       fontFamily: "Arial",
     };
-    dispatch(addCanvasObject(newObject));
+
+    if (tool.includes("add")) {
+      setNewObject(newObject);
+    } else {
+      dispatch(addCanvasObject(newObject));
+    }
     dispatch(selectCanvasObject(newObjectId));
   };
 
-  const addShape = (shapeName: ShapeName) => {
+  const addShape = (shapeName: ShapeName, x: number, y: number) => {
     const newShapeId = uuid();
     const baseShape = {
       id: newShapeId,
       shapeName,
       type: "shape" as const,
-      stroke: color,
-      strokeWidth: width,
+      stroke: strokeColor,
+      strokeWidth: strokeWidth,
     }; // common shape properties
 
     let newShape: CanvasObjectType;
@@ -195,30 +215,25 @@ export default function Canvas() {
       case "rectangle":
         newShape = {
           ...baseShape,
-          x: stageSize ? stageSize.width / 2 - 100 : 0,
-          y: stageSize ? stageSize.height / 2 - 50 : 0,
-          width: 200,
-          height: 100,
+          x: x,
+          y: y,
+          width: 5,
+          height: 5,
         };
         break;
-      case "ellipse":
+      case "oval":
         newShape = {
           ...baseShape,
-          x: stageSize ? stageSize.width / 2 : 0,
-          y: stageSize ? stageSize.height / 2 : 0,
-          radiusX: 100,
-          radiusY: 100,
+          x: x,
+          y: y,
+          radiusX: 5,
+          radiusY: 5,
         };
         break;
       case "line":
         newShape = {
           ...baseShape,
-          points: [
-            stageSize ? stageSize.width / 2 - 50 : 0,
-            stageSize ? stageSize.height / 2 : 0,
-            stageSize ? stageSize.width / 2 + 50 : 0,
-            stageSize ? stageSize.height / 2 : 0,
-          ],
+          points: [x, y, x + 5, y],
         };
         break;
       default:
@@ -226,61 +241,136 @@ export default function Canvas() {
         return;
     }
 
-    dispatch(addCanvasObject(newShape));
+    if (tool.includes("add")) {
+      setNewObject(newShape);
+    } else {
+      dispatch(addCanvasObject(newShape));
+    }
     dispatch(selectCanvasObject(newShapeId));
   };
 
-  // component has not finished loading the window size
-  if (!stageSize) {
-    return null;
-  }
-
   const handleMouseDown = (e: any) => {
-    if (selectedObjectId === "") {
-      isFreeDrawing.current = true;
+    if (tool.includes("add")) {
+      isAddingObject.current = true;
       const pos = e.target.getStage().getPointerPosition();
-      const newLine: CanvasObjectType = {
-        id: uuid(),
-        tool,
-        type: "line",
-        points: [pos.x, pos.y],
-        stroke: color,
-        strokeWidth: width,
-      };
-      dispatch(addCanvasObject(newLine));
-    } else {
-      // deselect shapes when clicked on empty area
-      const clickedOnEmpty = e.target === e.target.getStage();
-      if (clickedOnEmpty) {
-        dispatch(selectCanvasObject(""));
+      const { x, y } = pos;
+      // New object based on tool
+      switch (tool) {
+        case "addText":
+          addTextField(x, y);
+          break;
+        case "addRectangle":
+          addShape("rectangle", x, y);
+          break;
+        case "addOval":
+          addShape("oval", x + 5, y + 5);
+          break;
+        case "addLine":
+          addShape("line", x, y);
+          break;
+        default:
+          console.warn(`Unknown tool: ${tool}`);
+          return;
+      }
+      return;
+    }
+
+    if (!isAddingObject.current) {
+      if (selectedObjectId === "") {
+        isDrawing.current = true;
+        const pos = e.target.getStage().getPointerPosition();
+        const newLine: CanvasObjectType = {
+          id: uuid(),
+          tool,
+          type: "line",
+          points: [pos.x, pos.y],
+          stroke: strokeColor,
+          strokeWidth: strokeWidth,
+        };
+        dispatch(addCanvasObject(newLine));
+      } else {
+        // deselect shapes when clicked on empty area
+        const clickedOnEmpty = e.target === e.target.getStage();
+        if (clickedOnEmpty) {
+          dispatch(selectCanvasObject(""));
+        }
       }
     }
   };
 
   const handleMouseMove = (e: any) => {
-    if (!isFreeDrawing.current || selectedObjectId !== "") {
+    if (isAddingObject.current && newObject) {
+      const stage = e.target.getStage();
+      const point = stage.getPointerPosition();
+
+      // Update new object based on mouse position
+      if (tool === "addRectangle" || tool === "addText") {
+        const width = point.x - newObject.x!;
+        const height = point.y - newObject.y!;
+        setNewObject({
+          ...newObject,
+          width: Math.abs(width),
+          height: Math.abs(height),
+        });
+      } else if (tool === "addOval") {
+        const radiusX = Math.abs((point.x - newObject.x!) / 2);
+        const radiusY = Math.abs((point.y - newObject.y!) / 2);
+        const deltaX = point.x - newObject.x!;
+        const deltaY = point.y - newObject.y!;
+        setNewObject({
+          ...newObject,
+          x: point.x + radiusX,
+          y: point.y + radiusY,
+          radiusX,
+          radiusY,
+        });
+      } else if (tool === "addLine") {
+        console.log(newObject);
+        setNewObject({
+          ...newObject,
+          points: [
+            newObject.points![0],
+            newObject.points![1],
+            point.x,
+            point.y,
+          ],
+        });
+      }
+
       return;
     }
-    const stage = e.target.getStage();
-    const point = stage.getPointerPosition();
-    const lastObject = canvasObjects[canvasObjects.length - 1];
 
-    if (lastObject.type === "line") {
-      // Create a new object that copies the lastObject and updates points
-      const updatedObject = {
-        ...lastObject,
-        points: lastObject.points!.concat([point.x, point.y]),
-      };
+    if (isDrawing.current) {
+      const stage = e.target.getStage();
+      const point = stage.getPointerPosition();
 
-      // Dispatch the update with the new object
-      dispatch(
-        updateCanvasObject({ id: lastObject.id, updates: updatedObject })
-      );
+      const lastObject = canvasObjects[canvasObjects.length - 1];
+
+      if (lastObject.type === "line") {
+        // Create a new object that copies the lastObject and updates points
+        const updatedObject = {
+          ...lastObject,
+          points: lastObject.points!.concat([point.x, point.y]),
+        };
+
+        // Dispatch the update with the new object
+        dispatch(
+          updateCanvasObject({ id: lastObject.id, updates: updatedObject })
+        );
+      }
     }
   };
 
   const handleMouseUp = () => {
-    isFreeDrawing.current = false;
+    // Add object to store upon releasing mouse
+    if (isAddingObject.current) {
+      if (newObject) dispatch(addCanvasObject(newObject));
+      setNewObject(undefined);
+      isAddingObject.current = false;
+    }
+
+    if (isDrawing) isDrawing.current = false;
+    setTool("pen");
   };
 
   return (
@@ -296,9 +386,10 @@ export default function Canvas() {
         <LinesLayer objects={canvasObjects} />
         <ShapesLayer
           objects={canvasObjects}
+          newObject={newObject}
           onChange={updateSelectedObject}
-          setColor={setColor}
-          setWidth={setWidth}
+          setColor={setStrokeColor}
+          setWidth={setStrokeWidth}
           selectedObjectId={selectedObjectId}
           setSelectedObjectId={(newObjectId) =>
             dispatch(selectCanvasObject(newObjectId))
@@ -306,6 +397,7 @@ export default function Canvas() {
         />
         <TextFieldsLayer
           objects={canvasObjects}
+          newObject={newObject}
           selectedObjectId={selectedObjectId}
           setSelectedObjectId={(newObjectId) =>
             dispatch(selectCanvasObject(newObjectId))
@@ -316,13 +408,11 @@ export default function Canvas() {
       <Toolbar
         objects={canvasObjects}
         setTool={setTool}
-        color={color}
+        color={strokeColor}
         onSelectColor={(newColor) => updateStyle("stroke", newColor)}
         onDelete={handleDelete}
-        strokeWidth={width}
+        strokeWidth={strokeWidth}
         setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
-        handleAddShape={addShape}
-        handleAddTextField={addTextField}
       />
       <ConfirmationDialog
         open={open}

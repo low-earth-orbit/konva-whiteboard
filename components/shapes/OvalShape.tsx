@@ -3,19 +3,19 @@ import { Ellipse, Transformer } from "react-konva";
 import { CanvasObjectType } from "../Canvas";
 import Konva from "konva";
 
-type EllipseShapeProps = {
+type OvalShapeProps = {
   shapeProps: Partial<CanvasObjectType>;
   isSelected: boolean;
   onSelect: () => void;
   onChange: (newAttrs: Partial<CanvasObjectType>) => void;
 };
 
-export default function EllipseShape({
+export default function OvalShape({
   shapeProps,
   isSelected,
   onSelect,
   onChange,
-}: EllipseShapeProps) {
+}: OvalShapeProps) {
   const shapeRef = useRef<Konva.Ellipse>(null);
   const trRef = useRef<Konva.Transformer>(null);
 

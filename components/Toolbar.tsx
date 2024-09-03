@@ -49,8 +49,6 @@ type ToolbarProps = {
   onSelectColor: (newColor: string) => void;
   strokeWidth: number;
   setStrokeWidth: (newWidth: number) => void;
-  handleAddShape: (shapeName: ShapeName) => void;
-  handleAddTextField: () => void;
 };
 
 function Toolbar({
@@ -61,8 +59,6 @@ function Toolbar({
   onSelectColor,
   strokeWidth,
   setStrokeWidth,
-  handleAddShape,
-  handleAddTextField,
 }: ToolbarProps) {
   const dispatch = useDispatch();
 
@@ -138,7 +134,12 @@ function Toolbar({
 
         {/* text */}
         <Tooltip title="Add text">
-          <IconButton aria-label="Add text" onClick={handleAddTextField}>
+          <IconButton
+            aria-label="Add text"
+            onClick={() => {
+              setTool("addText");
+            }}
+          >
             <TextFields />
           </IconButton>
         </Tooltip>
@@ -179,36 +180,42 @@ function Toolbar({
 
         {/* undo */}
         <Tooltip title="Undo">
-          <IconButton
-            aria-label="undo"
-            disabled={undoStack.length === 0}
-            onClick={() => dispatch(undo())}
-          >
-            <UndoRounded />
-          </IconButton>
+          <span>
+            <IconButton
+              aria-label="undo"
+              disabled={undoStack.length === 0}
+              onClick={() => dispatch(undo())}
+            >
+              <UndoRounded />
+            </IconButton>
+          </span>
         </Tooltip>
 
         {/* redo */}
         <Tooltip title="Redo">
-          <IconButton
-            aria-label="redo"
-            disabled={redoStack.length === 0}
-            onClick={() => dispatch(redo())}
-          >
-            <RedoRounded />
-          </IconButton>
+          <span>
+            <IconButton
+              aria-label="redo"
+              disabled={redoStack.length === 0}
+              onClick={() => dispatch(redo())}
+            >
+              <RedoRounded />
+            </IconButton>
+          </span>
         </Tooltip>
 
         {/* delete */}
         <Tooltip title="Delete">
-          <IconButton
-            aria-label="delete"
-            onClick={onDelete}
-            color="warning"
-            disabled={objects.length === 0}
-          >
-            <DeleteIcon />
-          </IconButton>
+          <span>
+            <IconButton
+              aria-label="delete"
+              onClick={onDelete}
+              color="warning"
+              disabled={objects.length === 0}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </span>
         </Tooltip>
       </ButtonGroup>
 
@@ -284,8 +291,8 @@ function Toolbar({
           <IconButton
             aria-label="Add rectangle"
             onClick={() => {
-              handleAddShape("rectangle");
               handleCloseShapesPopover();
+              setTool("addRectangle");
             }}
           >
             <CropSquareRounded />
@@ -296,8 +303,8 @@ function Toolbar({
           <IconButton
             aria-label="Add oval"
             onClick={() => {
-              handleAddShape("ellipse");
               handleCloseShapesPopover();
+              setTool("addOval");
             }}
           >
             <CircleOutlined />
@@ -308,8 +315,8 @@ function Toolbar({
           <IconButton
             aria-label="Add line"
             onClick={() => {
-              handleAddShape("line");
               handleCloseShapesPopover();
+              setTool("addLine");
             }}
           >
             <HorizontalRuleRounded />

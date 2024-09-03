@@ -4,6 +4,7 @@ import TextField from "./TextField";
 
 type Props = {
   objects: CanvasObjectType[];
+  newObject: CanvasObjectType | undefined;
   selectedObjectId: string;
   setSelectedObjectId: (id: string) => void;
   onChange: (
@@ -14,11 +15,15 @@ type Props = {
 
 export default function TextFieldsLayer({
   objects,
+  newObject,
   selectedObjectId,
   setSelectedObjectId,
   onChange,
 }: Props) {
-  const texts = objects.filter((obj: CanvasObjectType) => obj.type === "text");
+  const texts = [
+    ...objects.filter((obj: CanvasObjectType) => obj.type === "text"),
+    ...(newObject && newObject.type === "text" ? [newObject] : []),
+  ];
 
   return (
     <Layer>
