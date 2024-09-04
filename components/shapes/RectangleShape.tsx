@@ -1,92 +1,105 @@
 import React, { useEffect, useRef } from "react";
-import { Rect, Transformer } from "react-konva";
+import { Group, Rect, Transformer } from "react-konva";
 import { CanvasObjectType } from "../Canvas";
 import Konva from "konva";
 
-type RectangleShapeProps = {
+type Props = {
   shapeProps: Partial<CanvasObjectType>;
   isSelected: boolean;
   onSelect: () => void;
   onChange: (newAttrs: Partial<CanvasObjectType>) => void;
 };
 
-export default function RectangleShape({
-  shapeProps,
-  isSelected,
-  onSelect,
-  onChange,
-}: RectangleShapeProps) {
-  const shapeRef = useRef<Konva.Rect>(null);
+const getStrokeWidth = (
+  strokeWidth: number | undefined,
+  width: number | undefined,
+  height: number | undefined
+) => {
+  if (width && height) {
+    const minStrokeWidth = Math.max(Math.min(width, height) / 2, 1);
+    if (strokeWidth && strokeWidth * 2 > Math.min(width, height)) {
+      return minStrokeWidth;
+    }
+    return strokeWidth;
+  }
+};
+
+export default function RectangleShape({ shapeProps, isSelected, onSelect, onChange }: Props) {
+  const groupRef = useRef<Konva.Group>(null);
   const trRef = useRef<Konva.Transformer>(null);
 
   useEffect(() => {
-    if (isSelected && trRef.current && shapeRef.current) {
-      // we need to attach transformer manually
-      trRef.current.nodes([shapeRef.current]);
+    if (isSelected && trRef.current && groupRef.current) {
+      // attach the transformer to the group
+      trRef.current.nodes([groupRef.current]);
       trRef.current.getLayer()?.batchDraw();
     }
   }, [isSelected]);
 
-  const { shapeName, id, x, y, width, height, stroke, strokeWidth } =
-    shapeProps;
+  const { id, x, y, width, height, stroke, strokeWidth, rotation } = shapeProps;
 
-  const selectedProps = {
-    shapeName,
-    id,
-    x,
-    y,
-    width,
-    height,
-    stroke,
-    strokeWidth,
-  };
+  const adjustedStrokeWidth = getStrokeWidth(strokeWidth, width, height);
 
   return (
     <>
-      <Rect
+      <Group
+        ref={groupRef}
+        name="shapeGroup"
+        id={id}
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        draggable
+        rotation={rotation}
         onClick={onSelect}
         onTap={onSelect}
-        ref={shapeRef}
-        {...selectedProps}
-        draggable
-        lineJoin="round" // round corners
         onDragEnd={(e) => {
           onChange({
-            ...selectedProps,
+            ...shapeProps,
             x: e.target.x(),
             y: e.target.y(),
           });
         }}
         onTransformEnd={(e) => {
-          // transformer is changing scale of the node
-          // and NOT its width or height
-          // but in the store we have only width and height
-          // to match the data better we will reset scale on transform end
-          const node = shapeRef.current;
-          if (node) {
-            const scaleX = node.scaleX();
-            const scaleY = node.scaleY();
+          const group = groupRef.current;
 
-            // we will reset it back
-            node.scaleX(1);
-            node.scaleY(1);
+          console.log("node inside onTransformEnd = ", group);
+
+          if (group) {
+            const scaleX = group.scaleX();
+            const scaleY = group.scaleY();
+
+            // Update shapeProps with the new dimensions and position
             onChange({
-              ...selectedProps,
-              x: node.x(),
-              y: node.y(),
-              // set minimal value
-              width: Math.max(
-                5,
-                (selectedProps.width ?? node.width()) * scaleX
-              ),
-              height: Math.max(
-                5,
-                (selectedProps.height ?? node.height()) * scaleY
-              ),
+              ...shapeProps,
+              x: group.x(),
+              y: group.y(),
+              width: Math.max(5, group.width() * scaleX),
+              height: Math.max(5, group.height() * scaleY),
+              rotation: group.rotation(),
             });
+
+            // Reset scale
+            group.scaleX(1);
+            group.scaleY(1);
           }
+
+          trRef.current?.getLayer()?.batchDraw();
         }}
-      />
+      >
+        <Rect
+          name="shape"
+          id={`shape-${id}`}
+          x={0}
+          y={0}
+          width={width}
+          height={height}
+          stroke={stroke}
+          strokeWidth={adjustedStrokeWidth}
+          lineJoin="round" // round corners
+        />
+      </Group>
       {isSelected && (
         <Transformer
           ref={trRef}
