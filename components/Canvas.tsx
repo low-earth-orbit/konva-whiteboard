@@ -63,10 +63,6 @@ export default function Canvas() {
   const [strokeColor, setStrokeColor] = useState<string>("#2986cc");
   const [strokeWidth, setStrokeWidth] = useState<number>(5);
   const isDrawing = useRef<boolean>(false);
-  const [initialPosition, setInitialPosition] = useState<{
-    x: number;
-    y: number;
-  }>();
 
   const isAddingObject = useRef<boolean>(false);
   const [newObject, setNewObject] = useState<CanvasObjectType>(); // new text/shape object to be added to the canvas
@@ -245,8 +241,6 @@ export default function Canvas() {
       isAddingObject.current = true;
       const pos = e.target.getStage().getPointerPosition();
       const { x, y } = pos;
-      // Memorize the initial position for the new object
-      setInitialPosition({ x, y });
 
       // Add new object based on tool
       switch (tool) {
