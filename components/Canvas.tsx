@@ -32,8 +32,6 @@ export interface CanvasObjectType {
   y?: number;
   width?: number;
   height?: number;
-  radiusX?: number;
-  radiusY?: number;
   text?: string;
   fontSize?: number;
   fontFamily?: string;
@@ -65,6 +63,10 @@ export default function Canvas() {
   const [strokeColor, setStrokeColor] = useState<string>("#4A4A4A");
   const [strokeWidth, setStrokeWidth] = useState<number>(5);
   const isDrawing = useRef<boolean>(false);
+  const [initialPosition, setInitialPosition] = useState<{
+    x: number;
+    y: number;
+  }>();
 
   const isAddingObject = useRef<boolean>(false);
   const [newObject, setNewObject] = useState<CanvasObjectType>(); // new text/shape object to be added to the canvas
@@ -207,6 +209,10 @@ export default function Canvas() {
       type: "shape" as const,
       stroke: strokeColor,
       strokeWidth: strokeWidth,
+      x: x,
+      y: y,
+      width: 5,
+      height: 5,
     }; // common shape properties
 
     let newShape: CanvasObjectType;
@@ -214,19 +220,11 @@ export default function Canvas() {
       case "rectangle":
         newShape = {
           ...baseShape,
-          x: x,
-          y: y,
-          width: 5,
-          height: 5,
         };
         break;
       case "oval":
         newShape = {
           ...baseShape,
-          x: x,
-          y: y,
-          radiusX: 5,
-          radiusY: 5,
         };
         break;
       default:
@@ -247,7 +245,10 @@ export default function Canvas() {
       isAddingObject.current = true;
       const pos = e.target.getStage().getPointerPosition();
       const { x, y } = pos;
-      // New object based on tool
+      // Memorize the initial position for the new object
+      setInitialPosition({ x, y });
+
+      // Add new object based on tool
       switch (tool) {
         case "addText":
           addTextField(x, y);
@@ -256,7 +257,7 @@ export default function Canvas() {
           addShape("rectangle", x, y);
           break;
         case "addOval":
-          addShape("oval", x + 5, y + 5);
+          addShape("oval", x, y);
           break;
         default:
           console.warn(`Unknown tool: ${tool}`);
@@ -293,24 +294,15 @@ export default function Canvas() {
       const stage = e.target.getStage();
       const point = stage.getPointerPosition();
 
+      const width = Math.max(point.x - newObject.x! || 5);
+      const height = Math.max(point.y - newObject.y! || 5);
+
       // Update new object based on mouse position
-      if (tool === "addRectangle" || tool === "addText") {
-        const width = point.x - newObject.x!;
-        const height = point.y - newObject.y!;
+      if (tool === "addRectangle" || tool === "addText" || tool === "addOval") {
         setNewObject({
           ...newObject,
           width: Math.abs(width),
           height: Math.abs(height),
-        });
-      } else if (tool === "addOval") {
-        const radiusX = Math.abs((point.x - newObject.x!) / 2);
-        const radiusY = Math.abs((point.y - newObject.y!) / 2);
-        setNewObject({
-          ...newObject,
-          x: point.x + radiusX,
-          y: point.y + radiusY,
-          radiusX,
-          radiusY,
         });
       } else {
         console.warn(`Unknown tool: ${tool}`);

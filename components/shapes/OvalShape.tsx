@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from "react";
-import { Ellipse, Transformer } from "react-konva";
+import { Ellipse, Group, Transformer } from "react-konva";
 import { CanvasObjectType } from "../Canvas";
 import Konva from "konva";
+import { getStrokeWidth } from "./shapeUtils";
 
-type OvalShapeProps = {
+type Props = {
   shapeProps: Partial<CanvasObjectType>;
   isSelected: boolean;
   onSelect: () => void;
@@ -15,86 +16,84 @@ export default function OvalShape({
   isSelected,
   onSelect,
   onChange,
-}: OvalShapeProps) {
-  const shapeRef = useRef<Konva.Ellipse>(null);
+}: Props) {
+  const groupRef = useRef<Konva.Group>(null);
   const trRef = useRef<Konva.Transformer>(null);
 
   useEffect(() => {
-    if (isSelected && trRef.current && shapeRef.current) {
+    if (isSelected && trRef.current && groupRef.current) {
       // we need to attach transformer manually
-      trRef.current.nodes([shapeRef.current]);
+      trRef.current.nodes([groupRef.current]);
       trRef.current.getLayer()?.batchDraw();
     }
   }, [isSelected]);
 
-  const { shapeName, id, x, y, radiusX, radiusY, stroke, strokeWidth } =
+  const { shapeName, id, x, y, width, height, stroke, strokeWidth, rotation } =
     shapeProps;
 
-  const selectedProps = {
-    shapeName,
-    id,
-    x,
-    y,
-    radiusX,
-    radiusY,
-    stroke,
-    strokeWidth,
-  };
+  const adjustedStrokeWidth = getStrokeWidth(strokeWidth, width, height);
 
   return (
     <>
-      <Ellipse
+      <Group
+        ref={groupRef}
+        name={`shapeGroup-${shapeName}`}
+        id={`shapeGroup-${shapeName}-${id}`}
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        rotation={rotation}
         onClick={onSelect}
         onTap={onSelect}
-        ref={shapeRef}
-        {...selectedProps}
-        draggable
-        radiusX={selectedProps.radiusX!}
-        radiusY={selectedProps.radiusY!}
-        onDragEnd={(e) => {
-          onChange({
-            ...selectedProps,
-            x: e.target.x(),
-            y: e.target.y(),
-          });
-        }}
         onTransformEnd={(e) => {
-          // transformer is changing scale of the node
-          // and NOT its width or height
-          // but in the store we have only width and height
-          // to match the data better we will reset scale on transform end
-          const node = shapeRef.current;
-          if (node) {
-            const scaleX = node.scaleX();
-            const scaleY = node.scaleY();
+          const group = groupRef.current;
 
-            // we will reset it back
-            node.scaleX(1);
-            node.scaleY(1);
+          if (group) {
+            const scaleX = group.scaleX();
+            const scaleY = group.scaleY();
 
+            const newWidth = Math.max(5, group.width() * scaleX);
+            const newHeight = Math.max(5, group.height() * scaleY);
+
+            // Update shapeProps with the new dimensions and position
             onChange({
-              ...selectedProps,
-              x: node.x(),
-              y: node.y(),
-              // set minimal value
-              radiusX: Math.max(
-                5,
-                (selectedProps.radiusX ?? node.width() / 2) * scaleX
-              ),
-              radiusY: Math.max(
-                5,
-                (selectedProps.radiusY ?? node.height() / 2) * scaleY
-              ),
+              ...shapeProps,
+              x: group.x(),
+              y: group.y(),
+              width: newWidth,
+              height: newHeight,
+              rotation: group.rotation(),
             });
+
+            // Reset scale
+            group.scaleX(1);
+            group.scaleY(1);
           }
+
+          trRef.current?.getLayer()?.batchDraw();
         }}
-      />
+      >
+        <Ellipse
+          name={`shape-${shapeName}`}
+          id={`shape-${shapeName}-${id}`}
+          x={width! / 2}
+          y={height! / 2}
+          width={width! - adjustedStrokeWidth!}
+          height={height! - adjustedStrokeWidth!}
+          radiusX={width! / 2 - adjustedStrokeWidth! / 2}
+          radiusY={height! / 2 - adjustedStrokeWidth! / 2}
+          stroke={stroke}
+          strokeWidth={adjustedStrokeWidth}
+        />
+      </Group>
       {isSelected && (
         <Transformer
           ref={trRef}
           flipEnabled={false}
+          shouldOverdrawWholeArea
           boundBoxFunc={(oldBox, newBox) => {
-            // limit resize
+            // Limit resize
             if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {
               return oldBox;
             }
