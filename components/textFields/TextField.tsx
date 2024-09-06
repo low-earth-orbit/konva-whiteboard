@@ -162,7 +162,7 @@ export default function TextField({
         onTap={onSelect}
         ref={textRef}
         {...selectedProps}
-        draggable
+        draggable={isSelected}
         onDragEnd={(e) => {
           onChange({
             ...selectedProps,

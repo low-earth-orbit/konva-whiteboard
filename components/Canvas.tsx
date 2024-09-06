@@ -60,7 +60,7 @@ export default function Canvas() {
 
   const [stageSize, setStageSize] = useState<StageSizeType>();
   const [tool, setTool] = useState<ToolType>("pen");
-  const [strokeColor, setStrokeColor] = useState<string>("#4A4A4A");
+  const [strokeColor, setStrokeColor] = useState<string>("#2986cc");
   const [strokeWidth, setStrokeWidth] = useState<number>(5);
   const isDrawing = useRef<boolean>(false);
   const [initialPosition, setInitialPosition] = useState<{
