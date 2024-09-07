@@ -1,12 +1,11 @@
-import { MutableRefObject } from "react";
 import { Layer } from "react-konva";
-import { CanvasObjectType, StageSizeType } from "../Canvas";
+import { CanvasObjectType } from "../Canvas";
 import RectangleShape from "./RectangleShape";
-import EllipseShape from "./EllipseShape";
-import LineShape from "./LineShape";
+import OvalShape from "./OvalShape";
 
 type ShapesLayerProps = {
   objects: CanvasObjectType[];
+  newObject: CanvasObjectType | null;
   onChange: (
     newAttrs: Partial<CanvasObjectType>,
     selectedObjectId: string
@@ -19,17 +18,19 @@ type ShapesLayerProps = {
 
 export default function ShapesLayer({
   objects,
+  newObject,
   onChange,
   setColor,
   setWidth,
   selectedObjectId,
   setSelectedObjectId,
 }: ShapesLayerProps) {
-  const shapes = objects.filter(
-    (obj: CanvasObjectType) => obj.type === "shape"
-  );
+  const shapes = [
+    ...objects.filter((obj: CanvasObjectType) => obj.type === "shape"),
+    ...(newObject && newObject.type === "shape" ? [newObject] : []),
+  ];
 
-  const renderShape = (shape: CanvasObjectType, i: number) => {
+  const renderShape = (shape: CanvasObjectType) => {
     const commonProps = {
       shapeProps: shape,
       isSelected: shape.id === selectedObjectId,
@@ -45,15 +46,13 @@ export default function ShapesLayer({
     switch (shape.shapeName) {
       case "rectangle":
         return <RectangleShape key={shape.id} {...commonProps} />;
-      case "ellipse":
-        return <EllipseShape key={shape.id} {...commonProps} />;
-      case "line":
-        return <LineShape key={shape.id} {...commonProps} />;
+      case "oval":
+        return <OvalShape key={shape.id} {...commonProps} />;
       default:
         console.warn(`Unknown shape: ${shape.shapeName}`);
         return null;
     }
   };
 
-  return <Layer>{shapes.map((shape, i) => renderShape(shape, i))}</Layer>;
+  return <Layer>{shapes.map((shape, i) => renderShape(shape))}</Layer>;
 }

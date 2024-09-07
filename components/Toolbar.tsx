@@ -1,6 +1,4 @@
-import EraserIcon from "./icons/EraserIcon";
-import DrawIcon from "./icons/DrawIcon";
-import DeleteIcon from "./icons/DeleteIcon";
+import { useState } from "react";
 import {
   Box,
   ButtonGroup,
@@ -10,22 +8,27 @@ import {
   SliderValueLabelProps,
   Tooltip,
 } from "@mui/material";
-import PaletteIcon from "@mui/icons-material/Palette";
-import { HexColorPicker } from "react-colorful";
-import { useState } from "react";
-import LineWeightRoundedIcon from "@mui/icons-material/LineWeightRounded";
-import CropSquareRoundedIcon from "@mui/icons-material/CropSquareRounded";
-import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
-import HorizontalRuleRoundedIcon from "@mui/icons-material/HorizontalRuleRounded";
-import ShapeLineOutlinedIcon from "@mui/icons-material/ShapeLineOutlined";
-import TextFieldsIcon from "@mui/icons-material/TextFields";
-import UndoRoundedIcon from "@mui/icons-material/UndoRounded";
-import RedoRoundedIcon from "@mui/icons-material/RedoRounded";
 
-import { CanvasObjectType, ShapeName, ToolType } from "./Canvas";
+import { HexColorPicker } from "react-colorful";
+import EraserIcon from "./icons/EraserIcon";
+import DrawIcon from "./icons/DrawIcon";
+import DeleteIcon from "./icons/DeleteIcon";
+import ShapesIcon from "./icons/ShapesIcon";
+import {
+  Palette,
+  LineWeightRounded,
+  CropSquareRounded,
+  CircleOutlined,
+  TextFields,
+  UndoRounded,
+  RedoRounded,
+} from "@mui/icons-material";
+
+import { CanvasObjectType, ToolType } from "./Canvas";
+
+import { RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { redo, undo } from "@/redux/canvasSlice";
-import { RootState } from "@/redux/store";
 
 function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
   const { children, value } = props;
@@ -45,8 +48,6 @@ type ToolbarProps = {
   onSelectColor: (newColor: string) => void;
   strokeWidth: number;
   setStrokeWidth: (newWidth: number) => void;
-  handleAddShape: (shapeName: ShapeName) => void;
-  handleAddTextField: () => void;
 };
 
 function Toolbar({
@@ -57,8 +58,6 @@ function Toolbar({
   onSelectColor,
   strokeWidth,
   setStrokeWidth,
-  handleAddShape,
-  handleAddTextField,
 }: ToolbarProps) {
   const dispatch = useDispatch();
 
@@ -126,71 +125,97 @@ function Toolbar({
         className="flex gap-2 p-1"
       >
         {/* pen */}
-        <IconButton aria-label="draw" onClick={() => setTool("pen")}>
-          <DrawIcon />
-        </IconButton>
+        <Tooltip title="Draw">
+          <IconButton aria-label="Draw" onClick={() => setTool("pen")}>
+            <DrawIcon />
+          </IconButton>
+        </Tooltip>
 
         {/* text */}
-        <IconButton aria-label="add a text field" onClick={handleAddTextField}>
-          <TextFieldsIcon />
-        </IconButton>
+        <Tooltip title="Add text">
+          <IconButton
+            aria-label="Add text"
+            onClick={() => {
+              setTool("addText");
+            }}
+          >
+            <TextFields />
+          </IconButton>
+        </Tooltip>
 
         {/* shapes */}
-        <IconButton
-          aria-label="open to select a shape"
-          onClick={handleClickShapesButton}
-        >
-          <ShapeLineOutlinedIcon />
-        </IconButton>
+        <Tooltip title="Add shape">
+          <IconButton aria-label="Add shape" onClick={handleClickShapesButton}>
+            <ShapesIcon />
+          </IconButton>
+        </Tooltip>
 
         {/* line weight */}
-        <IconButton
-          aria-label="change line weight"
-          onClick={handleClickLineWeightButton}
-        >
-          <LineWeightRoundedIcon />
-        </IconButton>
+        <Tooltip title="Stroke width">
+          <IconButton
+            aria-label="Change stroke width"
+            onClick={handleClickLineWeightButton}
+          >
+            <LineWeightRounded />
+          </IconButton>
+        </Tooltip>
 
         {/* color picker */}
-        <IconButton
-          aria-label="open color palette"
-          onClick={handleClickColorPickerButton}
-        >
-          <PaletteIcon />
-        </IconButton>
+        <Tooltip title="Color">
+          <IconButton
+            aria-label="open color palette"
+            onClick={handleClickColorPickerButton}
+          >
+            <Palette />
+          </IconButton>
+        </Tooltip>
 
         {/* eraser */}
-        <IconButton aria-label="erase" onClick={() => setTool("eraser")}>
-          <EraserIcon />
-        </IconButton>
+        <Tooltip title="Eraser">
+          <IconButton aria-label="erase" onClick={() => setTool("eraser")}>
+            <EraserIcon />
+          </IconButton>
+        </Tooltip>
 
         {/* undo */}
-        <IconButton
-          aria-label="undo"
-          disabled={undoStack.length === 0}
-          onClick={() => dispatch(undo())}
-        >
-          <UndoRoundedIcon />
-        </IconButton>
+        <Tooltip title="Undo">
+          <span>
+            <IconButton
+              aria-label="undo"
+              disabled={undoStack.length === 0}
+              onClick={() => dispatch(undo())}
+            >
+              <UndoRounded />
+            </IconButton>
+          </span>
+        </Tooltip>
 
         {/* redo */}
-        <IconButton
-          aria-label="redo"
-          disabled={redoStack.length === 0}
-          onClick={() => dispatch(redo())}
-        >
-          <RedoRoundedIcon />
-        </IconButton>
+        <Tooltip title="Redo">
+          <span>
+            <IconButton
+              aria-label="redo"
+              disabled={redoStack.length === 0}
+              onClick={() => dispatch(redo())}
+            >
+              <RedoRounded />
+            </IconButton>
+          </span>
+        </Tooltip>
 
         {/* delete */}
-        <IconButton
-          aria-label="delete"
-          onClick={onDelete}
-          color="warning"
-          disabled={objects.length === 0}
-        >
-          <DeleteIcon />
-        </IconButton>
+        <Tooltip title="Delete">
+          <span>
+            <IconButton
+              aria-label="delete"
+              onClick={onDelete}
+              color="warning"
+              disabled={objects.length === 0}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </span>
+        </Tooltip>
       </ButtonGroup>
 
       {/* colorPickerPopover */}
@@ -261,33 +286,29 @@ function Toolbar({
         }}
       >
         {/* shapes */}
-        <IconButton
-          aria-label="add a rectangle"
-          onClick={() => {
-            handleAddShape("rectangle");
-            handleCloseShapesPopover();
-          }}
-        >
-          <CropSquareRoundedIcon />
-        </IconButton>
-        <IconButton
-          aria-label="add an ellipse"
-          onClick={() => {
-            handleAddShape("ellipse");
-            handleCloseShapesPopover();
-          }}
-        >
-          <CircleOutlinedIcon />
-        </IconButton>
-        <IconButton
-          aria-label="add a line"
-          onClick={() => {
-            handleAddShape("line");
-            handleCloseShapesPopover();
-          }}
-        >
-          <HorizontalRuleRoundedIcon />
-        </IconButton>
+        <Tooltip title="Add rectangle">
+          <IconButton
+            aria-label="Add rectangle"
+            onClick={() => {
+              handleCloseShapesPopover();
+              setTool("addRectangle");
+            }}
+          >
+            <CropSquareRounded />
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title="Add oval">
+          <IconButton
+            aria-label="Add oval"
+            onClick={() => {
+              handleCloseShapesPopover();
+              setTool("addOval");
+            }}
+          >
+            <CircleOutlined />
+          </IconButton>
+        </Tooltip>
       </Popover>
     </div>
   );

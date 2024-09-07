@@ -1,25 +1,47 @@
-# konva-whiteboard
+# Konva Whiteboard
 
-A whiteboard app made with Konva library.
+A simple whiteboard app built using Konva library.
 
-Demo: [Click Me](https://whiteboard.leohong.dev)
+Demo: [Try it here](https://whiteboard.leohong.dev)
 
-## Tech
+## Features
 
-- TypeScript
+- Canvas objects
+  - Pen & eraser
+  - Text fields
+  - Shapes
+    - Rectangle
+    - Oval
+  - Adjustable shape borders (width & color)
+
+- Canvas
+  - History (undo & redo)
+  - Delete item or clear the entire canvas
+  - Keyboard shortcuts for delete/undo/redo actions
+  - Persistent canvas data stored in browser's local storage
+
+## Tech Stack
+
 - React
-- Next.js
-- Redux
-- Tailwind CSS
-- MUI (Material UI)
 - Konva.js
+- TypeScript
+- Redux
+- Next.js
+- MUI (Material UI)
+- Tailwind CSS
 
-## Run
+## Develop
 
-First, run the development server:
+### Run
+
+To run the development server locally:
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then, open [http://localhost:3000](http://localhost:3000) in your browser to access the app.
+
+## Contribute
+
+Contributions are welcome! More details will be provided soon.

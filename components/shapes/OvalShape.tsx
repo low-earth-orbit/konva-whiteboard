@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Group, Rect, Transformer } from "react-konva";
+import { Ellipse, Group, Transformer } from "react-konva";
 import { CanvasObjectType } from "../Canvas";
 import Konva from "konva";
 import { getStrokeWidth } from "./shapeUtils";
@@ -11,13 +11,18 @@ type Props = {
   onChange: (newAttrs: Partial<CanvasObjectType>) => void;
 };
 
-export default function RectangleShape({ shapeProps, isSelected, onSelect, onChange }: Props) {
+export default function OvalShape({
+  shapeProps,
+  isSelected,
+  onSelect,
+  onChange,
+}: Props) {
   const groupRef = useRef<Konva.Group>(null);
   const trRef = useRef<Konva.Transformer>(null);
 
   useEffect(() => {
     if (isSelected && trRef.current && groupRef.current) {
-      // attach the transformer to the group
+      // we need to attach transformer manually
       trRef.current.nodes([groupRef.current]);
       trRef.current.getLayer()?.batchDraw();
     }
@@ -55,13 +60,16 @@ export default function RectangleShape({ shapeProps, isSelected, onSelect, onCha
             const scaleX = group.scaleX();
             const scaleY = group.scaleY();
 
+            const newWidth = Math.max(5, group.width() * scaleX);
+            const newHeight = Math.max(5, group.height() * scaleY);
+
             // Update shapeProps with the new dimensions and position
             onChange({
               ...shapeProps,
               x: group.x(),
               y: group.y(),
-              width: Math.max(5, group.width() * scaleX),
-              height: Math.max(5, group.height() * scaleY),
+              width: newWidth,
+              height: newHeight,
               rotation: group.rotation(),
             });
 
@@ -73,16 +81,17 @@ export default function RectangleShape({ shapeProps, isSelected, onSelect, onCha
           trRef.current?.getLayer()?.batchDraw();
         }}
       >
-        <Rect
+        <Ellipse
           name={`shape-${shapeName}`}
           id={`shape-${shapeName}-${id}`}
-          x={adjustedStrokeWidth! / 2}
-          y={adjustedStrokeWidth! / 2}
+          x={width! / 2}
+          y={height! / 2}
           width={width! - adjustedStrokeWidth!}
           height={height! - adjustedStrokeWidth!}
+          radiusX={width! / 2 - adjustedStrokeWidth! / 2}
+          radiusY={height! / 2 - adjustedStrokeWidth! / 2}
           stroke={stroke}
           strokeWidth={adjustedStrokeWidth}
-          lineJoin="round" // round corners
         />
       </Group>
       {isSelected && (
@@ -91,7 +100,7 @@ export default function RectangleShape({ shapeProps, isSelected, onSelect, onCha
           flipEnabled={false}
           shouldOverdrawWholeArea
           boundBoxFunc={(oldBox, newBox) => {
-            // limit resize
+            // Limit resize
             if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {
               return oldBox;
             }
