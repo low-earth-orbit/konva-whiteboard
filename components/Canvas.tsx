@@ -61,7 +61,7 @@ export default function Canvas() {
     (state: RootState) => state.canvas
   );
 
-  const [tool, setTool] = useState<ToolType>("pen");
+  const [selectedTool, setSelectedTool] = useState<ToolType>("pen");
   const [strokeColor, setStrokeColor] = useState<string>("#2986cc");
   const [strokeWidth, setStrokeWidth] = useState<number>(5);
 
@@ -70,6 +70,31 @@ export default function Canvas() {
   const [newObject, setNewObject] = useState<CanvasObjectType | null>(null); // new text/shape object to be added to the canvas
 
   const [open, setOpen] = useState(false); // confirmation modal for delete button - clear canvas
+
+  // update cursor style
+  useEffect(() => {
+    const getCursorStyle = () => {
+      switch (selectedTool) {
+        case "pen":
+          return `url(/mousePointer/pen.svg) 0 24, default`;
+        case "addText":
+          return `url(/mousePointer/text.svg) 0 24, text`;
+        case "addRectangle":
+          return `url(/mousePointer/rectangle.svg) 0 24, pointer`;
+        case "addOval":
+          return `url(/mousePointer/oval.svg) 0 24, pointer`;
+        case "eraser":
+          return `url(/mousePointer/erase.svg) 0 24, default`;
+        default:
+          return "default";
+      }
+    };
+
+    document.body.style.cursor = getCursorStyle();
+    return () => {
+      document.body.style.cursor = "default";
+    };
+  }, [selectedTool]);
 
   // load from local storage
   useEffect(() => {
@@ -191,7 +216,7 @@ export default function Canvas() {
       fontFamily: "Arial",
     };
 
-    if (tool.includes("add")) {
+    if (selectedTool.includes("add")) {
       setNewObject(newObject);
     } else {
       dispatch(addCanvasObject(newObject));
@@ -230,7 +255,7 @@ export default function Canvas() {
         return;
     }
 
-    if (tool.includes("add")) {
+    if (selectedTool.includes("add")) {
       setNewObject(newShape);
     } else {
       dispatch(addCanvasObject(newShape));
@@ -245,12 +270,12 @@ export default function Canvas() {
       setIsInProgress(true);
 
       // If the current selected tool is addText or add shapes
-      if (tool.includes("add")) {
+      if (selectedTool.includes("add")) {
         const pos = e.target.getStage().getPointerPosition();
         const { x, y } = pos;
 
         // Add new object based on tool
-        switch (tool) {
+        switch (selectedTool) {
           case "addText":
             addTextField(x, y);
             break;
@@ -261,7 +286,7 @@ export default function Canvas() {
             addShape("oval", x, y);
             break;
           default:
-            console.warn(`Unknown tool: ${tool}`);
+            console.warn(`Unknown tool: ${selectedTool}`);
             return;
         }
         return;
@@ -271,7 +296,7 @@ export default function Canvas() {
       const pos = e.target.getStage().getPointerPosition();
       const newLine: CanvasObjectType = {
         id: uuid(),
-        tool, // eraser or pen
+        tool: selectedTool, // eraser or pen
         type: "ink",
         points: [pos.x, pos.y],
         stroke: strokeColor,
@@ -298,14 +323,14 @@ export default function Canvas() {
       const height = Math.max(Math.abs(point.y - newObject.y!) || 5);
 
       // Update new object based on mouse position
-      if (tool.includes("add")) {
+      if (selectedTool.includes("add")) {
         setNewObject({
           ...newObject,
           width,
           height,
         });
       } else {
-        console.warn(`Unknown tool: ${tool}`);
+        console.warn(`Unknown tool: ${selectedTool}`);
       }
 
       return;
@@ -377,7 +402,7 @@ export default function Canvas() {
       </Stage>
       <Toolbar
         objects={canvasObjects}
-        setTool={setTool}
+        setTool={setSelectedTool}
         color={strokeColor}
         onSelectColor={(newColor) => updateStyle("stroke", newColor)}
         onDelete={handleDelete}
