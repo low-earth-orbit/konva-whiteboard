@@ -41,6 +41,13 @@ export default function RectangleShape({ shapeProps, isSelected, onSelect, onCha
         rotation={rotation}
         onClick={onSelect}
         onTap={onSelect}
+        onDragEnd={(e) => {
+          onChange({
+            ...shapeProps,
+            x: e.target.x(),
+            y: e.target.y(),
+          });
+        }}
         onTransformEnd={(e) => {
           const group = groupRef.current;
 
