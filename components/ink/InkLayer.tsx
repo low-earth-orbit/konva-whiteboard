@@ -5,8 +5,8 @@ type Props = {
   objects: CanvasObjectType[];
 };
 
-export default function LinesLayer({ objects }: Props) {
-  const lines = objects.filter((obj: CanvasObjectType) => obj.type === "line");
+export default function InkLayer({ objects }: Props) {
+  const lines = objects.filter((obj: CanvasObjectType) => obj.type === "ink");
 
   return (
     <Layer>

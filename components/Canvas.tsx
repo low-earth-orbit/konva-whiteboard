@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuid } from "uuid";
 import { Stage } from "react-konva";
 import Toolbar from "./Toolbar";
-import LinesLayer from "./lines/LinesLayer";
+import InkLayer from "./ink/InkLayer";
 import ShapesLayer from "./shapes/ShapesLayer";
 import ConfirmationDialog from "./ConfirmationDialog";
 import TextFieldsLayer from "./textFields/TextFieldsLayer";
@@ -21,7 +21,7 @@ import {
 
 export interface CanvasObjectType {
   id: string;
-  type: "line" | "shape" | "text";
+  type: "ink" | "shape" | "text";
   tool?: ToolType;
   shapeName?: ShapeName;
   stroke?: string;
@@ -267,7 +267,7 @@ export default function Canvas() {
         const newLine: CanvasObjectType = {
           id: uuid(),
           tool,
-          type: "line",
+          type: "ink",
           points: [pos.x, pos.y],
           stroke: strokeColor,
           strokeWidth: strokeWidth,
@@ -311,7 +311,7 @@ export default function Canvas() {
 
       const lastObject = canvasObjects[canvasObjects.length - 1];
 
-      if (lastObject.type === "line") {
+      if (lastObject.type === "ink") {
         // Create a new object that copies the lastObject and updates points
         const updatedObject = {
           ...lastObject,
@@ -348,7 +348,7 @@ export default function Canvas() {
         onMouseup={handleMouseUp}
         onTouchStart={handleMouseDown}
       >
-        <LinesLayer objects={canvasObjects} />
+        <InkLayer objects={canvasObjects} />
         <ShapesLayer
           objects={canvasObjects}
           newObject={newObject}
