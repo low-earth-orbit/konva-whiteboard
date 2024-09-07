@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuid } from "uuid";
 import { Stage } from "react-konva";
@@ -19,12 +19,17 @@ import {
   setCanvasObjects,
 } from "../redux/canvasSlice";
 
+export interface StageSizeType {
+  width: number;
+  height: number;
+}
+
 export interface CanvasObjectType {
   id: string;
-  type: "ink" | "shape" | "text";
+  type: ObjectType;
   tool?: ToolType;
   shapeName?: ShapeName;
-  stroke?: string;
+  stroke?: string; // stroke color
   strokeWidth?: number;
   fill?: string;
   points?: number[];
@@ -32,16 +37,13 @@ export interface CanvasObjectType {
   y?: number;
   width?: number;
   height?: number;
+  rotation?: number;
   text?: string;
   fontSize?: number;
   fontFamily?: string;
-  rotation?: number;
 }
 
-export interface StageSizeType {
-  width: number;
-  height: number;
-}
+export type ObjectType = "ink" | "shape" | "text";
 
 export type ToolType =
   | "eraser"
@@ -54,18 +56,18 @@ export type ShapeName = "rectangle" | "oval";
 
 export default function Canvas() {
   const dispatch = useDispatch();
+  const [stageSize, setStageSize] = useState<StageSizeType>();
   const { canvasObjects, selectedObjectId } = useSelector(
     (state: RootState) => state.canvas
   );
 
-  const [stageSize, setStageSize] = useState<StageSizeType>();
   const [tool, setTool] = useState<ToolType>("pen");
   const [strokeColor, setStrokeColor] = useState<string>("#2986cc");
   const [strokeWidth, setStrokeWidth] = useState<number>(5);
-  const isDrawing = useRef<boolean>(false);
 
-  const isAddingObject = useRef<boolean>(false);
-  const [newObject, setNewObject] = useState<CanvasObjectType>(); // new text/shape object to be added to the canvas
+  const [isInProgress, setIsInProgress] = useState(false);
+
+  const [newObject, setNewObject] = useState<CanvasObjectType | null>(null); // new text/shape object to be added to the canvas
 
   const [open, setOpen] = useState(false); // confirmation modal for delete button - clear canvas
 
@@ -237,66 +239,70 @@ export default function Canvas() {
   };
 
   const handleMouseDown = (e: any) => {
-    if (tool.includes("add")) {
-      isAddingObject.current = true;
-      const pos = e.target.getStage().getPointerPosition();
-      const { x, y } = pos;
+    // Drawing/adding object shall begin only if no object is currently selected.
+    if (!selectedObjectId) {
+      // set in progress status
+      setIsInProgress(true);
 
-      // Add new object based on tool
-      switch (tool) {
-        case "addText":
-          addTextField(x, y);
-          break;
-        case "addRectangle":
-          addShape("rectangle", x, y);
-          break;
-        case "addOval":
-          addShape("oval", x, y);
-          break;
-        default:
-          console.warn(`Unknown tool: ${tool}`);
-          return;
+      // If the current selected tool is addText or add shapes
+      if (tool.includes("add")) {
+        const pos = e.target.getStage().getPointerPosition();
+        const { x, y } = pos;
+
+        // Add new object based on tool
+        switch (tool) {
+          case "addText":
+            addTextField(x, y);
+            break;
+          case "addRectangle":
+            addShape("rectangle", x, y);
+            break;
+          case "addOval":
+            addShape("oval", x, y);
+            break;
+          default:
+            console.warn(`Unknown tool: ${tool}`);
+            return;
+        }
+        return;
       }
+
+      // If the current selected tool is eraser or pen
+      const pos = e.target.getStage().getPointerPosition();
+      const newLine: CanvasObjectType = {
+        id: uuid(),
+        tool, // eraser or pen
+        type: "ink",
+        points: [pos.x, pos.y],
+        stroke: strokeColor,
+        strokeWidth: strokeWidth,
+      };
+      dispatch(addCanvasObject(newLine));
       return;
     }
 
-    if (!isAddingObject.current) {
-      if (selectedObjectId === "") {
-        isDrawing.current = true;
-        const pos = e.target.getStage().getPointerPosition();
-        const newLine: CanvasObjectType = {
-          id: uuid(),
-          tool,
-          type: "ink",
-          points: [pos.x, pos.y],
-          stroke: strokeColor,
-          strokeWidth: strokeWidth,
-        };
-        dispatch(addCanvasObject(newLine));
-      } else {
-        // deselect shapes when clicked on empty area
-        const clickedOnEmpty = e.target === e.target.getStage();
-        if (clickedOnEmpty) {
-          dispatch(selectCanvasObject(""));
-        }
-      }
+    // deselect object when clicked on empty area
+    const clickedOnEmpty = e.target === e.target.getStage();
+    if (clickedOnEmpty) {
+      dispatch(selectCanvasObject(""));
     }
   };
 
   const handleMouseMove = (e: any) => {
-    if (isAddingObject.current && newObject) {
+    // Creating new text/object is in progress
+    if (isInProgress && newObject) {
       const stage = e.target.getStage();
       const point = stage.getPointerPosition();
 
-      const width = Math.max(point.x - newObject.x! || 5);
-      const height = Math.max(point.y - newObject.y! || 5);
+      const width = Math.max(Math.abs(point.x - newObject.x!) || 5);
+      const height = Math.max(Math.abs(point.y - newObject.y!) || 5);
 
       // Update new object based on mouse position
-      if (tool === "addRectangle" || tool === "addText" || tool === "addOval") {
+      if (tool.includes("add")) {
         setNewObject({
           ...newObject,
-          width: Math.abs(width),
-          height: Math.abs(height),
+          width,
+          height,
         });
       } else {
         console.warn(`Unknown tool: ${tool}`);
@@ -305,7 +311,8 @@ export default function Canvas() {
       return;
     }
 
-    if (isDrawing.current) {
+    // Freehand drawing (eraser or pen) in progress
+    if (isInProgress) {
       const stage = e.target.getStage();
       const point = stage.getPointerPosition();
 
@@ -328,14 +335,12 @@ export default function Canvas() {
 
   const handleMouseUp = () => {
     // Add object to store upon releasing mouse
-    if (isAddingObject.current) {
+    if (isInProgress) {
       if (newObject) dispatch(addCanvasObject(newObject));
-      setNewObject(undefined);
-      isAddingObject.current = false;
-    }
 
-    if (isDrawing) isDrawing.current = false;
-    setTool("pen");
+      setNewObject(null);
+      setIsInProgress(false);
+    }
   };
 
   return (

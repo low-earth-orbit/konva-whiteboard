@@ -4,7 +4,7 @@ import TextField from "./TextField";
 
 type Props = {
   objects: CanvasObjectType[];
-  newObject: CanvasObjectType | undefined;
+  newObject: CanvasObjectType | null;
   selectedObjectId: string;
   setSelectedObjectId: (id: string) => void;
   onChange: (

@@ -5,7 +5,7 @@ import OvalShape from "./OvalShape";
 
 type ShapesLayerProps = {
   objects: CanvasObjectType[];
-  newObject: CanvasObjectType | undefined;
+  newObject: CanvasObjectType | null;
   onChange: (
     newAttrs: Partial<CanvasObjectType>,
     selectedObjectId: string
