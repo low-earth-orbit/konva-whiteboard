@@ -1,4 +1,4 @@
-name: ESLint & Prettier
+name: Perform statics analysis - formatter, linter & type checker
 
 on:
   push:
@@ -22,11 +22,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run ESLint
-        run: npm run lint
-
       - name: Run Prettier
         run: npm run prettier
+
+      - name: Run ESLint
+        run: npm run lint
 
       - name: TypeScript check
         run: npm run tsc
