@@ -8,7 +8,7 @@ type ShapesLayerProps = {
   newObject: CanvasObjectType | null;
   onChange: (
     newAttrs: Partial<CanvasObjectType>,
-    selectedObjectId: string
+    selectedObjectId: string,
   ) => void;
   setColor: (newColor: string) => void;
   setWidth: (newWidth: number) => void;

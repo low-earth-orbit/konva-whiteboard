@@ -9,7 +9,7 @@ type Props = {
   setSelectedObjectId: (id: string) => void;
   onChange: (
     newAttrs: Partial<CanvasObjectType>,
-    selectedObjectId: string
+    selectedObjectId: string,
   ) => void;
 };
 

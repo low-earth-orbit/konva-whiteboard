@@ -7,6 +7,7 @@ Demo: [Try it here](https://whiteboard.leohong.dev)
 ## Features
 
 - Canvas objects
+
   - Pen & eraser
   - Text fields
   - Shapes
