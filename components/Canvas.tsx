@@ -216,11 +216,7 @@ export default function Canvas() {
       fontFamily: "Arial",
     };
 
-    if (selectedTool.includes("add")) {
-      setNewObject(newObject);
-    } else {
-      dispatch(addCanvasObject(newObject));
-    }
+    setNewObject(newObject);
     dispatch(selectCanvasObject(newObjectId));
   };
 
@@ -255,11 +251,7 @@ export default function Canvas() {
         return;
     }
 
-    if (selectedTool.includes("add")) {
-      setNewObject(newShape);
-    } else {
-      dispatch(addCanvasObject(newShape));
-    }
+    setNewObject(newShape);
     dispatch(selectCanvasObject(newShapeId));
   };
 
@@ -302,7 +294,7 @@ export default function Canvas() {
         stroke: strokeColor,
         strokeWidth: strokeWidth,
       };
-      dispatch(addCanvasObject(newLine));
+      setNewObject(newLine);
       return;
     }
 
@@ -315,7 +307,7 @@ export default function Canvas() {
 
   const handleMouseMove = (e: any) => {
     // Creating new text/object is in progress
-    if (isInProgress && newObject) {
+    if (isInProgress && newObject && newObject.type !== "ink") {
       const stage = e.target.getStage();
       const point = stage.getPointerPosition();
 
@@ -337,24 +329,16 @@ export default function Canvas() {
     }
 
     // Freehand drawing (eraser or pen) in progress
-    if (isInProgress) {
+    if (isInProgress && newObject) {
       const stage = e.target.getStage();
       const point = stage.getPointerPosition();
 
-      const lastObject = canvasObjects[canvasObjects.length - 1];
+      const updatedObject = {
+        ...newObject,
+        points: newObject.points!.concat([point.x, point.y]),
+      };
 
-      if (lastObject.type === "ink") {
-        // Create a new object that copies the lastObject and updates points
-        const updatedObject = {
-          ...lastObject,
-          points: lastObject.points!.concat([point.x, point.y]),
-        };
-
-        // Dispatch the update with the new object
-        dispatch(
-          updateCanvasObject({ id: lastObject.id, updates: updatedObject }),
-        );
-      }
+      setNewObject(updatedObject);
     }
   };
 
@@ -378,7 +362,7 @@ export default function Canvas() {
         onMouseup={handleMouseUp}
         onTouchStart={handleMouseDown}
       >
-        <InkLayer objects={canvasObjects} />
+        <InkLayer objects={canvasObjects} newObject={newObject} />
         <ShapesLayer
           objects={canvasObjects}
           newObject={newObject}
