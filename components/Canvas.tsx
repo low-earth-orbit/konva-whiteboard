@@ -58,7 +58,7 @@ export default function Canvas() {
   const dispatch = useDispatch();
   const [stageSize, setStageSize] = useState<StageSizeType>();
   const { canvasObjects, selectedObjectId } = useSelector(
-    (state: RootState) => state.canvas
+    (state: RootState) => state.canvas,
   );
 
   const [selectedTool, setSelectedTool] = useState<ToolType>("pen");
@@ -188,14 +188,14 @@ export default function Canvas() {
         updateCanvasObject({
           id: selectedObjectId,
           updates: { [property]: value },
-        })
+        }),
       );
     }
   }
 
   function updateSelectedObject(
     newAttrs: Partial<CanvasObjectType>,
-    selectedObjectId: string
+    selectedObjectId: string,
   ) {
     dispatch(updateCanvasObject({ id: selectedObjectId, updates: newAttrs }));
   }
@@ -352,7 +352,7 @@ export default function Canvas() {
 
         // Dispatch the update with the new object
         dispatch(
-          updateCanvasObject({ id: lastObject.id, updates: updatedObject })
+          updateCanvasObject({ id: lastObject.id, updates: updatedObject }),
         );
       }
     }

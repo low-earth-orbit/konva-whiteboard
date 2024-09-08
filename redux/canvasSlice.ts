@@ -32,20 +32,20 @@ const canvasSlice = createSlice({
     },
     updateCanvasObject(
       state,
-      action: PayloadAction<{ id: string; updates: Partial<CanvasObjectType> }>
+      action: PayloadAction<{ id: string; updates: Partial<CanvasObjectType> }>,
     ) {
       state.undoStack.push(state.canvasObjects);
       state.canvasObjects = state.canvasObjects.map((object) =>
         object.id === action.payload.id
           ? { ...object, ...action.payload.updates }
-          : object
+          : object,
       );
       state.redoStack = [];
     },
     deleteCanvasObject(state, action: PayloadAction<string>) {
       state.undoStack.push(state.canvasObjects);
       state.canvasObjects = state.canvasObjects.filter(
-        (obj) => obj.id !== action.payload
+        (obj) => obj.id !== action.payload,
       );
       state.selectedObjectId = "";
       state.redoStack = [];

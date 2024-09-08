@@ -62,7 +62,7 @@ function Toolbar({
   const dispatch = useDispatch();
 
   const { undoStack, redoStack } = useSelector(
-    (state: RootState) => state.canvas
+    (state: RootState) => state.canvas,
   );
 
   // color picker
@@ -72,7 +72,7 @@ function Toolbar({
   const isColorPickerAnchorElOpen = Boolean(colorPickerAnchorEl);
 
   const handleClickColorPickerButton = (
-    event: React.MouseEvent<HTMLButtonElement>
+    event: React.MouseEvent<HTMLButtonElement>,
   ) => {
     setColorPickerAnchorEl(event.currentTarget);
   };
@@ -88,7 +88,7 @@ function Toolbar({
   const isShapesAnchorElOpen = Boolean(shapesAnchorEl);
 
   const handleClickShapesButton = (
-    event: React.MouseEvent<HTMLButtonElement>
+    event: React.MouseEvent<HTMLButtonElement>,
   ) => {
     setShapesAnchorEl(event.currentTarget);
   };
@@ -104,7 +104,7 @@ function Toolbar({
   const isLineWeightSliderAnchorElOpen = Boolean(lineWeightAnchorEl);
 
   const handleClickLineWeightButton = (
-    event: React.MouseEvent<HTMLButtonElement>
+    event: React.MouseEvent<HTMLButtonElement>,
   ) => {
     setLineWeightAnchorEl(event.currentTarget);
   };

@@ -11,7 +11,12 @@ type Props = {
   onChange: (newAttrs: Partial<CanvasObjectType>) => void;
 };
 
-export default function RectangleShape({ shapeProps, isSelected, onSelect, onChange }: Props) {
+export default function RectangleShape({
+  shapeProps,
+  isSelected,
+  onSelect,
+  onChange,
+}: Props) {
   const groupRef = useRef<Konva.Group>(null);
   const trRef = useRef<Konva.Transformer>(null);
 
