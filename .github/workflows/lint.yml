@@ -1,4 +1,4 @@
-name: Perform statics analysis - formatter, linter & type checker
+name: Formatter, linter & type checker
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
     branches: ["main"]
 
 jobs:
-  lint:
+  codeCheck:
     name: Run eslint scanning
     runs-on: ubuntu-latest
     permissions:
