@@ -3,10 +3,14 @@ import { CanvasObjectType } from "../Canvas";
 
 type Props = {
   objects: CanvasObjectType[];
+  newObject: CanvasObjectType | null;
 };
 
-export default function InkLayer({ objects }: Props) {
-  const lines = objects.filter((obj: CanvasObjectType) => obj.type === "ink");
+export default function InkLayer({ objects, newObject }: Props) {
+  const lines = [
+    ...objects.filter((obj: CanvasObjectType) => obj.type === "ink"),
+    ...(newObject && newObject.type === "ink" ? [newObject] : []),
+  ];
 
   return (
     <Layer>
