@@ -164,6 +164,20 @@ export default function TextField({
         ref={textRef}
         {...selectedProps}
         draggable={isSelected}
+        onMouseOver={(e) => {
+          const stage = e.target.getStage();
+          if (stage) {
+            const container = stage.container();
+            container.style.cursor = "pointer";
+          }
+        }}
+        onMouseLeave={(e) => {
+          const stage = e.target.getStage();
+          if (stage) {
+            const container = stage.container();
+            container.style.cursor = ""; // Reset to tool's cursor
+          }
+        }}
         onDragEnd={(e) => {
           onChange({
             ...selectedProps,

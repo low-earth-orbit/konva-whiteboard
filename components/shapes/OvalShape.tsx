@@ -50,6 +50,20 @@ export default function OvalShape({
         rotation={rotation}
         onClick={onSelect}
         onTap={onSelect}
+        onMouseOver={(e) => {
+          const stage = e.target.getStage();
+          if (stage) {
+            const container = stage.container();
+            container.style.cursor = "pointer";
+          }
+        }}
+        onMouseLeave={(e) => {
+          const stage = e.target.getStage();
+          if (stage) {
+            const container = stage.container();
+            container.style.cursor = ""; // Reset to tool's cursor
+          }
+        }}
         onDragEnd={(e) => {
           onChange({
             ...shapeProps,
@@ -106,6 +120,34 @@ export default function OvalShape({
           ref={trRef}
           flipEnabled={false}
           shouldOverdrawWholeArea
+          onMouseOver={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = "grab";
+            }
+          }}
+          onMouseLeave={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = ""; // Reset to tool's cursor
+            }
+          }}
+          onMouseDown={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = "grabbing";
+            }
+          }}
+          onMouseUp={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = "grab";
+            }
+          }}
           boundBoxFunc={(oldBox, newBox) => {
             // Limit resize
             if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {

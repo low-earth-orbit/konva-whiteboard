@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuid } from "uuid";
 import { Stage } from "react-konva";
-import Toolbar from "./Toolbar";
+import Toolbar from "./toolbar/Toolbar";
 import InkLayer from "./ink/InkLayer";
 import ShapesLayer from "./shapes/ShapesLayer";
 import ConfirmationDialog from "./ConfirmationDialog";
@@ -92,9 +92,16 @@ export default function Canvas() {
       }
     };
 
+    const resetCursor = () => {
+      document.body.style.cursor = getCursorStyle();
+    };
+
+    window.addEventListener("mouseleave", resetCursor);
+
     document.body.style.cursor = getCursorStyle();
     return () => {
       document.body.style.cursor = "default";
+      window.removeEventListener("mouseleave", resetCursor);
     };
   }, [selectedTool]);
 
