@@ -2,7 +2,11 @@ import React, { useEffect, useRef } from "react";
 import { Group, Rect, Transformer } from "react-konva";
 import { CanvasObjectType } from "../Canvas";
 import Konva from "konva";
-import { getStrokeWidth } from "./shapeUtils";
+import {
+  getStrokeWidth,
+  SHAPE_MIN_HEIGHT,
+  SHAPE_MIN_WIDTH,
+} from "./shapeUtils";
 
 type Props = {
   shapeProps: Partial<CanvasObjectType>;
@@ -65,8 +69,8 @@ export default function RectangleShape({
               ...shapeProps,
               x: group.x(),
               y: group.y(),
-              width: Math.max(5, group.width() * scaleX),
-              height: Math.max(5, group.height() * scaleY),
+              width: Math.max(SHAPE_MIN_WIDTH, group.width() * scaleX),
+              height: Math.max(SHAPE_MIN_HEIGHT, group.height() * scaleY),
               rotation: group.rotation(),
             });
 

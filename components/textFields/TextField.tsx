@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Text, Transformer } from "react-konva";
 import { CanvasObjectType } from "../Canvas";
 import Konva from "konva";
+import { TEXT_MIN_HEIGHT, TEXT_MIN_WIDTH } from "./textFieldUtils";
 
 type Props = {
   objectProps: Partial<CanvasObjectType>;
@@ -190,8 +191,8 @@ export default function TextField({
               x: node.x(),
               y: node.y(),
               // set minimal value
-              width: Math.max(5, objectProps.width! * scaleX),
-              height: Math.max(5, objectProps.height! * scaleY),
+              width: Math.max(TEXT_MIN_WIDTH, objectProps.width! * scaleX),
+              height: Math.max(TEXT_MIN_HEIGHT, objectProps.height! * scaleY),
             });
           }
         }}

@@ -2,7 +2,11 @@ import React, { useEffect, useRef } from "react";
 import { Ellipse, Group, Transformer } from "react-konva";
 import { CanvasObjectType } from "../Canvas";
 import Konva from "konva";
-import { getStrokeWidth } from "./shapeUtils";
+import {
+  getStrokeWidth,
+  SHAPE_MIN_HEIGHT,
+  SHAPE_MIN_WIDTH,
+} from "./shapeUtils";
 
 type Props = {
   shapeProps: Partial<CanvasObjectType>;
@@ -60,8 +64,11 @@ export default function OvalShape({
             const scaleX = group.scaleX();
             const scaleY = group.scaleY();
 
-            const newWidth = Math.max(5, group.width() * scaleX);
-            const newHeight = Math.max(5, group.height() * scaleY);
+            const newWidth = Math.max(SHAPE_MIN_WIDTH, group.width() * scaleX);
+            const newHeight = Math.max(
+              SHAPE_MIN_HEIGHT,
+              group.height() * scaleY,
+            );
 
             // Update shapeProps with the new dimensions and position
             onChange({
