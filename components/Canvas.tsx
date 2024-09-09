@@ -73,30 +73,30 @@ export default function Canvas() {
 
   const [open, setOpen] = useState(false); // confirmation modal for delete button - clear canvas
 
-  // // update cursor style
-  // useEffect(() => {
-  //   const getCursorStyle = () => {
-  //     switch (selectedTool) {
-  //       case "pen":
-  //         return `url(/mousePointer/pen.svg) 0 24, default`;
-  //       case "addText":
-  //         return `url(/mousePointer/text.svg) 0 24, text`;
-  //       case "addRectangle":
-  //         return `url(/mousePointer/rectangle.svg) 0 24, pointer`;
-  //       case "addOval":
-  //         return `url(/mousePointer/oval.svg) 0 24, pointer`;
-  //       case "eraser":
-  //         return `url(/mousePointer/erase.svg) 0 24, default`;
-  //       default:
-  //         return "default";
-  //     }
-  //   };
+  // update cursor style
+  useEffect(() => {
+    const getCursorStyle = () => {
+      switch (selectedTool) {
+        case "pen":
+          return `url(/mousePointer/add.svg) 12 12, crosshair`;
+        case "addText":
+          return `url(/mousePointer/text.svg) 12 12, text`;
+        case "addRectangle":
+          return `url(/mousePointer/rectangle.svg) 12 12, pointer`;
+        case "addOval":
+          return `url(/mousePointer/oval.svg) 12 12, pointer`;
+        case "eraser":
+          return `url(/mousePointer/erase.svg) 12 12, default`;
+        default:
+          return "default";
+      }
+    };
 
-  //   document.body.style.cursor = getCursorStyle();
-  //   return () => {
-  //     document.body.style.cursor = "default";
-  //   };
-  // }, [selectedTool]);
+    document.body.style.cursor = getCursorStyle();
+    return () => {
+      document.body.style.cursor = "default";
+    };
+  }, [selectedTool]);
 
   // load from local storage
   useEffect(() => {
