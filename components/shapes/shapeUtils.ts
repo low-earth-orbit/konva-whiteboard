@@ -12,5 +12,5 @@ export const getStrokeWidth = (
   }
 };
 
-export const SHAPE_MIN_WIDTH = 10;
-export const SHAPE_MIN_HEIGHT = 10;
+export const SHAPE_MIN_WIDTH = 50;
+export const SHAPE_MIN_HEIGHT = 50;

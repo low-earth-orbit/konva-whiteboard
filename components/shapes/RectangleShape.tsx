@@ -142,8 +142,11 @@ export default function RectangleShape({
             }
           }}
           boundBoxFunc={(oldBox, newBox) => {
-            // limit resize
-            if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {
+            // Limit resize
+            if (
+              Math.abs(newBox.width) < SHAPE_MIN_WIDTH ||
+              Math.abs(newBox.height) < SHAPE_MIN_HEIGHT
+            ) {
               return oldBox;
             }
             return newBox;

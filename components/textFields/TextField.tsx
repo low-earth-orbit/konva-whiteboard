@@ -210,16 +210,48 @@ export default function TextField({
             });
           }
         }}
-        onDblClick={handleDoubleClick}
       />
 
       {isSelected && (
         <Transformer
           ref={trRef}
           flipEnabled={false}
+          shouldOverdrawWholeArea
+          onDblClick={handleDoubleClick}
+          onMouseOver={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = "grab";
+            }
+          }}
+          onMouseLeave={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = ""; // Reset to tool's cursor
+            }
+          }}
+          onMouseDown={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = "grabbing";
+            }
+          }}
+          onMouseUp={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = "grab";
+            }
+          }}
           boundBoxFunc={(oldBox, newBox) => {
             // limit resize
-            if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {
+            if (
+              Math.abs(newBox.width) < TEXT_MIN_WIDTH ||
+              Math.abs(newBox.height) < TEXT_MIN_HEIGHT
+            ) {
               return oldBox;
             }
             return newBox;
