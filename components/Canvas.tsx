@@ -62,6 +62,7 @@ export default function Canvas() {
   const { canvasObjects, selectedObjectId } = useSelector(
     (state: RootState) => state.canvas,
   );
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const [selectedTool, setSelectedTool] = useState<ToolType>("pen");
   const [strokeColor, setStrokeColor] = useState<string>("#2986cc");
@@ -73,20 +74,46 @@ export default function Canvas() {
 
   const [open, setOpen] = useState(false); // confirmation modal for delete button - clear canvas
 
+  // Dark mode listener
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const darkModeListener = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      );
+
+      setIsDarkMode(darkModeListener.matches);
+
+      // Listen for changes in dark mode
+      const handleThemeChange = (e: MediaQueryListEvent) => {
+        setIsDarkMode(e.matches);
+      };
+
+      darkModeListener.addEventListener("change", handleThemeChange);
+
+      return () => {
+        darkModeListener.removeEventListener("change", handleThemeChange);
+      };
+    }
+  }, []);
+
   // update cursor style
   useEffect(() => {
     const getCursorStyle = () => {
+      const basePath = isDarkMode
+        ? "/mousePointer/dark/" // Path for dark mode SVGs
+        : "/mousePointer/light/"; // Path for light mode SVGs
+
       switch (selectedTool) {
         case "pen":
-          return `url(/mousePointer/add.svg) 12 12, crosshair`;
+          return `url(${basePath}add.svg) 12 12, crosshair`;
         case "addText":
-          return `url(/mousePointer/text.svg) 12 12, text`;
+          return `url(${basePath}text.svg) 12 12, text`;
         case "addRectangle":
-          return `url(/mousePointer/rectangle.svg) 12 12, pointer`;
+          return `url(${basePath}rectangle.svg) 12 12, pointer`;
         case "addOval":
-          return `url(/mousePointer/oval.svg) 12 12, pointer`;
+          return `url(${basePath}oval.svg) 12 12, pointer`;
         case "eraser":
-          return `url(/mousePointer/erase.svg) 12 12, default`;
+          return `url(${basePath}erase.svg) 12 12, default`;
         default:
           return "default";
       }
@@ -96,14 +123,12 @@ export default function Canvas() {
       document.body.style.cursor = getCursorStyle();
     };
 
-    window.addEventListener("mouseleave", resetCursor);
+    resetCursor();
 
-    document.body.style.cursor = getCursorStyle();
     return () => {
       document.body.style.cursor = "default";
-      window.removeEventListener("mouseleave", resetCursor);
     };
-  }, [selectedTool]);
+  }, [isDarkMode, selectedTool]);
 
   // load from local storage
   useEffect(() => {
@@ -401,6 +426,7 @@ export default function Canvas() {
         onDelete={handleDelete}
         strokeWidth={strokeWidth}
         setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
+        isDarkMode={isDarkMode}
       />
       <ConfirmationDialog
         open={open}
@@ -408,6 +434,7 @@ export default function Canvas() {
         onConfirm={resetCanvasState}
         title="Clear Canvas"
         description="Are you sure you want to clear the canvas? This action cannot be undone."
+        isDarkMode={isDarkMode}
       />
     </>
   );
