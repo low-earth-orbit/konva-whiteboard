@@ -2,6 +2,8 @@ import { Layer } from "react-konva";
 import { CanvasObjectType } from "../Canvas";
 import RectangleShape from "./RectangleShape";
 import OvalShape from "./OvalShape";
+import TriangleShape from "./TriangleShape";
+import StarShape from "./StarShape";
 
 type ShapesLayerProps = {
   objects: CanvasObjectType[];
@@ -48,6 +50,10 @@ export default function ShapesLayer({
         return <RectangleShape key={shape.id} {...commonProps} />;
       case "oval":
         return <OvalShape key={shape.id} {...commonProps} />;
+      case "triangle":
+        return <TriangleShape key={shape.id} {...commonProps} />;
+      case "star":
+        return <StarShape key={shape.id} {...commonProps} />;
       default:
         console.warn(`Unknown shape: ${shape.shapeName}`);
         return null;
