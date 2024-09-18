@@ -18,8 +18,11 @@ import {
   redo,
   setCanvasObjects,
 } from "../redux/canvasSlice";
-import { SHAPE_MIN_HEIGHT, SHAPE_MIN_WIDTH } from "./shapes/shapeUtils";
-import { TEXT_MIN_HEIGHT, TEXT_MIN_WIDTH } from "./textFields/textFieldUtils";
+import { SHAPE_DEFAULT_HEIGHT, SHAPE_DEFAULT_WIDTH } from "./shapes/shapeUtils";
+import {
+  TEXT_DEFAULT_HEIGHT,
+  TEXT_DEFAULT_WIDTH,
+} from "./textFields/textFieldUtils";
 
 export interface StageSizeType {
   width: number;
@@ -241,8 +244,8 @@ export default function Canvas() {
       type: "text" as const,
       x: x,
       y: y,
-      width: TEXT_MIN_WIDTH,
-      height: TEXT_MIN_HEIGHT,
+      width: TEXT_DEFAULT_WIDTH,
+      height: TEXT_DEFAULT_HEIGHT,
       fill: strokeColor, // use strokeColor for fill for now
       // strokeWidth not applied to text field for now
       text: "Double click to edit.",
@@ -264,8 +267,8 @@ export default function Canvas() {
       strokeWidth: strokeWidth,
       x: x,
       y: y,
-      width: SHAPE_MIN_WIDTH,
-      height: SHAPE_MIN_HEIGHT,
+      width: SHAPE_DEFAULT_WIDTH,
+      height: SHAPE_DEFAULT_HEIGHT,
     }; // common shape properties
 
     let newShape: CanvasObjectType;
