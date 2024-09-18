@@ -14,6 +14,7 @@ type ConfirmationDialogProps = {
   onConfirm: () => void;
   title: string;
   description: string;
+  isDarkMode: boolean;
 };
 
 const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
@@ -22,7 +23,10 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   onConfirm,
   title,
   description,
+  isDarkMode,
 }) => {
+  const bgColor = isDarkMode ? "bg-gray-500" : "bg-white";
+
   return (
     <Dialog
       open={open}

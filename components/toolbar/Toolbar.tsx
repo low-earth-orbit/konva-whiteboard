@@ -26,7 +26,7 @@ import {
   RedoRounded,
 } from "@mui/icons-material";
 
-import { CanvasObjectType, ToolType } from "./Canvas";
+import { CanvasObjectType, ToolType } from "../Canvas";
 
 import { RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -50,6 +50,7 @@ type ToolbarProps = {
   onSelectColor: (newColor: string) => void;
   strokeWidth: number;
   setStrokeWidth: (newWidth: number) => void;
+  isDarkMode: boolean;
 };
 
 function Toolbar({
@@ -60,12 +61,15 @@ function Toolbar({
   onSelectColor,
   strokeWidth,
   setStrokeWidth,
+  isDarkMode,
 }: ToolbarProps) {
   const dispatch = useDispatch();
 
   const { undoStack, redoStack } = useSelector(
     (state: RootState) => state.canvas,
   );
+
+  const toolbarBgColor = isDarkMode ? "bg-gray-500" : "bg-white";
 
   // color picker
   const [colorPickerAnchorEl, setColorPickerAnchorEl] =
@@ -120,7 +124,9 @@ function Toolbar({
   };
 
   return (
-    <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 bg-white">
+    <div
+      className={`absolute bottom-5 left-1/2 transform -translate-x-1/2 ${toolbarBgColor}`}
+    >
       <ButtonGroup
         variant="contained"
         aria-label="toolbar buttons"

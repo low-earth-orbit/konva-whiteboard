@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuid } from "uuid";
 import { Stage } from "react-konva";
-import Toolbar from "./Toolbar";
+import Toolbar from "./toolbar/Toolbar";
 import InkLayer from "./ink/InkLayer";
 import ShapesLayer from "./shapes/ShapesLayer";
 import ConfirmationDialog from "./ConfirmationDialog";
@@ -18,6 +18,11 @@ import {
   redo,
   setCanvasObjects,
 } from "../redux/canvasSlice";
+import { SHAPE_DEFAULT_HEIGHT, SHAPE_DEFAULT_WIDTH } from "./shapes/shapeUtils";
+import {
+  TEXT_DEFAULT_HEIGHT,
+  TEXT_DEFAULT_WIDTH,
+} from "./textFields/textFieldUtils";
 
 export interface StageSizeType {
   width: number;
@@ -62,6 +67,7 @@ export default function Canvas() {
   const { canvasObjects, selectedObjectId } = useSelector(
     (state: RootState) => state.canvas,
   );
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const [selectedTool, setSelectedTool] = useState<ToolType>("pen");
   const [strokeColor, setStrokeColor] = useState<string>("#2986cc");
@@ -73,30 +79,61 @@ export default function Canvas() {
 
   const [open, setOpen] = useState(false); // confirmation modal for delete button - clear canvas
 
-  // // update cursor style
-  // useEffect(() => {
-  //   const getCursorStyle = () => {
-  //     switch (selectedTool) {
-  //       case "pen":
-  //         return `url(/mousePointer/pen.svg) 0 24, default`;
-  //       case "addText":
-  //         return `url(/mousePointer/text.svg) 0 24, text`;
-  //       case "addRectangle":
-  //         return `url(/mousePointer/rectangle.svg) 0 24, pointer`;
-  //       case "addOval":
-  //         return `url(/mousePointer/oval.svg) 0 24, pointer`;
-  //       case "eraser":
-  //         return `url(/mousePointer/erase.svg) 0 24, default`;
-  //       default:
-  //         return "default";
-  //     }
-  //   };
+  // Dark mode listener
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const darkModeListener = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      );
 
-  //   document.body.style.cursor = getCursorStyle();
-  //   return () => {
-  //     document.body.style.cursor = "default";
-  //   };
-  // }, [selectedTool]);
+      setIsDarkMode(darkModeListener.matches);
+
+      // Listen for changes in dark mode
+      const handleThemeChange = (e: MediaQueryListEvent) => {
+        setIsDarkMode(e.matches);
+      };
+
+      darkModeListener.addEventListener("change", handleThemeChange);
+
+      return () => {
+        darkModeListener.removeEventListener("change", handleThemeChange);
+      };
+    }
+  }, []);
+
+  // update cursor style
+  useEffect(() => {
+    const getCursorStyle = () => {
+      const basePath = isDarkMode
+        ? "/mousePointer/dark/" // Path for dark mode SVGs
+        : "/mousePointer/light/"; // Path for light mode SVGs
+
+      switch (selectedTool) {
+        case "pen":
+          return `url(${basePath}add.svg) 12 12, crosshair`;
+        case "addText":
+          return `url(${basePath}text.svg) 12 12, text`;
+        case "addRectangle":
+          return `url(${basePath}rectangle.svg) 12 12, pointer`;
+        case "addOval":
+          return `url(${basePath}oval.svg) 12 12, pointer`;
+        case "eraser":
+          return `url(${basePath}erase.svg) 12 12, default`;
+        default:
+          return "default";
+      }
+    };
+
+    const resetCursor = () => {
+      document.body.style.cursor = getCursorStyle();
+    };
+
+    resetCursor();
+
+    return () => {
+      document.body.style.cursor = "default";
+    };
+  }, [isDarkMode, selectedTool]);
 
   // load from local storage
   useEffect(() => {
@@ -209,8 +246,8 @@ export default function Canvas() {
       type: "text" as const,
       x: x,
       y: y,
-      width: 10,
-      height: 10,
+      width: TEXT_DEFAULT_WIDTH,
+      height: TEXT_DEFAULT_HEIGHT,
       fill: strokeColor, // use strokeColor for fill for now
       // strokeWidth not applied to text field for now
       text: "Double click to edit.",
@@ -232,8 +269,8 @@ export default function Canvas() {
       strokeWidth: strokeWidth,
       x: x,
       y: y,
-      width: 5,
-      height: 5,
+      width: SHAPE_DEFAULT_WIDTH,
+      height: SHAPE_DEFAULT_HEIGHT,
     }; // common shape properties
 
     let newShape: CanvasObjectType;
@@ -410,6 +447,7 @@ export default function Canvas() {
         onDelete={handleDelete}
         strokeWidth={strokeWidth}
         setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
+        isDarkMode={isDarkMode}
       />
       <ConfirmationDialog
         open={open}
@@ -417,6 +455,7 @@ export default function Canvas() {
         onConfirm={resetCanvasState}
         title="Clear Canvas"
         description="Are you sure you want to clear the canvas? This action cannot be undone."
+        isDarkMode={isDarkMode}
       />
     </>
   );
