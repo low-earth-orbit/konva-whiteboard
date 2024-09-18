@@ -11,3 +11,8 @@ export const getStrokeWidth = (
     return strokeWidth;
   }
 };
+
+export const SHAPE_MIN_WIDTH = 5;
+export const SHAPE_MIN_HEIGHT = 5;
+export const SHAPE_DEFAULT_WIDTH = 50;
+export const SHAPE_DEFAULT_HEIGHT = 50;

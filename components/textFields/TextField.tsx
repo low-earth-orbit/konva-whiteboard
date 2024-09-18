@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Text, Transformer } from "react-konva";
 import { CanvasObjectType } from "../Canvas";
 import Konva from "konva";
+import { TEXT_MIN_HEIGHT, TEXT_MIN_WIDTH } from "./textFieldUtils";
 
 type Props = {
   objectProps: Partial<CanvasObjectType>;
@@ -163,6 +164,20 @@ export default function TextField({
         ref={textRef}
         {...selectedProps}
         draggable={isSelected}
+        onMouseOver={(e) => {
+          const stage = e.target.getStage();
+          if (stage) {
+            const container = stage.container();
+            container.style.cursor = "pointer";
+          }
+        }}
+        onMouseLeave={(e) => {
+          const stage = e.target.getStage();
+          if (stage) {
+            const container = stage.container();
+            container.style.cursor = ""; // Reset to tool's cursor
+          }
+        }}
         onDragEnd={(e) => {
           onChange({
             ...selectedProps,
@@ -190,21 +205,53 @@ export default function TextField({
               x: node.x(),
               y: node.y(),
               // set minimal value
-              width: Math.max(5, objectProps.width! * scaleX),
-              height: Math.max(5, objectProps.height! * scaleY),
+              width: Math.max(TEXT_MIN_WIDTH, objectProps.width! * scaleX),
+              height: Math.max(TEXT_MIN_HEIGHT, objectProps.height! * scaleY),
             });
           }
         }}
-        onDblClick={handleDoubleClick}
       />
 
       {isSelected && (
         <Transformer
           ref={trRef}
           flipEnabled={false}
+          shouldOverdrawWholeArea
+          onDblClick={handleDoubleClick}
+          onMouseOver={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = "grab";
+            }
+          }}
+          onMouseLeave={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = ""; // Reset to tool's cursor
+            }
+          }}
+          onMouseDown={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = "grabbing";
+            }
+          }}
+          onMouseUp={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = "grab";
+            }
+          }}
           boundBoxFunc={(oldBox, newBox) => {
             // limit resize
-            if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {
+            if (
+              Math.abs(newBox.width) < TEXT_MIN_WIDTH ||
+              Math.abs(newBox.height) < TEXT_MIN_HEIGHT
+            ) {
               return oldBox;
             }
             return newBox;
