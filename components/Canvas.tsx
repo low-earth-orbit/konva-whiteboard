@@ -55,9 +55,11 @@ export type ToolType =
   | "pen"
   | "addText"
   | "addOval"
-  | "addRectangle";
+  | "addRectangle"
+  | "addTriangle"
+  | "addStar";
 
-export type ShapeName = "rectangle" | "oval";
+export type ShapeName = "rectangle" | "oval" | "triangle" | "star";
 
 export default function Canvas() {
   const dispatch = useDispatch();
@@ -283,6 +285,16 @@ export default function Canvas() {
           ...baseShape,
         };
         break;
+      case "triangle":
+        newShape = {
+          ...baseShape,
+        };
+        break;
+      case "star":
+        newShape = {
+          ...baseShape,
+        };
+        break;
       default:
         console.warn(`Unknown shapeName: ${shapeName}`);
         return;
@@ -313,6 +325,12 @@ export default function Canvas() {
             break;
           case "addOval":
             addShape("oval", x, y);
+            break;
+          case "addTriangle":
+            addShape("triangle", x, y);
+            break;
+          case "addStar":
+            addShape("star", x, y);
             break;
           default:
             console.warn(`Unknown tool: ${selectedTool}`);

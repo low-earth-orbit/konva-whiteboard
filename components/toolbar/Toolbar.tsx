@@ -19,6 +19,8 @@ import {
   LineWeightRounded,
   CropSquareRounded,
   CircleOutlined,
+  ChangeHistoryOutlined,
+  StarBorderOutlined,
   TextFields,
   UndoRounded,
   RedoRounded,
@@ -313,6 +315,30 @@ function Toolbar({
             }}
           >
             <CircleOutlined />
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title="Add triangle">
+          <IconButton
+            aria-label="Add triangle"
+            onClick={() => {
+              handleCloseShapesPopover();
+              setTool("addTriangle");
+            }}
+          >
+            <ChangeHistoryOutlined />
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title="Add star">
+          <IconButton
+            aria-label="Add star"
+            onClick={() => {
+              handleCloseShapesPopover();
+              setTool("addStar");
+            }}
+          >
+            <StarBorderOutlined />
           </IconButton>
         </Tooltip>
       </Popover>
