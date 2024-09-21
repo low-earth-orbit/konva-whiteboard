@@ -4,6 +4,8 @@ import RectangleShape from "./RectangleShape";
 import OvalShape from "./OvalShape";
 import TriangleShape from "./TriangleShape";
 import StarShape from "./StarShape";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 type ShapesLayerProps = {
   objects: CanvasObjectType[];
@@ -27,6 +29,8 @@ export default function ShapesLayer({
   selectedObjectId,
   setSelectedObjectId,
 }: ShapesLayerProps) {
+  const { selectedTool } = useSelector((state: RootState) => state.canvas);
+
   const shapes = [
     ...objects.filter((obj: CanvasObjectType) => obj.type === "shape"),
     ...(newObject && newObject.type === "shape" ? [newObject] : []),
@@ -36,10 +40,25 @@ export default function ShapesLayer({
     const commonProps = {
       shapeProps: shape,
       isSelected: shape.id === selectedObjectId,
-      onSelect: () => {
-        setSelectedObjectId(shape.id);
-        setColor(shape.stroke as string);
-        setWidth(shape.strokeWidth as number);
+      onSelect: (e: any) => {
+        if (selectedTool === "select") {
+          setSelectedObjectId(shape.id);
+          setColor(shape.stroke as string);
+          setWidth(shape.strokeWidth as number);
+
+          // Update cursor style
+          const stage = e.target.getStage();
+          if (stage) {
+            const container = stage.container();
+            container.style.cursor = "grab";
+          }
+
+          // TODO: #18
+          // console.log("e.target =", e.target);
+          // e.target.getParent().moveToTop(); // Upon select, move the object Group to top of canvas
+          // e.target.moveToTop(); // Upon select, move the object to top of canvas
+          // e.target.getLayer().batchDraw(); // Redraw
+        }
       },
       onChange: (newAttrs: Partial<CanvasObjectType>) =>
         onChange(newAttrs, shape.id),

@@ -7,7 +7,7 @@ import { getStrokeWidth } from "./shapeUtils";
 type Props = {
   shapeProps: Partial<CanvasObjectType>;
   isSelected: boolean;
-  onSelect: () => void;
+  onSelect: (e: any) => void;
   onChange: (newAttrs: Partial<CanvasObjectType>) => void;
 };
 
@@ -44,8 +44,8 @@ export default function StarShape({
         width={width}
         height={height}
         rotation={rotation}
-        onClick={onSelect}
-        onTap={onSelect}
+        onClick={(e) => onSelect(e)}
+        onTap={(e) => onSelect(e)}
         onDragEnd={(e) => {
           onChange({
             ...shapeProps,
@@ -96,6 +96,34 @@ export default function StarShape({
           ref={trRef}
           flipEnabled={false}
           shouldOverdrawWholeArea
+          onMouseOver={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = "grab";
+            }
+          }}
+          onMouseLeave={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = ""; // Reset to tool's cursor
+            }
+          }}
+          onMouseDown={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = "grabbing";
+            }
+          }}
+          onMouseUp={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = "grab";
+            }
+          }}
           boundBoxFunc={(oldBox, newBox) => {
             // limit resize
             if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {

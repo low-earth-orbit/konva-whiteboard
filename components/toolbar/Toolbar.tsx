@@ -30,7 +30,13 @@ import { CanvasObjectType, ToolType } from "../Canvas";
 
 import { RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
-import { redo, undo } from "@/redux/canvasSlice";
+import {
+  redo,
+  selectCanvasObject,
+  undo,
+  updateSelectedTool,
+} from "@/redux/canvasSlice";
+import SelectIcon from "./icons/SelectIcon";
 
 function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
   const { children, value } = props;
@@ -44,7 +50,6 @@ function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
 
 type ToolbarProps = {
   objects: CanvasObjectType[];
-  setTool: (tool: ToolType) => void;
   onDelete: () => void;
   color: string;
   onSelectColor: (newColor: string) => void;
@@ -55,7 +60,6 @@ type ToolbarProps = {
 
 function Toolbar({
   objects,
-  setTool,
   onDelete,
   color,
   onSelectColor,
@@ -132,9 +136,25 @@ function Toolbar({
         aria-label="toolbar buttons"
         className="flex gap-2 p-1"
       >
+        {/* select */}
+        <Tooltip title="Select">
+          <IconButton
+            aria-label="Select"
+            onClick={() => dispatch(updateSelectedTool("select"))}
+          >
+            <SelectIcon />
+          </IconButton>
+        </Tooltip>
+
         {/* pen */}
         <Tooltip title="Draw">
-          <IconButton aria-label="Draw" onClick={() => setTool("pen")}>
+          <IconButton
+            aria-label="Draw"
+            onClick={() => {
+              dispatch(updateSelectedTool("pen"));
+              dispatch(selectCanvasObject("")); // clear selected object, if there is
+            }}
+          >
             <DrawIcon />
           </IconButton>
         </Tooltip>
@@ -144,7 +164,8 @@ function Toolbar({
           <IconButton
             aria-label="Add text"
             onClick={() => {
-              setTool("addText");
+              dispatch(updateSelectedTool("addText"));
+              dispatch(selectCanvasObject("")); // clear selected object, if there is
             }}
           >
             <TextFields />
@@ -180,7 +201,13 @@ function Toolbar({
 
         {/* eraser */}
         <Tooltip title="Eraser">
-          <IconButton aria-label="erase" onClick={() => setTool("eraser")}>
+          <IconButton
+            aria-label="erase"
+            onClick={() => {
+              dispatch(updateSelectedTool("eraser"));
+              dispatch(selectCanvasObject("")); // clear selected object, if there is
+            }}
+          >
             <EraserIcon />
           </IconButton>
         </Tooltip>
@@ -299,7 +326,8 @@ function Toolbar({
             aria-label="Add rectangle"
             onClick={() => {
               handleCloseShapesPopover();
-              setTool("addRectangle");
+              dispatch(updateSelectedTool("addRectangle"));
+              dispatch(selectCanvasObject("")); // clear selected object, if there is
             }}
           >
             <CropSquareRounded />
@@ -311,7 +339,8 @@ function Toolbar({
             aria-label="Add oval"
             onClick={() => {
               handleCloseShapesPopover();
-              setTool("addOval");
+              dispatch(updateSelectedTool("addOval"));
+              dispatch(selectCanvasObject("")); // clear selected object, if there is
             }}
           >
             <CircleOutlined />
@@ -323,7 +352,8 @@ function Toolbar({
             aria-label="Add triangle"
             onClick={() => {
               handleCloseShapesPopover();
-              setTool("addTriangle");
+              dispatch(updateSelectedTool("addTriangle"));
+              dispatch(selectCanvasObject("")); // clear selected object, if there is
             }}
           >
             <ChangeHistoryOutlined />
@@ -335,7 +365,8 @@ function Toolbar({
             aria-label="Add star"
             onClick={() => {
               handleCloseShapesPopover();
-              setTool("addStar");
+              dispatch(updateSelectedTool("addStar"));
+              dispatch(selectCanvasObject("")); // clear selected object, if there is
             }}
           >
             <StarBorderOutlined />

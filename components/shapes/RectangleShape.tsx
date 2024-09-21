@@ -11,7 +11,7 @@ import {
 type Props = {
   shapeProps: Partial<CanvasObjectType>;
   isSelected: boolean;
-  onSelect: () => void;
+  onSelect: (e: any) => void;
   onChange: (newAttrs: Partial<CanvasObjectType>) => void;
 };
 
@@ -48,22 +48,8 @@ export default function RectangleShape({
         width={width}
         height={height}
         rotation={rotation}
-        onClick={onSelect}
-        onTap={onSelect}
-        onMouseOver={(e) => {
-          const stage = e.target.getStage();
-          if (stage) {
-            const container = stage.container();
-            container.style.cursor = "pointer";
-          }
-        }}
-        onMouseLeave={(e) => {
-          const stage = e.target.getStage();
-          if (stage) {
-            const container = stage.container();
-            container.style.cursor = ""; // Reset to tool's cursor
-          }
-        }}
+        onClick={(e) => onSelect(e)}
+        onTap={(e) => onSelect(e)}
         onDragEnd={(e) => {
           onChange({
             ...shapeProps,
