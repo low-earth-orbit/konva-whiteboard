@@ -17,6 +17,7 @@ import {
   undo,
   redo,
   setCanvasObjects,
+  updateSelectedTool,
 } from "../redux/canvasSlice";
 import { SHAPE_DEFAULT_HEIGHT, SHAPE_DEFAULT_WIDTH } from "./shapes/shapeUtils";
 import {
@@ -51,6 +52,7 @@ export interface CanvasObjectType {
 export type ObjectType = "ink" | "shape" | "text";
 
 export type ToolType =
+  | "select"
   | "eraser"
   | "pen"
   | "addText"
@@ -64,12 +66,11 @@ export type ShapeName = "rectangle" | "oval" | "triangle" | "star";
 export default function Canvas() {
   const dispatch = useDispatch();
   const [stageSize, setStageSize] = useState<StageSizeType>();
-  const { canvasObjects, selectedObjectId } = useSelector(
+  const { canvasObjects, selectedObjectId, selectedTool } = useSelector(
     (state: RootState) => state.canvas,
   );
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  const [selectedTool, setSelectedTool] = useState<ToolType>("pen");
   const [strokeColor, setStrokeColor] = useState<string>("#2986cc");
   const [strokeWidth, setStrokeWidth] = useState<number>(5);
 
@@ -340,22 +341,27 @@ export default function Canvas() {
       }
 
       // If the current selected tool is eraser or pen
-      const pos = e.target.getStage().getPointerPosition();
-      const newLine: CanvasObjectType = {
-        id: uuid(),
-        tool: selectedTool, // eraser or pen
-        type: "ink",
-        points: [pos.x, pos.y],
-        stroke: strokeColor,
-        strokeWidth: strokeWidth,
-      };
-      setNewObject(newLine);
-      return;
+      if (selectedTool === "eraser" || selectedTool === "pen") {
+        const pos = e.target.getStage().getPointerPosition();
+        const newLine: CanvasObjectType = {
+          id: uuid(),
+          tool: selectedTool, // eraser or pen
+          type: "ink",
+          points: [pos.x, pos.y],
+          stroke: strokeColor,
+          strokeWidth:
+            selectedTool === "eraser" ? Math.max(strokeWidth, 20) : strokeWidth,
+        };
+        setNewObject(newLine);
+        return;
+      }
     }
 
-    // deselect object when clicked on empty area
-    const clickedOnEmpty = e.target === e.target.getStage();
-    if (clickedOnEmpty) {
+    // deselect object when clicked on empty area or clicked on an ink object (created by pen or eraser)
+    if (
+      e.target === e.target.getStage() ||
+      e.target.attrs.name.includes("ink")
+    ) {
       dispatch(selectCanvasObject(""));
     }
   };
@@ -402,6 +408,9 @@ export default function Canvas() {
     if (isInProgress) {
       if (newObject) dispatch(addCanvasObject(newObject));
 
+      if (selectedTool !== "pen" && selectedTool !== "eraser")
+        dispatch(updateSelectedTool("select"));
+
       setNewObject(null);
       setIsInProgress(false);
     }
@@ -441,7 +450,6 @@ export default function Canvas() {
       </Stage>
       <Toolbar
         objects={canvasObjects}
-        setTool={setSelectedTool}
         color={strokeColor}
         onSelectColor={(newColor) => updateStyle("stroke", newColor)}
         onDelete={handleDelete}

@@ -16,6 +16,7 @@ export default function InkLayer({ objects, newObject }: Props) {
     <Layer>
       {lines.map((line, i) => (
         <Line
+          name={`ink-${line.tool === "eraser" ? "eraser" : "pen"}`}
           key={i}
           points={line.points}
           stroke={line.stroke}

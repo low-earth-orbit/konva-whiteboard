@@ -7,7 +7,7 @@ import { TEXT_MIN_HEIGHT, TEXT_MIN_WIDTH } from "./textFieldUtils";
 type Props = {
   objectProps: Partial<CanvasObjectType>;
   isSelected: boolean;
-  onSelect: () => void;
+  onSelect: (e: any) => void;
   onChange: (newAttrs: Partial<CanvasObjectType>) => void;
 };
 
@@ -29,6 +29,7 @@ export default function TextField({
   }, [isSelected]);
 
   const {
+    type,
     id,
     x,
     y,
@@ -42,6 +43,7 @@ export default function TextField({
   } = objectProps;
 
   const selectedProps = {
+    type,
     id,
     x,
     y,
@@ -159,25 +161,12 @@ export default function TextField({
   return (
     <>
       <Text
-        onClick={onSelect}
-        onTap={onSelect}
+        name={type}
+        onClick={(e) => onSelect(e)}
+        onTap={(e) => onSelect(e)}
         ref={textRef}
         {...selectedProps}
         draggable={isSelected}
-        onMouseOver={(e) => {
-          const stage = e.target.getStage();
-          if (stage) {
-            const container = stage.container();
-            container.style.cursor = "pointer";
-          }
-        }}
-        onMouseLeave={(e) => {
-          const stage = e.target.getStage();
-          if (stage) {
-            const container = stage.container();
-            container.style.cursor = ""; // Reset to tool's cursor
-          }
-        }}
         onDragEnd={(e) => {
           onChange({
             ...selectedProps,
