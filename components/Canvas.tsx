@@ -289,6 +289,7 @@ export default function Canvas() {
       case "triangle":
         newShape = {
           ...baseShape,
+          height: 43.3, // equilateral triangle
         };
         break;
       case "star":
@@ -379,8 +380,10 @@ export default function Canvas() {
       if (selectedTool.includes("add")) {
         setNewObject({
           ...newObject,
-          width,
-          height,
+          width:
+            newObject.shapeName === "star" ? Math.min(width, height) : width,
+          height:
+            newObject.shapeName === "star" ? Math.min(width, height) : height,
         });
       } else {
         console.warn(`Unknown tool: ${selectedTool}`);

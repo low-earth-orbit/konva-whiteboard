@@ -11,7 +11,7 @@ Project management is handled through [Issues](https://github.com/low-earth-orbi
 - Front-end: `React`, `Redux`, `Next.js`, `Konva.js`,`Material UI`
 - Programming language: `TypeScript`
 
-## Planning
+## Roadmap
 
 Although there isn’t a strict timeline, the project is divided into three phases:
 
@@ -23,14 +23,17 @@ Although there isn’t a strict timeline, the project is divided into three phas
 
 - Canvas objects
 
-  - Pen & eraser
+  - Draw
   - Text fields
   - Shapes
     - Rectangle
     - Oval
+    - Triangle
+    - Star
   - Adjustable shape borders (width & color)
 
 - Canvas
+  - Select object
   - History (undo & redo)
   - Delete an object or clear the entire canvas
   - Keyboard shortcuts for delete/undo/redo actions
