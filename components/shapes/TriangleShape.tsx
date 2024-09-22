@@ -33,14 +33,14 @@ export default function TriangleShape({
 
   const adjustedStrokeWidth = getStrokeWidth(strokeWidth, width, height);
 
-  // Coordinates for a triangle (equilateral triangle)
+  // Coordinates for a triangle
   const points = [
-    0,
-    0, // Top point
     width! / 2,
-    height!, // Bottom-right point
-    -width! / 2,
-    height!, // Bottom-left point
+    adjustedStrokeWidth! / 2, // Top point
+    width! - adjustedStrokeWidth! / 2,
+    height! - adjustedStrokeWidth! / 2, // Bottom-right point
+    adjustedStrokeWidth! / 2,
+    height! - adjustedStrokeWidth! / 2, // Bottom-left point
   ];
 
   return (

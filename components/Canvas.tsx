@@ -289,6 +289,7 @@ export default function Canvas() {
       case "triangle":
         newShape = {
           ...baseShape,
+          height: 43.3, // equilateral triangle
         };
         break;
       case "star":
