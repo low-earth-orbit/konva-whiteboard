@@ -379,8 +379,10 @@ export default function Canvas() {
       if (selectedTool.includes("add")) {
         setNewObject({
           ...newObject,
-          width,
-          height,
+          width:
+            newObject.shapeName === "star" ? Math.min(width, height) : width,
+          height:
+            newObject.shapeName === "star" ? Math.min(width, height) : height,
         });
       } else {
         console.warn(`Unknown tool: ${selectedTool}`);

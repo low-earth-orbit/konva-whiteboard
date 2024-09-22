@@ -2,7 +2,11 @@ import React, { useEffect, useRef } from "react";
 import { Group, Star, Transformer } from "react-konva";
 import { CanvasObjectType } from "../Canvas";
 import Konva from "konva";
-import { getStrokeWidth } from "./shapeUtils";
+import {
+  getStrokeWidth,
+  SHAPE_MIN_HEIGHT,
+  SHAPE_MIN_WIDTH,
+} from "./shapeUtils";
 
 type Props = {
   shapeProps: Partial<CanvasObjectType>;
@@ -32,6 +36,8 @@ export default function StarShape({
     shapeProps;
 
   const adjustedStrokeWidth = getStrokeWidth(strokeWidth, width, height);
+  const outerRadius = Math.min(width!, height!) / 2 - adjustedStrokeWidth! / 2;
+  const innerRadius = outerRadius * 0.382;
 
   return (
     <>
@@ -65,8 +71,8 @@ export default function StarShape({
               ...shapeProps,
               x: group.x(),
               y: group.y(),
-              width: Math.max(5, group.width() * scaleX),
-              height: Math.max(5, group.height() * scaleY),
+              width: Math.max(SHAPE_MIN_WIDTH, group.width() * scaleX),
+              height: Math.max(SHAPE_MIN_HEIGHT, group.height() * scaleY),
               rotation: group.rotation(),
             });
 
@@ -81,11 +87,11 @@ export default function StarShape({
         <Star
           name={`shape-${shapeName}`}
           id={`shape-${shapeName}-${id}`}
-          x={0}
-          y={0}
+          x={width! / 2}
+          y={height! / 2}
           numPoints={5} // Define a 5-pointed star
-          innerRadius={Math.min(width!, height!) / 4} // Inner radius for star
-          outerRadius={Math.min(width!, height!) / 2} // Outer radius for star
+          innerRadius={innerRadius} // Inner radius for star
+          outerRadius={outerRadius} // Outer radius for star
           stroke={stroke}
           strokeWidth={adjustedStrokeWidth}
           lineJoin="round" // round corners
@@ -131,6 +137,13 @@ export default function StarShape({
             }
             return newBox;
           }}
+          keepRatio={true}
+          enabledAnchors={[
+            "top-left",
+            "top-right",
+            "bottom-left",
+            "bottom-right",
+          ]}
         />
       )}
     </>
