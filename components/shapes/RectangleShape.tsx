@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Group, Rect, Transformer } from "react-konva";
 import { CanvasObjectType } from "../Canvas";
 import Konva from "konva";
@@ -7,8 +7,6 @@ import {
   SHAPE_MIN_HEIGHT,
   SHAPE_MIN_WIDTH,
 } from "./shapeUtils";
-import { Html } from "react-konva-utils";
-import { KonvaEventObject } from "konva/lib/Node";
 
 type Props = {
   shapeProps: Partial<CanvasObjectType>;
@@ -25,7 +23,6 @@ export default function RectangleShape({
 }: Props) {
   const groupRef = useRef<Konva.Group>(null);
   const trRef = useRef<Konva.Transformer>(null);
-  const [showMenu, setShowMenu] = useState<boolean>(true);
 
   useEffect(() => {
     if (isSelected && trRef.current && groupRef.current) {
@@ -53,22 +50,14 @@ export default function RectangleShape({
         rotation={rotation}
         onClick={(e) => onSelect(e)}
         onTap={(e) => onSelect(e)}
-        onDragStart={(e: KonvaEventObject<DragEvent>) => setShowMenu(false)}
         onDragEnd={(e) => {
-          setShowMenu(true);
-
           onChange({
             ...shapeProps,
             x: e.target.x(),
             y: e.target.y(),
           });
         }}
-        onTransformStart={(e: KonvaEventObject<DragEvent>) =>
-          setShowMenu(false)
-        }
         onTransformEnd={(e) => {
-          setShowMenu(true);
-
           const group = groupRef.current;
 
           if (group) {
@@ -106,68 +95,51 @@ export default function RectangleShape({
         />
       </Group>
       {isSelected && (
-        <>
-          <Transformer
-            name={`shape-${shapeName}-transformer`}
-            id={`shape-${shapeName}-${id}-transformer`}
-            ref={trRef}
-            flipEnabled={false}
-            shouldOverdrawWholeArea
-            onMouseOver={(e) => {
-              const stage = e.target.getStage();
-              if (stage) {
-                const container = stage.container();
-                container.style.cursor = "grab";
-              }
-            }}
-            onMouseLeave={(e) => {
-              const stage = e.target.getStage();
-              if (stage) {
-                const container = stage.container();
-                container.style.cursor = ""; // Reset to tool's cursor
-              }
-            }}
-            onMouseDown={(e) => {
-              const stage = e.target.getStage();
-              if (stage) {
-                const container = stage.container();
-                container.style.cursor = "grabbing";
-              }
-            }}
-            onMouseUp={(e) => {
-              const stage = e.target.getStage();
-              if (stage) {
-                const container = stage.container();
-                container.style.cursor = "grab";
-              }
-            }}
-            boundBoxFunc={(oldBox, newBox) => {
-              // Limit resize
-              if (
-                Math.abs(newBox.width) < SHAPE_MIN_WIDTH ||
-                Math.abs(newBox.height) < SHAPE_MIN_HEIGHT
-              ) {
-                return oldBox;
-              }
-              return newBox;
-            }}
-          />
-          {showMenu && (
-            <Html
-              divProps={{
-                style: {
-                  position: "absolute",
-                  top: `${groupRef.current?.getClientRect().y! - 50}px` || 0,
-                  left: `${groupRef.current?.getClientRect().x!}px` || 0,
-                },
-              }}
-            >
-              <button onClick={() => console.log("Custom Action")}>
-                Custom Action
-              </button>
-            </Html>
-          )}
-        </>
+        <Transformer
+          name={`shape-${shapeName}-transformer`}
+          id={`shape-${shapeName}-${id}-transformer`}
+          ref={trRef}
+          flipEnabled={false}
+          shouldOverdrawWholeArea
+          onMouseOver={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = "grab";
+            }
+          }}
+          onMouseLeave={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = ""; // Reset to tool's cursor
+            }
+          }}
+          onMouseDown={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = "grabbing";
+            }
+          }}
+          onMouseUp={(e) => {
+            const stage = e.target.getStage();
+            if (stage) {
+              const container = stage.container();
+              container.style.cursor = "grab";
+            }
+          }}
+          boundBoxFunc={(oldBox, newBox) => {
+            // Limit resize
+            if (
+              Math.abs(newBox.width) < SHAPE_MIN_WIDTH ||
+              Math.abs(newBox.height) < SHAPE_MIN_HEIGHT
+            ) {
+              return oldBox;
+            }
+            return newBox;
+          }}
+        />
       )}
     </>
   );
