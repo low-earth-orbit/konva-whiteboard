@@ -18,6 +18,7 @@ type ShapesLayerProps = {
   setWidth: (newWidth: number) => void;
   selectedObjectId: string;
   setSelectedObjectId: (id: string) => void;
+  setSidePanelVisible: (isVisible: boolean) => void;
 };
 
 export default function ShapesLayer({
@@ -28,6 +29,7 @@ export default function ShapesLayer({
   setWidth,
   selectedObjectId,
   setSelectedObjectId,
+  setSidePanelVisible,
 }: ShapesLayerProps) {
   const { selectedTool } = useSelector((state: RootState) => state.canvas);
 
@@ -43,6 +45,10 @@ export default function ShapesLayer({
       onSelect: (e: any) => {
         if (selectedTool === "select") {
           setSelectedObjectId(shape.id);
+
+          // Show the side panel
+          setSidePanelVisible(true);
+
           setColor(shape.stroke as string);
           setWidth(shape.strokeWidth as number);
 
