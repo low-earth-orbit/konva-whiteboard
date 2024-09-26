@@ -484,7 +484,12 @@ export default function Canvas() {
         description="Are you sure you want to clear the canvas? This action cannot be undone."
         isDarkMode={isDarkMode}
       />
-      {isSidePanelVisible && <SidePanel />}
+      {isSidePanelVisible && (
+        <SidePanel
+          isOpen={isSidePanelVisible}
+          onClose={() => setSidePanelVisible(false)}
+        />
+      )}
     </>
   );
 }

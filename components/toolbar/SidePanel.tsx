@@ -1,72 +1,149 @@
 import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import CssBaseline from "@mui/material/CssBaseline";
-import Divider from "@mui/material/Divider";
-import Drawer from "@mui/material/Drawer";
-import IconButton from "@mui/material/IconButton";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import MailIcon from "@mui/icons-material/Mail";
-import MenuIcon from "@mui/icons-material/Menu";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import { Slider, TextField, Tooltip } from "@mui/material";
-import { LineWeightSliderValueLabel } from "./Toolbar";
+import {
+  Box,
+  Drawer,
+  Typography,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Divider,
+  IconButton,
+  Slider,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { HexColorPicker } from "react-colorful";
+import { LineWeightSliderValueLabel } from "./Toolbar";
 
-export default function SidePanel() {
+export default function SidePanel({
+  onClose,
+  isOpen,
+}: {
+  onClose: () => void;
+  isOpen: boolean;
+}) {
+  const [borderWidth, setBorderWidth] = React.useState(1);
+  const [borderColor, setBorderColor] = React.useState("#000000");
+  const [fillColor, setFillColor] = React.useState("#ffffff");
+  const [colorPickerOpen, setColorPickerOpen] = React.useState(false);
+  const [isBorderPicker, setIsBorderPicker] = React.useState(true);
+
+  const handleColorPickerOpen = (isBorder: boolean) => {
+    setIsBorderPicker(isBorder);
+    setColorPickerOpen(true);
+  };
+
+  const handleColorChange = (color: string) => {
+    if (isBorderPicker) {
+      setBorderColor(color);
+    } else {
+      setFillColor(color);
+    }
+  };
+
   const drawer = (
     <>
-      <List>
-        <Box sx={{ width: 200 }} className="p-2">
-          <TextField id="outlined-number" label="Border width" type="number" />
-        </Box>
+      {/* Title with Close Button */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          p: 2,
+        }}
+      >
+        <Typography variant="h6">Edit shape</Typography>
+        <IconButton onClick={onClose}>
+          <CloseIcon />
+        </IconButton>
+      </Box>
 
-        <Box sx={{ width: 200 }} className="p-2">
+      {/* Border Width Section */}
+      <Divider />
+      <Box sx={{ p: 2 }}>
+        <Typography variant="h6">Border width</Typography>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <Typography sx={{ mr: 2, width: 30, textAlign: "center" }}>
+            {borderWidth}
+          </Typography>
           <Slider
-            valueLabelDisplay="auto"
-            max={100}
+            value={borderWidth}
             min={1}
+            max={100}
+            valueLabelDisplay="auto"
             slots={{
               valueLabel: LineWeightSliderValueLabel,
             }}
             aria-label="Border width"
-            value={100}
-            // onChange={(_, value) => handleChangeStrokeWidth(value as number)}
+            onChange={(_, value) => setBorderWidth(value as number)}
+            sx={{ flex: 1 }}
           />
         </Box>
+      </Box>
 
-        <ListItemText primary="Border color" />
+      {/* Border Color Section */}
+      <Divider />
+      <Box sx={{ p: 2 }}>
+        <Typography variant="h6">Color</Typography>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <Box
+            sx={{
+              width: 24,
+              height: 24,
+              bgcolor: borderColor,
+              border: "1px solid black",
+              borderRadius: "50%",
+              mr: 2,
+            }}
+          />
+          <Button
+            variant="outlined"
+            onClick={() => handleColorPickerOpen(true)}
+          >
+            Change border color
+          </Button>
+        </Box>
+      </Box>
 
-        <HexColorPicker
-          className="p-5"
-          color={undefined}
-          onChange={undefined}
-        />
+      {/* Fill Color Section */}
+      <Divider />
+      <Box sx={{ p: 2 }}>
+        <Typography variant="h6">Fill</Typography>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <Box
+            sx={{
+              width: 24,
+              height: 24,
+              bgcolor: fillColor,
+              border: "1px solid black",
+              borderRadius: "50%",
+              mr: 2,
+            }}
+          />
+          <Button
+            variant="outlined"
+            onClick={() => handleColorPickerOpen(false)}
+          >
+            Change fill color
+          </Button>
+        </Box>
+      </Box>
 
-        <ListItemText primary="Fill color" />
-
-        <HexColorPicker
-          className="p-5"
-          color={undefined}
-          onChange={undefined}
-        />
-      </List>
+      {/* Color Picker Dialog */}
+      <Dialog open={colorPickerOpen} onClose={() => setColorPickerOpen(false)}>
+        <DialogTitle>{isBorderPicker ? "Border" : "Fill"}</DialogTitle>
+        <DialogContent>
+          <HexColorPicker
+            color={isBorderPicker ? borderColor : fillColor}
+            onChange={handleColorChange}
+          />
+        </DialogContent>
+      </Dialog>
     </>
   );
 
   return (
-    <Drawer
-      variant="permanent"
-      // ModalProps={{
-      //   keepMounted: true,
-      // }}
-    >
+    <Drawer anchor="right" open={isOpen} onClose={onClose} variant="persistent">
       {drawer}
     </Drawer>
   );
