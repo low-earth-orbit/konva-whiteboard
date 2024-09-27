@@ -26,7 +26,7 @@ import {
   RedoRounded,
 } from "@mui/icons-material";
 
-import { CanvasObjectType, ToolType } from "../Canvas";
+import { CanvasObjectType } from "../Canvas";
 
 import { RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";

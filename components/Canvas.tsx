@@ -72,8 +72,9 @@ export default function Canvas() {
   );
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  const [strokeColor, setStrokeColor] = useState<string>("#2986cc");
   const [strokeWidth, setStrokeWidth] = useState<number>(5);
+  const [strokeColor, setStrokeColor] = useState<string>("#2986cc");
+  const [fillColor, setFillColor] = useState<string>("#FFFFFF");
 
   const [isInProgress, setIsInProgress] = useState(false);
 
@@ -82,8 +83,6 @@ export default function Canvas() {
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false); // confirmation modal for delete button - clear canvas
 
   const [isSidePanelVisible, setSidePanelVisible] = useState(false);
-
-  console.log("isSidePanelVisible =", isSidePanelVisible);
 
   // Dark mode listener
   useEffect(() => {
@@ -271,8 +270,9 @@ export default function Canvas() {
       id: newShapeId,
       shapeName,
       type: "shape" as const,
-      stroke: strokeColor,
       strokeWidth: strokeWidth,
+      stroke: strokeColor,
+      fill: fillColor,
       x: x,
       y: y,
       width: SHAPE_DEFAULT_WIDTH,
@@ -377,7 +377,6 @@ export default function Canvas() {
       e.target.attrs.name?.includes("ink") ||
       e.target.attrs.name?.includes("text")
     ) {
-      console.log("e.target =", e.target);
       setSidePanelVisible(false);
     }
   };
@@ -449,8 +448,9 @@ export default function Canvas() {
           objects={canvasObjects}
           newObject={newObject}
           onChange={updateSelectedObject}
-          setColor={setStrokeColor}
           setWidth={setStrokeWidth}
+          setBorderColor={setStrokeColor}
+          setFillColor={setFillColor}
           selectedObjectId={selectedObjectId}
           setSelectedObjectId={(newObjectId) =>
             dispatch(selectCanvasObject(newObjectId))
@@ -488,6 +488,12 @@ export default function Canvas() {
         <SidePanel
           isOpen={isSidePanelVisible}
           onClose={() => setSidePanelVisible(false)}
+          strokeWidth={strokeWidth}
+          setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
+          color={strokeColor}
+          onSelectColor={(newColor) => updateStyle("stroke", newColor)}
+          fillColor={fillColor}
+          onSelectFillColor={(newColor) => updateStyle("fill", newColor)}
         />
       )}
     </>

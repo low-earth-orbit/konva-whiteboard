@@ -15,16 +15,27 @@ import CloseIcon from "@mui/icons-material/Close";
 import { HexColorPicker } from "react-colorful";
 import { LineWeightSliderValueLabel } from "./Toolbar";
 
+type Props = {
+  onClose: () => void;
+  isOpen: boolean;
+  strokeWidth: number;
+  setStrokeWidth: (newWidth: number) => void;
+  color: string;
+  onSelectColor: (newColor: string) => void;
+  fillColor: string;
+  onSelectFillColor: (newColor: string) => void;
+};
+
 export default function SidePanel({
   onClose,
   isOpen,
-}: {
-  onClose: () => void;
-  isOpen: boolean;
-}) {
-  const [borderWidth, setBorderWidth] = React.useState(1);
-  const [borderColor, setBorderColor] = React.useState("#000000");
-  const [fillColor, setFillColor] = React.useState("#ffffff");
+  strokeWidth,
+  setStrokeWidth,
+  color,
+  onSelectColor,
+  fillColor,
+  onSelectFillColor,
+}: Props) {
   const [colorPickerOpen, setColorPickerOpen] = React.useState(false);
   const [isBorderPicker, setIsBorderPicker] = React.useState(true);
 
@@ -35,9 +46,9 @@ export default function SidePanel({
 
   const handleColorChange = (color: string) => {
     if (isBorderPicker) {
-      setBorderColor(color);
+      onSelectColor(color);
     } else {
-      setFillColor(color);
+      onSelectFillColor(color);
     }
   };
 
@@ -66,10 +77,10 @@ export default function SidePanel({
           <Typography
             sx={{ mr: 2, width: 30, textAlign: "center", fontSize: "0.875rem" }}
           >
-            {borderWidth}px
+            {strokeWidth}px
           </Typography>
           <Slider
-            value={borderWidth}
+            value={strokeWidth}
             min={1}
             max={100}
             valueLabelDisplay="auto"
@@ -77,7 +88,7 @@ export default function SidePanel({
               valueLabel: LineWeightSliderValueLabel,
             }}
             aria-label="Border width"
-            onChange={(_, value) => setBorderWidth(value as number)}
+            onChange={(_, value) => setStrokeWidth(value as number)}
             sx={{ flex: 1 }}
           />
         </Box>
@@ -92,7 +103,7 @@ export default function SidePanel({
             sx={{
               width: 24,
               height: 24,
-              bgcolor: borderColor,
+              bgcolor: color,
               border: "1px solid black",
               borderRadius: "50%",
               mr: 2,
@@ -138,7 +149,7 @@ export default function SidePanel({
         <DialogTitle>{isBorderPicker ? "Border" : "Fill"}</DialogTitle>
         <DialogContent sx={{ pt: 3 }}>
           <HexColorPicker
-            color={isBorderPicker ? borderColor : fillColor}
+            color={isBorderPicker ? color : fillColor}
             onChange={handleColorChange}
           />
         </DialogContent>

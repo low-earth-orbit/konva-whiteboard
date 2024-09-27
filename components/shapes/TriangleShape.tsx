@@ -28,8 +28,18 @@ export default function TriangleShape({
     }
   }, [isSelected]);
 
-  const { shapeName, id, x, y, width, height, stroke, strokeWidth, rotation } =
-    shapeProps;
+  const {
+    shapeName,
+    id,
+    x,
+    y,
+    width,
+    height,
+    stroke,
+    strokeWidth,
+    fill,
+    rotation,
+  } = shapeProps;
 
   const adjustedStrokeWidth = getStrokeWidth(strokeWidth, width, height);
 
@@ -94,6 +104,7 @@ export default function TriangleShape({
           points={points}
           closed={true} // closes the shape (triangle)
           stroke={stroke}
+          fill={fill}
           strokeWidth={adjustedStrokeWidth}
           lineJoin="round" // round corners
         />

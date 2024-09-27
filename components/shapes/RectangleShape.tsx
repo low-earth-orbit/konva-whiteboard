@@ -32,8 +32,18 @@ export default function RectangleShape({
     }
   }, [isSelected]);
 
-  const { shapeName, id, x, y, width, height, stroke, strokeWidth, rotation } =
-    shapeProps;
+  const {
+    shapeName,
+    id,
+    x,
+    y,
+    width,
+    height,
+    strokeWidth,
+    stroke,
+    fill,
+    rotation,
+  } = shapeProps;
 
   const adjustedStrokeWidth = getStrokeWidth(strokeWidth, width, height);
 
@@ -89,8 +99,9 @@ export default function RectangleShape({
           y={adjustedStrokeWidth! / 2}
           width={width! - adjustedStrokeWidth!}
           height={height! - adjustedStrokeWidth!}
-          stroke={stroke}
           strokeWidth={adjustedStrokeWidth}
+          stroke={stroke}
+          fill={fill}
           lineJoin="round" // round corners
         />
       </Group>
