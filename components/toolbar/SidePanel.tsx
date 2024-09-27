@@ -52,7 +52,7 @@ export default function SidePanel({
           p: 2,
         }}
       >
-        <Typography variant="h6">Edit shape</Typography>
+        <Typography variant="subtitle1">Edit shape</Typography>
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
@@ -61,10 +61,12 @@ export default function SidePanel({
       {/* Border Width Section */}
       <Divider />
       <Box sx={{ p: 2 }}>
-        <Typography variant="h6">Border width</Typography>
+        <Typography variant="subtitle2">Border width</Typography>
         <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-          <Typography sx={{ mr: 2, width: 30, textAlign: "center" }}>
-            {borderWidth}
+          <Typography
+            sx={{ mr: 2, width: 30, textAlign: "center", fontSize: "0.875rem" }}
+          >
+            {borderWidth}px
           </Typography>
           <Slider
             value={borderWidth}
@@ -84,7 +86,7 @@ export default function SidePanel({
       {/* Border Color Section */}
       <Divider />
       <Box sx={{ p: 2 }}>
-        <Typography variant="h6">Color</Typography>
+        <Typography variant="subtitle2">Color</Typography>
         <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
           <Box
             sx={{
@@ -98,6 +100,7 @@ export default function SidePanel({
           />
           <Button
             variant="outlined"
+            size="small"
             onClick={() => handleColorPickerOpen(true)}
           >
             Change border color
@@ -108,7 +111,7 @@ export default function SidePanel({
       {/* Fill Color Section */}
       <Divider />
       <Box sx={{ p: 2 }}>
-        <Typography variant="h6">Fill</Typography>
+        <Typography variant="subtitle2">Fill</Typography>
         <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
           <Box
             sx={{
@@ -122,6 +125,7 @@ export default function SidePanel({
           />
           <Button
             variant="outlined"
+            size="small"
             onClick={() => handleColorPickerOpen(false)}
           >
             Change fill color
@@ -132,7 +136,7 @@ export default function SidePanel({
       {/* Color Picker Dialog */}
       <Dialog open={colorPickerOpen} onClose={() => setColorPickerOpen(false)}>
         <DialogTitle>{isBorderPicker ? "Border" : "Fill"}</DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ pt: 3 }}>
           <HexColorPicker
             color={isBorderPicker ? borderColor : fillColor}
             onChange={handleColorChange}
@@ -143,7 +147,21 @@ export default function SidePanel({
   );
 
   return (
-    <Drawer anchor="right" open={isOpen} onClose={onClose} variant="persistent">
+    <Drawer
+      anchor="right"
+      open={isOpen}
+      onClose={onClose}
+      variant="persistent"
+      PaperProps={{
+        sx: {
+          width: 300, // Fixed width for the panel
+          borderRadius: "10px", // Rounded corner
+          boxShadow: 2,
+          margin: 1,
+          height: "calc(100% - 16px)",
+        },
+      }}
+    >
       {drawer}
     </Drawer>
   );
