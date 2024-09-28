@@ -32,8 +32,18 @@ export default function OvalShape({
     }
   }, [isSelected]);
 
-  const { shapeName, id, x, y, width, height, stroke, strokeWidth, rotation } =
-    shapeProps;
+  const {
+    shapeName,
+    id,
+    x,
+    y,
+    width,
+    height,
+    strokeWidth,
+    stroke,
+    fill,
+    rotation,
+  } = shapeProps;
 
   const adjustedStrokeWidth = getStrokeWidth(strokeWidth, width, height);
 
@@ -97,8 +107,9 @@ export default function OvalShape({
           height={height! - adjustedStrokeWidth!}
           radiusX={width! / 2 - adjustedStrokeWidth! / 2}
           radiusY={height! / 2 - adjustedStrokeWidth! / 2}
-          stroke={stroke}
           strokeWidth={adjustedStrokeWidth}
+          stroke={stroke}
+          fill={fill}
         />
       </Group>
       {isSelected && (

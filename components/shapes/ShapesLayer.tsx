@@ -14,20 +14,24 @@ type ShapesLayerProps = {
     newAttrs: Partial<CanvasObjectType>,
     selectedObjectId: string,
   ) => void;
-  setColor: (newColor: string) => void;
   setWidth: (newWidth: number) => void;
+  setBorderColor: (newColor: string) => void;
+  setFillColor: (newColor: string) => void;
   selectedObjectId: string;
   setSelectedObjectId: (id: string) => void;
+  setSidePanelVisible: (isVisible: boolean) => void;
 };
 
 export default function ShapesLayer({
   objects,
   newObject,
   onChange,
-  setColor,
   setWidth,
+  setBorderColor,
+  setFillColor,
   selectedObjectId,
   setSelectedObjectId,
+  setSidePanelVisible,
 }: ShapesLayerProps) {
   const { selectedTool } = useSelector((state: RootState) => state.canvas);
 
@@ -43,8 +47,13 @@ export default function ShapesLayer({
       onSelect: (e: any) => {
         if (selectedTool === "select") {
           setSelectedObjectId(shape.id);
-          setColor(shape.stroke as string);
+
+          // Show the side panel
+          setSidePanelVisible(true);
+
           setWidth(shape.strokeWidth as number);
+          setBorderColor(shape.stroke as string);
+          setFillColor(shape.fill as string);
 
           // Update cursor style
           const stage = e.target.getStage();

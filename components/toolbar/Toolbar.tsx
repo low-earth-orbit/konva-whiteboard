@@ -26,7 +26,7 @@ import {
   RedoRounded,
 } from "@mui/icons-material";
 
-import { CanvasObjectType, ToolType } from "../Canvas";
+import { CanvasObjectType } from "../Canvas";
 
 import { RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -38,7 +38,7 @@ import {
 } from "@/redux/canvasSlice";
 import SelectIcon from "./icons/SelectIcon";
 
-function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
+export function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
   const { children, value } = props;
 
   return (
@@ -298,7 +298,7 @@ function Toolbar({
             slots={{
               valueLabel: LineWeightSliderValueLabel,
             }}
-            aria-label="custom thumb label"
+            aria-label="Stroke width"
             value={strokeWidth}
             onChange={(_, value) => handleChangeStrokeWidth(value as number)}
           />

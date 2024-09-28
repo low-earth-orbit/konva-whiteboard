@@ -32,8 +32,18 @@ export default function StarShape({
     }
   }, [isSelected]);
 
-  const { shapeName, id, x, y, width, height, stroke, strokeWidth, rotation } =
-    shapeProps;
+  const {
+    shapeName,
+    id,
+    x,
+    y,
+    width,
+    height,
+    strokeWidth,
+    stroke,
+    fill,
+    rotation,
+  } = shapeProps;
 
   const adjustedStrokeWidth = getStrokeWidth(strokeWidth, width, height);
   const outerRadius = Math.min(width!, height!) / 2 - adjustedStrokeWidth! / 2;
@@ -92,8 +102,9 @@ export default function StarShape({
           numPoints={5} // Define a 5-pointed star
           innerRadius={innerRadius} // Inner radius for star
           outerRadius={outerRadius} // Outer radius for star
-          stroke={stroke}
           strokeWidth={adjustedStrokeWidth}
+          stroke={stroke}
+          fill={fill}
           lineJoin="round" // round corners
         />
       </Group>

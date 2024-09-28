@@ -24,6 +24,7 @@ import {
   TEXT_DEFAULT_HEIGHT,
   TEXT_DEFAULT_WIDTH,
 } from "./textFields/textFieldUtils";
+import SidePanel from "./toolbar/SidePanel";
 
 export interface StageSizeType {
   width: number;
@@ -71,14 +72,17 @@ export default function Canvas() {
   );
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  const [strokeColor, setStrokeColor] = useState<string>("#2986cc");
   const [strokeWidth, setStrokeWidth] = useState<number>(5);
+  const [strokeColor, setStrokeColor] = useState<string>("#2986cc");
+  const [fillColor, setFillColor] = useState<string>("#FFFFFF");
 
   const [isInProgress, setIsInProgress] = useState(false);
 
   const [newObject, setNewObject] = useState<CanvasObjectType | null>(null); // new text/shape object to be added to the canvas
 
-  const [open, setOpen] = useState(false); // confirmation modal for delete button - clear canvas
+  const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false); // confirmation modal for delete button - clear canvas
+
+  const [isSidePanelVisible, setSidePanelVisible] = useState(false);
 
   // Dark mode listener
   useEffect(() => {
@@ -153,7 +157,7 @@ export default function Canvas() {
   const handleDelete = useCallback(() => {
     if (selectedObjectId === "") {
       if (canvasObjects.length > 0) {
-        setOpen(true);
+        setConfirmationModalOpen(true);
       }
     } else {
       dispatch(deleteCanvasObject(selectedObjectId));
@@ -266,8 +270,9 @@ export default function Canvas() {
       id: newShapeId,
       shapeName,
       type: "shape" as const,
-      stroke: strokeColor,
       strokeWidth: strokeWidth,
+      stroke: strokeColor,
+      fill: fillColor,
       x: x,
       y: y,
       width: SHAPE_DEFAULT_WIDTH,
@@ -304,6 +309,7 @@ export default function Canvas() {
 
     setNewObject(newShape);
     dispatch(selectCanvasObject(newShapeId));
+    setSidePanelVisible(true);
   };
 
   const handleMouseDown = (e: any) => {
@@ -364,6 +370,14 @@ export default function Canvas() {
       e.target.attrs.name.includes("ink")
     ) {
       dispatch(selectCanvasObject(""));
+    }
+
+    if (
+      e.target === e.target.getStage() ||
+      e.target.attrs.name?.includes("ink") ||
+      e.target.attrs.name?.includes("text")
+    ) {
+      setSidePanelVisible(false);
     }
   };
 
@@ -434,12 +448,14 @@ export default function Canvas() {
           objects={canvasObjects}
           newObject={newObject}
           onChange={updateSelectedObject}
-          setColor={setStrokeColor}
           setWidth={setStrokeWidth}
+          setBorderColor={setStrokeColor}
+          setFillColor={setFillColor}
           selectedObjectId={selectedObjectId}
           setSelectedObjectId={(newObjectId) =>
             dispatch(selectCanvasObject(newObjectId))
           }
+          setSidePanelVisible={setSidePanelVisible}
         />
         <TextFieldsLayer
           objects={canvasObjects}
@@ -461,13 +477,25 @@ export default function Canvas() {
         isDarkMode={isDarkMode}
       />
       <ConfirmationDialog
-        open={open}
-        onClose={() => setOpen(false)}
+        open={isConfirmationModalOpen}
+        onClose={() => setConfirmationModalOpen(false)}
         onConfirm={resetCanvasState}
         title="Clear Canvas"
         description="Are you sure you want to clear the canvas? This action cannot be undone."
         isDarkMode={isDarkMode}
       />
+      {isSidePanelVisible && (
+        <SidePanel
+          isOpen={isSidePanelVisible}
+          onClose={() => setSidePanelVisible(false)}
+          strokeWidth={strokeWidth}
+          setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
+          color={strokeColor}
+          onSelectColor={(newColor) => updateStyle("stroke", newColor)}
+          fillColor={fillColor}
+          onSelectFillColor={(newColor) => updateStyle("fill", newColor)}
+        />
+      )}
     </>
   );
 }
