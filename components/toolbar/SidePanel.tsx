@@ -104,7 +104,7 @@ export default function SidePanel({
               width: 24,
               height: 24,
               bgcolor: color,
-              border: "1px solid black",
+              border: "1px solid #555",
               borderRadius: "50%",
               mr: 2,
             }}
@@ -129,7 +129,7 @@ export default function SidePanel({
               width: 24,
               height: 24,
               bgcolor: fillColor,
-              border: "1px solid black",
+              border: "1px solid #555",
               borderRadius: "50%",
               mr: 2,
             }}
