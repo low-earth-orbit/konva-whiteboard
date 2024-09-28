@@ -13,6 +13,7 @@ type Props = {
     newAttrs: Partial<CanvasObjectType>,
     selectedObjectId: string,
   ) => void;
+  setSidePanelVisible: (isVisible: boolean) => void;
 };
 
 export default function TextFieldsLayer({
@@ -21,6 +22,7 @@ export default function TextFieldsLayer({
   selectedObjectId,
   setSelectedObjectId,
   onChange,
+  setSidePanelVisible,
 }: Props) {
   const { selectedTool } = useSelector((state: RootState) => state.canvas);
 
@@ -39,6 +41,9 @@ export default function TextFieldsLayer({
           onSelect={(e) => {
             if (selectedTool === "select") {
               setSelectedObjectId(text.id);
+
+              // Open side panel
+              setSidePanelVisible(true);
 
               // Update cursor style
               const stage = e.target.getStage();

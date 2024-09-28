@@ -26,7 +26,7 @@ type Props = {
   onSelectFillColor: (newColor: string) => void;
 };
 
-export default function SidePanel({
+export default function ShapePanel({
   onClose,
   isOpen,
   strokeWidth,

@@ -24,7 +24,8 @@ import {
   TEXT_DEFAULT_HEIGHT,
   TEXT_DEFAULT_WIDTH,
 } from "./textFields/textFieldUtils";
-import SidePanel from "./toolbar/SidePanel";
+import ShapePanel from "./toolbar/ShapePanel";
+import TextPanel from "./toolbar/TextPanel";
 
 export interface StageSizeType {
   width: number;
@@ -82,7 +83,8 @@ export default function Canvas() {
 
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false); // confirmation modal for delete button - clear canvas
 
-  const [isSidePanelVisible, setSidePanelVisible] = useState(false);
+  const [isShapePanelVisible, setShapePanelVisible] = useState(false);
+  const [isTextPanelVisible, setTextPanelVisible] = useState(false);
 
   // Dark mode listener
   useEffect(() => {
@@ -309,7 +311,7 @@ export default function Canvas() {
 
     setNewObject(newShape);
     dispatch(selectCanvasObject(newShapeId));
-    setSidePanelVisible(true);
+    setShapePanelVisible(true);
   };
 
   const handleMouseDown = (e: any) => {
@@ -372,12 +374,17 @@ export default function Canvas() {
       dispatch(selectCanvasObject(""));
     }
 
+    // side panel
     if (
       e.target === e.target.getStage() ||
-      e.target.attrs.name?.includes("ink") ||
-      e.target.attrs.name?.includes("text")
+      e.target.attrs.name?.includes("ink")
     ) {
-      setSidePanelVisible(false);
+      setShapePanelVisible(false);
+      setTextPanelVisible(false);
+    } else if (e.target.attrs.name?.includes("text")) {
+      setShapePanelVisible(false);
+    } else if (e.target.attrs.name?.includes("shape")) {
+      setTextPanelVisible(false);
     }
   };
 
@@ -455,7 +462,7 @@ export default function Canvas() {
           setSelectedObjectId={(newObjectId) =>
             dispatch(selectCanvasObject(newObjectId))
           }
-          setSidePanelVisible={setSidePanelVisible}
+          setSidePanelVisible={setShapePanelVisible}
         />
         <TextFieldsLayer
           objects={canvasObjects}
@@ -465,6 +472,7 @@ export default function Canvas() {
             dispatch(selectCanvasObject(newObjectId))
           }
           onChange={updateSelectedObject}
+          setSidePanelVisible={setTextPanelVisible}
         />
       </Stage>
       <Toolbar
@@ -484,18 +492,40 @@ export default function Canvas() {
         description="Are you sure you want to clear the canvas? This action cannot be undone."
         isDarkMode={isDarkMode}
       />
-      {isSidePanelVisible && (
-        <SidePanel
-          isOpen={isSidePanelVisible}
-          onClose={() => setSidePanelVisible(false)}
-          strokeWidth={strokeWidth}
-          setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
-          color={strokeColor}
-          onSelectColor={(newColor) => updateStyle("stroke", newColor)}
-          fillColor={fillColor}
-          onSelectFillColor={(newColor) => updateStyle("fill", newColor)}
-        />
-      )}
+      <ShapePanel
+        isOpen={isShapePanelVisible}
+        onClose={() => setShapePanelVisible(false)}
+        strokeWidth={strokeWidth}
+        setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
+        color={strokeColor}
+        onSelectColor={(newColor) => updateStyle("stroke", newColor)}
+        fillColor={fillColor}
+        onSelectFillColor={(newColor) => updateStyle("fill", newColor)}
+      />
+      <TextPanel
+        isOpen={isTextPanelVisible}
+        onClose={() => setTextPanelVisible(false)}
+        textSize={0}
+        setTextSize={function (newSize: number): void {
+          throw new Error("Function not implemented.");
+        }}
+        textStyle={[]}
+        setTextStyle={function (newStyle: string[]): void {
+          throw new Error("Function not implemented.");
+        }}
+        textColor={""}
+        onSelectTextColor={function (newColor: string): void {
+          throw new Error("Function not implemented.");
+        }}
+        textAlign={""}
+        setTextAlign={function (newAlign: string): void {
+          throw new Error("Function not implemented.");
+        }}
+        lineHeight={0}
+        setLineHeight={function (newHeight: number): void {
+          throw new Error("Function not implemented.");
+        }}
+      />
     </>
   );
 }
