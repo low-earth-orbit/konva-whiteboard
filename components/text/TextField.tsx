@@ -85,7 +85,7 @@ export default function TextField({
       document.body.appendChild(textarea);
 
       // adjust the styles to match
-      textarea.id = `textarea-${node.id()}`;
+      textarea.id = `text-${node.id()}-textarea`;
       textarea.value = node.text();
       textarea.style.position = "absolute";
       textarea.style.top = `${areaPosition.y}px`;
@@ -117,7 +117,7 @@ export default function TextField({
 
       // slightly move textarea up
       // because it jumps a bit
-      const moveUpPx = Math.round(node.fontSize() / 20);
+      const moveUpPx = 2;
       transform += `translateY(-${moveUpPx}px)`;
 
       textarea.style.transform = transform;
