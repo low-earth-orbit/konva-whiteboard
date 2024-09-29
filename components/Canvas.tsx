@@ -23,6 +23,11 @@ import { SHAPE_DEFAULT_HEIGHT, SHAPE_DEFAULT_WIDTH } from "./shapes/shapeUtils";
 import { TEXT_DEFAULT_HEIGHT, TEXT_DEFAULT_WIDTH } from "./text/textUtils";
 import ShapePanel from "./toolbar/ShapePanel";
 import TextPanel from "./toolbar/TextPanel";
+import {
+  setFillColor,
+  setStrokeColor,
+  setStrokeWidth,
+} from "@/redux/shapeSlice";
 
 export interface StageSizeType {
   width: number;
@@ -63,19 +68,20 @@ export type ToolType =
 export type ShapeName = "rectangle" | "oval" | "triangle" | "star";
 
 export default function Canvas() {
-  const dispatch = useDispatch();
   const [stageSize, setStageSize] = useState<StageSizeType>();
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const dispatch = useDispatch();
   const { canvasObjects, selectedObjectId, selectedTool } = useSelector(
     (state: RootState) => state.canvas,
   );
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  const [strokeWidth, setStrokeWidth] = useState<number>(5);
-  const [strokeColor, setStrokeColor] = useState<string>("#2986cc");
-  const [fillColor, setFillColor] = useState<string>("#FFFFFF");
+  const { strokeWidth, strokeColor, fillColor } = useSelector(
+    (state: RootState) => state.shape,
+  );
+  const { textSize, textStyle, textColor, textAlignment, lineSpacing } =
+    useSelector((state: RootState) => state.text);
 
   const [isInProgress, setIsInProgress] = useState(false);
-
   const [newObject, setNewObject] = useState<CanvasObjectType | null>(null); // new text/shape object to be added to the canvas
 
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false); // confirmation modal for delete button - clear canvas
@@ -220,9 +226,9 @@ export default function Canvas() {
   function updateStyle(property: keyof CanvasObjectType, value: any) {
     // Dynamically update state
     if (property === "strokeWidth") {
-      setStrokeWidth(value);
+      dispatch(setStrokeWidth(value));
     } else if (property === "stroke") {
-      setStrokeColor(value);
+      dispatch(setStrokeColor(value));
     }
 
     // Update object property
@@ -502,26 +508,7 @@ export default function Canvas() {
       <TextPanel
         isOpen={isTextPanelVisible}
         onClose={() => setTextPanelVisible(false)}
-        textSize={0}
-        setTextSize={function (newSize: number): void {
-          throw new Error("Function not implemented.");
-        }}
-        textStyle={[]}
-        setTextStyle={function (newStyle: string[]): void {
-          throw new Error("Function not implemented.");
-        }}
-        textColor={""}
-        onSelectTextColor={function (newColor: string): void {
-          throw new Error("Function not implemented.");
-        }}
-        textAlign={""}
-        setTextAlign={function (newAlign: string): void {
-          throw new Error("Function not implemented.");
-        }}
-        lineHeight={0}
-        setLineHeight={function (newHeight: number): void {
-          throw new Error("Function not implemented.");
-        }}
+        selectedObjectId={selectedObjectId}
       />
     </>
   );

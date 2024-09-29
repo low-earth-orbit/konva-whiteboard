@@ -1,4 +1,4 @@
 {
   "prettier.prettierPath": "./node_modules/prettier",
-  "cSpell.words": ["Konva"]
+  "cSpell.words": ["Konva", "reduxjs"]
 }

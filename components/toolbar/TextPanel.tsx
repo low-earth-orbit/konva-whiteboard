@@ -22,35 +22,26 @@ import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
 import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
 import FormatAlignCenterIcon from "@mui/icons-material/FormatAlignCenter";
 import FormatAlignRightIcon from "@mui/icons-material/FormatAlignRight";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import {
+  setLineSpacing,
+  setTextAlignment,
+  setTextColor,
+  setTextSize,
+  toggleTextStyle,
+} from "@/redux/textSlice";
 
 type Props = {
   onClose: () => void;
   isOpen: boolean;
-  textSize: number;
-  setTextSize: (newSize: number) => void;
-  textStyle: string[];
-  setTextStyle: (newStyle: string[]) => void;
-  textColor: string;
-  onSelectTextColor: (newColor: string) => void;
-  textAlign: string;
-  setTextAlign: (newAlign: string) => void;
-  lineHeight: number;
-  setLineHeight: (newHeight: number) => void;
+  selectedObjectId: string;
 };
 
 export default function TextPanel({
   onClose,
   isOpen,
-  textSize,
-  setTextSize,
-  textStyle,
-  setTextStyle,
-  textColor,
-  onSelectTextColor,
-  textAlign,
-  setTextAlign,
-  lineHeight,
-  setLineHeight,
+  selectedObjectId,
 }: Props) {
   const [colorPickerOpen, setColorPickerOpen] = React.useState(false);
 
@@ -58,22 +49,26 @@ export default function TextPanel({
     setColorPickerOpen(true);
   };
 
-  const handleColorChange = (color: string) => {
-    onSelectTextColor(color);
-  };
+  const dispatch = useDispatch();
+  const { textSize, textStyle, textColor, textAlignment, lineSpacing } =
+    useSelector((state: RootState) => state.text);
 
   const handleTextStyleChange = (
     event: React.MouseEvent<HTMLElement>,
-    newStyles: string[],
+    newStyle: string,
   ) => {
-    setTextStyle(newStyles);
+    dispatch(toggleTextStyle(newStyle));
+  };
+
+  const handleColorChange = (color: string) => {
+    dispatch(setTextColor(color));
   };
 
   const handleTextAlignChange = (
     event: React.MouseEvent<HTMLElement>,
-    newAlign: string,
+    newValue: "left" | "center" | "right",
   ) => {
-    setTextAlign(newAlign);
+    dispatch(setTextAlignment(newValue));
   };
 
   const drawer = (
@@ -99,7 +94,7 @@ export default function TextPanel({
         <TextField
           type="number"
           value={textSize}
-          onChange={(e) => setTextSize(Number(e.target.value))}
+          onChange={(e) => dispatch(setTextSize(Number(e.target.value)))}
           InputProps={{ inputProps: { min: 1 } }}
           sx={{ width: 80, mt: 1 }}
         />
@@ -157,7 +152,7 @@ export default function TextPanel({
       <Box sx={{ p: 2 }}>
         <Typography variant="subtitle2">Alignment</Typography>
         <ToggleButtonGroup
-          value={textAlign}
+          value={textAlignment}
           exclusive
           onChange={handleTextAlignChange}
           aria-label="text alignment"
@@ -181,8 +176,8 @@ export default function TextPanel({
         <Typography variant="subtitle2">Line spacing</Typography>
         <TextField
           type="number"
-          value={lineHeight}
-          onChange={(e) => setLineHeight(Number(e.target.value))}
+          value={lineSpacing}
+          onChange={(e) => dispatch(setLineSpacing(Number(e.target.value)))}
           InputProps={{ inputProps: { min: 1 } }}
           sx={{ width: 80, mt: 1 }}
         />
