@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Text, Transformer } from "react-konva";
 import { CanvasObjectType } from "../Canvas";
 import Konva from "konva";
-import { TEXT_MIN_HEIGHT, TEXT_MIN_WIDTH } from "./textFieldUtils";
+import { TEXT_MIN_HEIGHT, TEXT_MIN_WIDTH } from "./textUtils";
 
 type Props = {
   objectProps: Partial<CanvasObjectType>;

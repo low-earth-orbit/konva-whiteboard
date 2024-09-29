@@ -16,7 +16,7 @@ type Props = {
   setSidePanelVisible: (isVisible: boolean) => void;
 };
 
-export default function TextFieldsLayer({
+export default function TextLayer({
   objects,
   newObject,
   selectedObjectId,

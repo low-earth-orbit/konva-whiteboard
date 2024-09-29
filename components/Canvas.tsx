@@ -6,7 +6,7 @@ import Toolbar from "./toolbar/Toolbar";
 import InkLayer from "./ink/InkLayer";
 import ShapesLayer from "./shapes/ShapesLayer";
 import ConfirmationDialog from "./ConfirmationDialog";
-import TextFieldsLayer from "./textFields/TextFieldsLayer";
+import TextLayer from "./text/TextLayer";
 import { RootState } from "../redux/store";
 import {
   addCanvasObject,
@@ -20,10 +20,7 @@ import {
   updateSelectedTool,
 } from "../redux/canvasSlice";
 import { SHAPE_DEFAULT_HEIGHT, SHAPE_DEFAULT_WIDTH } from "./shapes/shapeUtils";
-import {
-  TEXT_DEFAULT_HEIGHT,
-  TEXT_DEFAULT_WIDTH,
-} from "./textFields/textFieldUtils";
+import { TEXT_DEFAULT_HEIGHT, TEXT_DEFAULT_WIDTH } from "./text/textUtils";
 import ShapePanel from "./toolbar/ShapePanel";
 import TextPanel from "./toolbar/TextPanel";
 
@@ -464,7 +461,7 @@ export default function Canvas() {
           }
           setSidePanelVisible={setShapePanelVisible}
         />
-        <TextFieldsLayer
+        <TextLayer
           objects={canvasObjects}
           newObject={newObject}
           selectedObjectId={selectedObjectId}
