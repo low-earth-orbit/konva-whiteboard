@@ -89,7 +89,7 @@ export default function ShapePanel({
             }}
             aria-label="Border width"
             onChange={(_, value) => setStrokeWidth(value as number)}
-            sx={{ flex: 1 }}
+            sx={{ flex: 1, mr: 2 }}
           />
         </Box>
       </Box>

@@ -32,6 +32,10 @@ import {
   setTextStyle,
 } from "@/redux/textSlice";
 import { updateCanvasObject } from "@/redux/canvasSlice";
+import {
+  getFontStyleStringFromTextStyleArray,
+  getTextDecorationStringFromTextStyleArray,
+} from "../text/textUtils";
 
 type Props = {
   onClose: () => void;
@@ -58,33 +62,25 @@ export default function TextPanel({
     event: React.MouseEvent<HTMLElement>,
     newStyle: string[],
   ) => {
-    console.log("newStyle = ", newStyle);
+    // update textStyle in redux store
     dispatch(setTextStyle(newStyle));
 
+    // update selected object
     // fontStyle (bold / italic)
-    let newFontStyle = "";
-    if (newStyle.includes("bold")) {
-      newFontStyle += "bold";
-    }
-    if (newStyle.includes("italic")) {
-      newFontStyle += " italic";
-    }
     dispatch(
       updateCanvasObject({
         id: selectedObjectId,
-        updates: { fontStyle: newFontStyle },
+        updates: { fontStyle: getFontStyleStringFromTextStyleArray(newStyle) },
       }),
     );
 
     // textDecoration (underline)
-    let newTextDecoration = "";
-    if (newStyle.includes("underline")) {
-      newTextDecoration += "underline";
-    }
     dispatch(
       updateCanvasObject({
         id: selectedObjectId,
-        updates: { textDecoration: newTextDecoration },
+        updates: {
+          textDecoration: getTextDecorationStringFromTextStyleArray(newStyle),
+        },
       }),
     );
   };

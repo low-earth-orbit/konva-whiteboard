@@ -2,7 +2,16 @@ import { Layer } from "react-konva";
 import { CanvasObjectType } from "../Canvas";
 import TextField from "./TextField";
 import { RootState } from "@/redux/store";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { updateCanvasObject } from "@/redux/canvasSlice";
+import {
+  setLineSpacing,
+  setTextAlignment,
+  setTextColor,
+  setTextSize,
+  setTextStyle,
+} from "@/redux/textSlice";
+import { convertTextPropertiesToTextStyleArray } from "./textUtils";
 
 type Props = {
   objects: CanvasObjectType[];
@@ -24,6 +33,8 @@ export default function TextLayer({
   onChange,
   setSidePanelVisible,
 }: Props) {
+  const dispatch = useDispatch();
+
   const { selectedTool } = useSelector((state: RootState) => state.canvas);
 
   const texts = [
@@ -46,6 +57,18 @@ export default function TextLayer({
               setSidePanelVisible(true);
 
               // update settings to match selected text's
+              dispatch(setTextSize(text.fontSize || 28));
+              dispatch(setTextColor(text.fill || "#000"));
+              dispatch(setTextAlignment(text.align || "left"));
+              dispatch(setLineSpacing(text.lineHeight || 1.5));
+              dispatch(
+                setTextStyle(
+                  convertTextPropertiesToTextStyleArray(
+                    text.fontStyle,
+                    text.textDecoration,
+                  ),
+                ),
+              );
 
               // Update cursor style
               const stage = e.target.getStage();

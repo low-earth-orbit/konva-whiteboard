@@ -4,12 +4,12 @@ interface TextState {
   textSize: number;
   textStyle: string[];
   textColor: string;
-  textAlignment: "left" | "center" | "right";
+  textAlignment: string;
   lineSpacing: number;
 }
 
 const initialState: TextState = {
-  textSize: 16,
+  textSize: 28,
   textStyle: [],
   textColor: "#000000",
   textAlignment: "left",
@@ -29,10 +29,7 @@ const textSlice = createSlice({
     setTextColor: (state, action: PayloadAction<string>) => {
       state.textColor = action.payload;
     },
-    setTextAlignment: (
-      state,
-      action: PayloadAction<"left" | "center" | "right">,
-    ) => {
+    setTextAlignment: (state, action: PayloadAction<string>) => {
       state.textAlignment = action.payload;
     },
     setLineSpacing: (state, action: PayloadAction<number>) => {

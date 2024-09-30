@@ -20,7 +20,12 @@ import {
   updateSelectedTool,
 } from "../redux/canvasSlice";
 import { SHAPE_DEFAULT_HEIGHT, SHAPE_DEFAULT_WIDTH } from "./shapes/shapeUtils";
-import { TEXT_DEFAULT_HEIGHT, TEXT_DEFAULT_WIDTH } from "./text/textUtils";
+import {
+  getFontStyleStringFromTextStyleArray,
+  getTextDecorationStringFromTextStyleArray,
+  TEXT_DEFAULT_HEIGHT,
+  TEXT_DEFAULT_WIDTH,
+} from "./text/textUtils";
 import ShapePanel from "./toolbar/ShapePanel";
 import TextPanel from "./toolbar/TextPanel";
 import {
@@ -82,6 +87,9 @@ export default function Canvas() {
   const { strokeWidth, strokeColor, fillColor } = useSelector(
     (state: RootState) => state.shape,
   );
+
+  const { textSize, textStyle, textColor, textAlignment, lineSpacing } =
+    useSelector((state: RootState) => state.text);
 
   const [isInProgress, setIsInProgress] = useState(false);
   const [newObject, setNewObject] = useState<CanvasObjectType | null>(null); // new text/shape object to be added to the canvas
@@ -260,10 +268,13 @@ export default function Canvas() {
       y: y,
       width: TEXT_DEFAULT_WIDTH,
       height: TEXT_DEFAULT_HEIGHT,
-      fill: strokeColor, // use strokeColor for fill for now
-      // strokeWidth not applied to text field for now
+      fill: textColor,
       text: "Double click to edit.",
-      fontSize: 28,
+      fontSize: textSize,
+      align: textAlignment,
+      lineHeight: lineSpacing,
+      fontStyle: getFontStyleStringFromTextStyleArray(textStyle),
+      textDecoration: getTextDecorationStringFromTextStyleArray(textStyle),
       fontFamily: "Arial",
     };
 
