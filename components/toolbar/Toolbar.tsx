@@ -10,10 +10,10 @@ import {
 } from "@mui/material";
 
 import { HexColorPicker } from "react-colorful";
-import EraserIcon from "./icons/EraserIcon";
-import DrawIcon from "./icons/DrawIcon";
-import DeleteIcon from "./icons/DeleteIcon";
-import ShapesIcon from "./icons/ShapesIcon";
+import EraserIcon from "../icons/EraserIcon";
+import DrawIcon from "../icons/DrawIcon";
+import DeleteIcon from "../icons/DeleteIcon";
+import ShapesIcon from "../icons/ShapesIcon";
 import {
   Palette,
   LineWeightRounded,
@@ -36,7 +36,7 @@ import {
   undo,
   updateSelectedTool,
 } from "@/redux/canvasSlice";
-import SelectIcon from "./icons/SelectIcon";
+import SelectIcon from "../icons/SelectIcon";
 
 export function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
   const { children, value } = props;
