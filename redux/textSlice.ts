@@ -23,13 +23,8 @@ const textSlice = createSlice({
     setTextSize: (state, action: PayloadAction<number>) => {
       state.textSize = action.payload;
     },
-    toggleTextStyle: (state, action: PayloadAction<string>) => {
-      const style = action.payload;
-      if (state.textStyle.includes(style)) {
-        state.textStyle = state.textStyle.filter((s) => s !== style);
-      } else {
-        state.textStyle.push(style);
-      }
+    setTextStyle: (state, action: PayloadAction<string[]>) => {
+      state.textStyle = action.payload;
     },
     setTextColor: (state, action: PayloadAction<string>) => {
       state.textColor = action.payload;
@@ -49,7 +44,7 @@ const textSlice = createSlice({
 // Export actions
 export const {
   setTextSize,
-  toggleTextStyle,
+  setTextStyle,
   setTextColor,
   setTextAlignment,
   setLineSpacing,

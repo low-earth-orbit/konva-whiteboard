@@ -29,8 +29,9 @@ import {
   setTextAlignment,
   setTextColor,
   setTextSize,
-  toggleTextStyle,
+  setTextStyle,
 } from "@/redux/textSlice";
+import { updateCanvasObject } from "@/redux/canvasSlice";
 
 type Props = {
   onClose: () => void;
@@ -55,13 +56,47 @@ export default function TextPanel({
 
   const handleTextStyleChange = (
     event: React.MouseEvent<HTMLElement>,
-    newStyle: string,
+    newStyle: string[],
   ) => {
-    dispatch(toggleTextStyle(newStyle));
+    console.log("newStyle = ", newStyle);
+    dispatch(setTextStyle(newStyle));
+
+    // fontStyle (bold / italic)
+    let newFontStyle = "";
+    if (newStyle.includes("bold")) {
+      newFontStyle += "bold";
+    }
+    if (newStyle.includes("italic")) {
+      newFontStyle += " italic";
+    }
+    dispatch(
+      updateCanvasObject({
+        id: selectedObjectId,
+        updates: { fontStyle: newFontStyle },
+      }),
+    );
+
+    // textDecoration (underline)
+    let newTextDecoration = "";
+    if (newStyle.includes("underline")) {
+      newTextDecoration += "underline";
+    }
+    dispatch(
+      updateCanvasObject({
+        id: selectedObjectId,
+        updates: { textDecoration: newTextDecoration },
+      }),
+    );
   };
 
   const handleColorChange = (color: string) => {
     dispatch(setTextColor(color));
+    dispatch(
+      updateCanvasObject({
+        id: selectedObjectId,
+        updates: { fill: color },
+      }),
+    );
   };
 
   const handleTextAlignChange = (
@@ -69,6 +104,34 @@ export default function TextPanel({
     newValue: "left" | "center" | "right",
   ) => {
     dispatch(setTextAlignment(newValue));
+    dispatch(
+      updateCanvasObject({
+        id: selectedObjectId,
+        updates: { align: newValue },
+      }),
+    );
+  };
+
+  const handleLineSpacingChange = (e: any) => {
+    const value = Number(e.target.value);
+    dispatch(setLineSpacing(value));
+    dispatch(
+      updateCanvasObject({
+        id: selectedObjectId,
+        updates: { lineHeight: value },
+      }),
+    );
+  };
+
+  const handleTextSizeChange = (e: any) => {
+    const value = Number(e.target.value);
+    dispatch(setTextSize(value));
+    dispatch(
+      updateCanvasObject({
+        id: selectedObjectId,
+        updates: { fontSize: value },
+      }),
+    );
   };
 
   const drawer = (
@@ -94,8 +157,8 @@ export default function TextPanel({
         <TextField
           type="number"
           value={textSize}
-          onChange={(e) => dispatch(setTextSize(Number(e.target.value)))}
-          InputProps={{ inputProps: { min: 1 } }}
+          onChange={handleTextSizeChange}
+          InputProps={{ inputProps: { min: 8, max: 100, step: 1 } }}
           sx={{ width: 80, mt: 1 }}
         />
       </Box>
@@ -177,8 +240,8 @@ export default function TextPanel({
         <TextField
           type="number"
           value={lineSpacing}
-          onChange={(e) => dispatch(setLineSpacing(Number(e.target.value)))}
-          InputProps={{ inputProps: { min: 1 } }}
+          onChange={handleLineSpacingChange}
+          InputProps={{ inputProps: { min: 1, max: 3, step: 0.5 } }}
           sx={{ width: 80, mt: 1 }}
         />
       </Box>

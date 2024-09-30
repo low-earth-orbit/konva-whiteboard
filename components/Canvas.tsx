@@ -41,7 +41,7 @@ export interface CanvasObjectType {
   shapeName?: ShapeName;
   stroke?: string; // stroke color
   strokeWidth?: number;
-  fill?: string;
+  fill?: string; // shape fill color / text color
   points?: number[];
   x?: number;
   y?: number;
@@ -51,6 +51,10 @@ export interface CanvasObjectType {
   text?: string;
   fontSize?: number;
   fontFamily?: string;
+  fontStyle?: string;
+  textDecoration?: string;
+  align?: string;
+  lineHeight?: number;
 }
 
 export type ObjectType = "ink" | "shape" | "text";
@@ -78,8 +82,6 @@ export default function Canvas() {
   const { strokeWidth, strokeColor, fillColor } = useSelector(
     (state: RootState) => state.shape,
   );
-  const { textSize, textStyle, textColor, textAlignment, lineSpacing } =
-    useSelector((state: RootState) => state.text);
 
   const [isInProgress, setIsInProgress] = useState(false);
   const [newObject, setNewObject] = useState<CanvasObjectType | null>(null); // new text/shape object to be added to the canvas
