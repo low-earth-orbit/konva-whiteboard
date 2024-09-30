@@ -45,6 +45,8 @@ export default function TextLayer({
               // Open side panel
               setSidePanelVisible(true);
 
+              // update settings to match selected text's
+
               // Update cursor style
               const stage = e.target.getStage();
               if (stage) {

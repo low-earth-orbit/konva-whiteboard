@@ -4,7 +4,7 @@ import { v4 as uuid } from "uuid";
 import { Stage } from "react-konva";
 import Toolbar from "./toolbar/Toolbar";
 import InkLayer from "./ink/InkLayer";
-import ShapesLayer from "./shapes/ShapesLayer";
+import ShapeLayer from "./shapes/ShapeLayer";
 import ConfirmationDialog from "./ConfirmationDialog";
 import TextLayer from "./text/TextLayer";
 import { RootState } from "../redux/store";
@@ -456,7 +456,7 @@ export default function Canvas() {
         onTouchStart={handleMouseDown}
       >
         <InkLayer objects={canvasObjects} newObject={newObject} />
-        <ShapesLayer
+        <ShapeLayer
           objects={canvasObjects}
           newObject={newObject}
           onChange={updateSelectedObject}

@@ -22,7 +22,7 @@ type ShapesLayerProps = {
   setSidePanelVisible: (isVisible: boolean) => void;
 };
 
-export default function ShapesLayer({
+export default function ShapeLayer({
   objects,
   newObject,
   onChange,
@@ -51,6 +51,7 @@ export default function ShapesLayer({
           // Show the side panel
           setSidePanelVisible(true);
 
+          // update settings to match selected shape's
           setWidth(shape.strokeWidth as number);
           setBorderColor(shape.stroke as string);
           setFillColor(shape.fill as string);
