@@ -256,6 +256,9 @@ export default function Canvas() {
   }
 
   const addTextField = (x: number, y: number) => {
+    setShapePanelVisible(false);
+    setTextPanelVisible(true);
+
     const newObjectId = uuid();
     let newObject: CanvasObjectType = {
       id: newObjectId,
@@ -279,6 +282,9 @@ export default function Canvas() {
   };
 
   const addShape = (shapeName: ShapeName, x: number, y: number) => {
+    setTextPanelVisible(false);
+    setShapePanelVisible(true);
+
     const newShapeId = uuid();
     const baseShape = {
       id: newShapeId,
