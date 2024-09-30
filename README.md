@@ -21,21 +21,35 @@ Although there isn’t a strict timeline, the project is divided into three phas
 
 ## Implemented Features
 
-- Canvas objects
+- Supported canvas objects
 
-  - Draw
+  - Freehand inking
   - Text fields
   - Shapes
     - Rectangle
     - Oval
     - Triangle
     - Star
-  - Adjustable shape borders (width & color)
 
-- Canvas
+- Edit objects
+
+  - Drag & move, resize, rotate objects
+  - Edit shape
+    - Border width
+    - Color
+    - Fill
+  - Edit text
+    - Double click to edit content
+    - Size
+    - Style (bold, italic, underline)
+    - Color
+    - Alignment
+    - Line spacing
+
+- Canvas operations
   - Select object
-  - History (undo & redo)
   - Delete an object or clear the entire canvas
+  - History (undo & redo)
   - Keyboard shortcuts for delete/undo/redo actions
   - Persistent canvas data stored in browser's local storage
 

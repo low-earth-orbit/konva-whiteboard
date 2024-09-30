@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { Text, Transformer } from "react-konva";
 import { CanvasObjectType } from "../Canvas";
 import Konva from "konva";
-import { TEXT_MIN_HEIGHT, TEXT_MIN_WIDTH } from "./textFieldUtils";
+import { TEXT_MIN_HEIGHT, TEXT_MIN_WIDTH } from "./textUtils";
 
 type Props = {
   objectProps: Partial<CanvasObjectType>;
@@ -31,31 +31,35 @@ export default function TextField({
   const {
     type,
     id,
+    text,
     x,
     y,
     width,
     height,
-    fill,
-    text,
-    fontSize,
-    fontFamily,
     rotation,
+    fill,
+    lineHeight,
+    fontSize,
+    align,
+    fontStyle,
+    textDecoration,
   } = objectProps;
 
   const selectedProps = {
     type,
     id,
+    text,
     x,
     y,
     width,
     height,
-    fill,
-    text,
-    lineHeight: 1.5,
-    fontSize,
-    fontFamily,
-    fontStyle: "normal",
     rotation,
+    fill,
+    lineHeight,
+    fontSize,
+    align,
+    fontStyle,
+    textDecoration,
   };
 
   const handleTransform = () => {
@@ -85,7 +89,22 @@ export default function TextField({
       document.body.appendChild(textarea);
 
       // adjust the styles to match
-      textarea.id = `textarea-${node.id()}`;
+      if (node.fontStyle().includes("bold")) {
+        textarea.style.fontWeight = "bold";
+      }
+      if (node.fontStyle().includes("italic")) {
+        textarea.style.fontStyle = "italic";
+      }
+      if (node.textDecoration().includes("underline")) {
+        const offset = node.fontSize() * 0.19;
+        const thickness = node.fontSize() * 0.07;
+
+        textarea.style.textDecoration = "underline";
+        textarea.style.textUnderlineOffset = `${offset}px`;
+        textarea.style.textDecorationThickness = `${thickness}px`;
+      }
+
+      textarea.id = `text-${node.id()}-textarea`;
       textarea.value = node.text();
       textarea.style.position = "absolute";
       textarea.style.top = `${areaPosition.y}px`;
@@ -102,7 +121,6 @@ export default function TextField({
       textarea.style.resize = "none";
       textarea.style.lineHeight = `${node.lineHeight()}`;
       textarea.style.fontFamily = node.fontFamily();
-      textarea.style.fontStyle = node.fontStyle();
       textarea.style.textAlign = node.align();
       textarea.style.color = node.fill() as string;
       textarea.style.transformOrigin = "left top";
@@ -117,7 +135,7 @@ export default function TextField({
 
       // slightly move textarea up
       // because it jumps a bit
-      const moveUpPx = Math.round(node.fontSize() / 20);
+      const moveUpPx = node.fontSize() / 14.5;
       transform += `translateY(-${moveUpPx}px)`;
 
       textarea.style.transform = transform;

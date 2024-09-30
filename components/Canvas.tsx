@@ -4,9 +4,9 @@ import { v4 as uuid } from "uuid";
 import { Stage } from "react-konva";
 import Toolbar from "./toolbar/Toolbar";
 import InkLayer from "./ink/InkLayer";
-import ShapesLayer from "./shapes/ShapesLayer";
+import ShapeLayer from "./shapes/ShapeLayer";
 import ConfirmationDialog from "./ConfirmationDialog";
-import TextFieldsLayer from "./textFields/TextFieldsLayer";
+import TextLayer from "./text/TextLayer";
 import { RootState } from "../redux/store";
 import {
   addCanvasObject,
@@ -21,10 +21,14 @@ import {
 } from "../redux/canvasSlice";
 import { SHAPE_DEFAULT_HEIGHT, SHAPE_DEFAULT_WIDTH } from "./shapes/shapeUtils";
 import {
+  getFontStyleStringFromTextStyleArray,
+  getTextDecorationStringFromTextStyleArray,
   TEXT_DEFAULT_HEIGHT,
   TEXT_DEFAULT_WIDTH,
-} from "./textFields/textFieldUtils";
-import SidePanel from "./toolbar/SidePanel";
+} from "./text/textUtils";
+import ShapePanel from "./toolbar/ShapePanel";
+import TextPanel from "./toolbar/TextPanel";
+import { setStrokeColor, setStrokeWidth } from "@/redux/shapeSlice";
 
 export interface StageSizeType {
   width: number;
@@ -38,7 +42,7 @@ export interface CanvasObjectType {
   shapeName?: ShapeName;
   stroke?: string; // stroke color
   strokeWidth?: number;
-  fill?: string;
+  fill?: string; // shape fill color / text color
   points?: number[];
   x?: number;
   y?: number;
@@ -48,6 +52,10 @@ export interface CanvasObjectType {
   text?: string;
   fontSize?: number;
   fontFamily?: string;
+  fontStyle?: string;
+  textDecoration?: string;
+  align?: string;
+  lineHeight?: number;
 }
 
 export type ObjectType = "ink" | "shape" | "text";
@@ -65,24 +73,27 @@ export type ToolType =
 export type ShapeName = "rectangle" | "oval" | "triangle" | "star";
 
 export default function Canvas() {
-  const dispatch = useDispatch();
   const [stageSize, setStageSize] = useState<StageSizeType>();
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const dispatch = useDispatch();
   const { canvasObjects, selectedObjectId, selectedTool } = useSelector(
     (state: RootState) => state.canvas,
   );
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { strokeWidth, strokeColor, fillColor } = useSelector(
+    (state: RootState) => state.shape,
+  );
 
-  const [strokeWidth, setStrokeWidth] = useState<number>(5);
-  const [strokeColor, setStrokeColor] = useState<string>("#2986cc");
-  const [fillColor, setFillColor] = useState<string>("#FFFFFF");
+  const { textSize, textStyle, textColor, textAlignment, lineSpacing } =
+    useSelector((state: RootState) => state.text);
 
   const [isInProgress, setIsInProgress] = useState(false);
-
   const [newObject, setNewObject] = useState<CanvasObjectType | null>(null); // new text/shape object to be added to the canvas
 
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false); // confirmation modal for delete button - clear canvas
 
-  const [isSidePanelVisible, setSidePanelVisible] = useState(false);
+  const [isShapePanelVisible, setShapePanelVisible] = useState(false);
+  const [isTextPanelVisible, setTextPanelVisible] = useState(false);
 
   // Dark mode listener
   useEffect(() => {
@@ -221,9 +232,9 @@ export default function Canvas() {
   function updateStyle(property: keyof CanvasObjectType, value: any) {
     // Dynamically update state
     if (property === "strokeWidth") {
-      setStrokeWidth(value);
+      dispatch(setStrokeWidth(value)); // TODO: Ink property should separate from shape/text
     } else if (property === "stroke") {
-      setStrokeColor(value);
+      dispatch(setStrokeColor(value)); // TODO: Ink property should separate from shape/text
     }
 
     // Update object property
@@ -245,6 +256,9 @@ export default function Canvas() {
   }
 
   const addTextField = (x: number, y: number) => {
+    setShapePanelVisible(false);
+    setTextPanelVisible(true);
+
     const newObjectId = uuid();
     let newObject: CanvasObjectType = {
       id: newObjectId,
@@ -253,10 +267,13 @@ export default function Canvas() {
       y: y,
       width: TEXT_DEFAULT_WIDTH,
       height: TEXT_DEFAULT_HEIGHT,
-      fill: strokeColor, // use strokeColor for fill for now
-      // strokeWidth not applied to text field for now
+      fill: textColor,
       text: "Double click to edit.",
-      fontSize: 28,
+      fontSize: textSize,
+      align: textAlignment,
+      lineHeight: lineSpacing,
+      fontStyle: getFontStyleStringFromTextStyleArray(textStyle),
+      textDecoration: getTextDecorationStringFromTextStyleArray(textStyle),
       fontFamily: "Arial",
     };
 
@@ -265,6 +282,9 @@ export default function Canvas() {
   };
 
   const addShape = (shapeName: ShapeName, x: number, y: number) => {
+    setTextPanelVisible(false);
+    setShapePanelVisible(true);
+
     const newShapeId = uuid();
     const baseShape = {
       id: newShapeId,
@@ -309,7 +329,7 @@ export default function Canvas() {
 
     setNewObject(newShape);
     dispatch(selectCanvasObject(newShapeId));
-    setSidePanelVisible(true);
+    setShapePanelVisible(true);
   };
 
   const handleMouseDown = (e: any) => {
@@ -372,12 +392,17 @@ export default function Canvas() {
       dispatch(selectCanvasObject(""));
     }
 
+    // side panel
     if (
       e.target === e.target.getStage() ||
-      e.target.attrs.name?.includes("ink") ||
-      e.target.attrs.name?.includes("text")
+      e.target.attrs.name?.includes("ink")
     ) {
-      setSidePanelVisible(false);
+      setShapePanelVisible(false);
+      setTextPanelVisible(false);
+    } else if (e.target.attrs.name?.includes("text")) {
+      setShapePanelVisible(false);
+    } else if (e.target.attrs.name?.includes("shape")) {
+      setTextPanelVisible(false);
     }
   };
 
@@ -444,20 +469,17 @@ export default function Canvas() {
         onTouchStart={handleMouseDown}
       >
         <InkLayer objects={canvasObjects} newObject={newObject} />
-        <ShapesLayer
+        <ShapeLayer
           objects={canvasObjects}
           newObject={newObject}
           onChange={updateSelectedObject}
-          setWidth={setStrokeWidth}
-          setBorderColor={setStrokeColor}
-          setFillColor={setFillColor}
           selectedObjectId={selectedObjectId}
           setSelectedObjectId={(newObjectId) =>
             dispatch(selectCanvasObject(newObjectId))
           }
-          setSidePanelVisible={setSidePanelVisible}
+          setSidePanelVisible={setShapePanelVisible}
         />
-        <TextFieldsLayer
+        <TextLayer
           objects={canvasObjects}
           newObject={newObject}
           selectedObjectId={selectedObjectId}
@@ -465,6 +487,7 @@ export default function Canvas() {
             dispatch(selectCanvasObject(newObjectId))
           }
           onChange={updateSelectedObject}
+          setSidePanelVisible={setTextPanelVisible}
         />
       </Stage>
       <Toolbar
@@ -484,18 +507,21 @@ export default function Canvas() {
         description="Are you sure you want to clear the canvas? This action cannot be undone."
         isDarkMode={isDarkMode}
       />
-      {isSidePanelVisible && (
-        <SidePanel
-          isOpen={isSidePanelVisible}
-          onClose={() => setSidePanelVisible(false)}
-          strokeWidth={strokeWidth}
-          setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
-          color={strokeColor}
-          onSelectColor={(newColor) => updateStyle("stroke", newColor)}
-          fillColor={fillColor}
-          onSelectFillColor={(newColor) => updateStyle("fill", newColor)}
-        />
-      )}
+      <ShapePanel
+        isOpen={isShapePanelVisible}
+        onClose={() => setShapePanelVisible(false)}
+        strokeWidth={strokeWidth}
+        setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
+        color={strokeColor}
+        onSelectColor={(newColor) => updateStyle("stroke", newColor)}
+        fillColor={fillColor}
+        onSelectFillColor={(newColor) => updateStyle("fill", newColor)}
+      />
+      <TextPanel
+        isOpen={isTextPanelVisible}
+        onClose={() => setTextPanelVisible(false)}
+        selectedObjectId={selectedObjectId}
+      />
     </>
   );
 }

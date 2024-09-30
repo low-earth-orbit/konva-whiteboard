@@ -1,9 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import canvasReducer from "./canvasSlice";
+import shapeReducer from "./shapeSlice";
+import textReducer from "./textSlice";
 
 const store = configureStore({
   reducer: {
     canvas: canvasReducer,
+    shape: shapeReducer,
+    text: textReducer,
   },
 });
 

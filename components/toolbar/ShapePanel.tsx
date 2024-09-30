@@ -26,7 +26,7 @@ type Props = {
   onSelectFillColor: (newColor: string) => void;
 };
 
-export default function SidePanel({
+export default function ShapePanel({
   onClose,
   isOpen,
   strokeWidth,
@@ -89,7 +89,7 @@ export default function SidePanel({
             }}
             aria-label="Border width"
             onChange={(_, value) => setStrokeWidth(value as number)}
-            sx={{ flex: 1 }}
+            sx={{ flex: 1, mr: 2 }}
           />
         </Box>
       </Box>
