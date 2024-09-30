@@ -28,11 +28,7 @@ import {
 } from "./text/textUtils";
 import ShapePanel from "./toolbar/ShapePanel";
 import TextPanel from "./toolbar/TextPanel";
-import {
-  setFillColor,
-  setStrokeColor,
-  setStrokeWidth,
-} from "@/redux/shapeSlice";
+import { setStrokeColor, setStrokeWidth } from "@/redux/shapeSlice";
 
 export interface StageSizeType {
   width: number;
@@ -236,9 +232,9 @@ export default function Canvas() {
   function updateStyle(property: keyof CanvasObjectType, value: any) {
     // Dynamically update state
     if (property === "strokeWidth") {
-      dispatch(setStrokeWidth(value));
+      dispatch(setStrokeWidth(value)); // TODO: Ink property should separate from shape/text
     } else if (property === "stroke") {
-      dispatch(setStrokeColor(value));
+      dispatch(setStrokeColor(value)); // TODO: Ink property should separate from shape/text
     }
 
     // Update object property
@@ -471,9 +467,6 @@ export default function Canvas() {
           objects={canvasObjects}
           newObject={newObject}
           onChange={updateSelectedObject}
-          setWidth={setStrokeWidth}
-          setBorderColor={setStrokeColor}
-          setFillColor={setFillColor}
           selectedObjectId={selectedObjectId}
           setSelectedObjectId={(newObjectId) =>
             dispatch(selectCanvasObject(newObjectId))

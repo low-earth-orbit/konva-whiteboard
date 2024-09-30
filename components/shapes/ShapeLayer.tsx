@@ -4,8 +4,13 @@ import RectangleShape from "./RectangleShape";
 import OvalShape from "./OvalShape";
 import TriangleShape from "./TriangleShape";
 import StarShape from "./StarShape";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import {
+  setFillColor,
+  setStrokeColor,
+  setStrokeWidth,
+} from "@/redux/shapeSlice";
 
 type ShapesLayerProps = {
   objects: CanvasObjectType[];
@@ -14,9 +19,6 @@ type ShapesLayerProps = {
     newAttrs: Partial<CanvasObjectType>,
     selectedObjectId: string,
   ) => void;
-  setWidth: (newWidth: number) => void;
-  setBorderColor: (newColor: string) => void;
-  setFillColor: (newColor: string) => void;
   selectedObjectId: string;
   setSelectedObjectId: (id: string) => void;
   setSidePanelVisible: (isVisible: boolean) => void;
@@ -26,13 +28,12 @@ export default function ShapeLayer({
   objects,
   newObject,
   onChange,
-  setWidth,
-  setBorderColor,
-  setFillColor,
   selectedObjectId,
   setSelectedObjectId,
   setSidePanelVisible,
 }: ShapesLayerProps) {
+  const dispatch = useDispatch();
+
   const { selectedTool } = useSelector((state: RootState) => state.canvas);
 
   const shapes = [
@@ -52,9 +53,9 @@ export default function ShapeLayer({
           setSidePanelVisible(true);
 
           // update settings to match selected shape's
-          setWidth(shape.strokeWidth as number);
-          setBorderColor(shape.stroke as string);
-          setFillColor(shape.fill as string);
+          dispatch(setStrokeWidth(shape.strokeWidth || 5));
+          dispatch(setStrokeColor(shape.stroke || "#2986cc"));
+          dispatch(setFillColor(shape.fill || "#FFFFFF"));
 
           // Update cursor style
           const stage = e.target.getStage();
