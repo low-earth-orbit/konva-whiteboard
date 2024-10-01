@@ -75,6 +75,7 @@ export type ShapeName = "rectangle" | "oval" | "triangle" | "star";
 export default function Canvas() {
   const [stageSize, setStageSize] = useState<StageSizeType>();
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [userInputText, setUserInputText] = useState<string>("Double click to edit."); // New state for user input
 
   const dispatch = useDispatch();
   const { canvasObjects, selectedObjectId, selectedTool } = useSelector(
@@ -247,6 +248,9 @@ export default function Canvas() {
       );
     }
   }
+  const handleTextChange = (newText: string, objectId: string) => {
+    dispatch(updateCanvasObject({ id: objectId, updates: { text: newText } }));
+  };
 
   function updateSelectedObject(
     newAttrs: Partial<CanvasObjectType>,
@@ -268,7 +272,7 @@ export default function Canvas() {
       width: TEXT_DEFAULT_WIDTH,
       height: TEXT_DEFAULT_HEIGHT,
       fill: textColor,
-      text: "Double click to edit.",
+      text: userInputText, // Use userInputText
       fontSize: textSize,
       align: textAlignment,
       lineHeight: lineSpacing,
@@ -488,6 +492,7 @@ export default function Canvas() {
           }
           onChange={updateSelectedObject}
           setSidePanelVisible={setTextPanelVisible}
+          onTextChange={(newText: string, objectId: string) => handleTextChange(newText, objectId)}
         />
       </Stage>
       <Toolbar

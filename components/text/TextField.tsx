@@ -9,6 +9,7 @@ type Props = {
   isSelected: boolean;
   onSelect: (e: any) => void;
   onChange: (newAttrs: Partial<CanvasObjectType>) => void;
+  onTextChange: (newText: string) => void;
 };
 
 export default function TextField({
@@ -16,6 +17,7 @@ export default function TextField({
   isSelected,
   onSelect,
   onChange,
+  onTextChange
 }: Props) {
   const textRef = useRef<Konva.Text>(null);
   const trRef = useRef<Konva.Transformer>(null);
@@ -143,11 +145,13 @@ export default function TextField({
       textarea.focus();
 
       const removeTextarea = () => {
+        const newText = textarea.value;
         document.body.removeChild(textarea);
         window.removeEventListener("click", handleOutsideClick);
         node.show();
         trRef.current?.show();
         trRef.current?.forceUpdate();
+        onTextChange(newText);
       };
 
       textarea.addEventListener("keydown", function (e) {
@@ -157,6 +161,11 @@ export default function TextField({
           node.text(textarea.value);
           removeTextarea();
         }
+        textarea.addEventListener('input', function() {
+          const newText = textarea.value;
+          node.text(newText);
+          onTextChange(newText);
+        });
         // on esc do not set value back to node
         if (e.key === "Escape") {
           removeTextarea();
@@ -174,6 +183,15 @@ export default function TextField({
         window.addEventListener("click", handleOutsideClick);
       });
     }
+  };
+
+  const handleTextChange = (e: any) => {
+    const newText = e.target.value;
+    onChange({ 
+      ...selectedProps, 
+      text: newText,
+    });
+    onTextChange(newText);
   };
 
   return (
@@ -217,6 +235,7 @@ export default function TextField({
             });
           }
         }}
+        onChange={handleTextChange}
       />
 
       {isSelected && (
