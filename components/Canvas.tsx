@@ -29,6 +29,7 @@ import {
 import ShapePanel from "./toolbar/ShapePanel";
 import TextPanel from "./toolbar/TextPanel";
 import { setStrokeColor, setStrokeWidth } from "@/redux/shapeSlice";
+import { setTextStyle, setTextColor, setTextSize, setTextAlignment, setLineSpacing } from "../redux/textSlice"; // Import actions from textSlice
 
 export interface StageSizeType {
   width: number;
@@ -230,12 +231,38 @@ export default function Canvas() {
     return null;
   }
 
+  const handleTextChange = (newText: string, objectId: string) => {
+    dispatch(updateCanvasObject({ id: objectId, updates: { text: newText } }));
+  };
+
+  const handleTextColorChange = (newColor: string, objectId: string) => {
+    dispatch(updateCanvasObject({ id: objectId, updates: { fill: newColor } }));
+    dispatch(setTextColor(newColor)); // Update textSlice for styling
+  };
+
+  const handleTextStyleChange = (style: Partial<CanvasObjectType>, objectId: string) => {
+    if (style.fontSize) dispatch(setTextSize(style.fontSize));
+    if (style.fill) dispatch(setTextColor(style.fill));
+    if (style.align) dispatch(setTextAlignment(style.align));
+    if (style.lineHeight) dispatch(setLineSpacing(style.lineHeight));
+    if (style.fontStyle || style.textDecoration) {
+      dispatch(setTextStyle([style.fontStyle, style.textDecoration].filter(Boolean) as string[]));
+    }
+    dispatch(updateCanvasObject({ id: objectId, updates: style })); // Update canvasSlice for persistence
+  };
+
   function updateStyle(property: keyof CanvasObjectType, value: any) {
     // Dynamically update state
     if (property === "strokeWidth") {
       dispatch(setStrokeWidth(value)); // TODO: Ink property should separate from shape/text
     } else if (property === "stroke") {
       dispatch(setStrokeColor(value)); // TODO: Ink property should separate from shape/text
+    } else if (property === "fill") {
+      // Assuming fill is used for text color
+      handleTextColorChange(value, selectedObjectId);
+    } else {
+      // Handle other text styles
+      handleTextStyleChange({ [property]: value }, selectedObjectId);
     }
 
     // Update object property
@@ -248,9 +275,6 @@ export default function Canvas() {
       );
     }
   }
-  const handleTextChange = (newText: string, objectId: string) => {
-    dispatch(updateCanvasObject({ id: objectId, updates: { text: newText } }));
-  };
 
   function updateSelectedObject(
     newAttrs: Partial<CanvasObjectType>,
@@ -493,6 +517,9 @@ export default function Canvas() {
           onChange={updateSelectedObject}
           setSidePanelVisible={setTextPanelVisible}
           onTextChange={(newText: string, objectId: string) => handleTextChange(newText, objectId)}
+          onTextStyleChange={(style: Partial<CanvasObjectType>, objectId: string) =>
+            handleTextStyleChange(style, objectId)
+          }
         />
       </Stage>
       <Toolbar

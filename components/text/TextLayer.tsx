@@ -23,6 +23,7 @@ type Props = {
   ) => void;
   setSidePanelVisible: (isVisible: boolean) => void;
   onTextChange: (newText: string, objectId: string) => void;
+  onTextStyleChange: (style: Partial<CanvasObjectType>, objectId: string) => void; // Add this prop
 };
 
 export default function TextLayer({
@@ -32,7 +33,8 @@ export default function TextLayer({
   setSelectedObjectId,
   onChange,
   setSidePanelVisible,
-  onTextChange
+  onTextChange,
+  onTextStyleChange, // Add this prop
 }: Props) {
   const dispatch = useDispatch();
 
@@ -78,16 +80,12 @@ export default function TextLayer({
                 container.style.cursor = "grab";
               }
             }
-
-            // TODO: #18
-            // console.log("e.target =", e.target);
-            // e.target.moveToTop(); // Upon select, move the object to top of canvas
-            // e.target.getLayer().batchDraw(); // Redraw
           }}
           onChange={(newAttrs: Partial<CanvasObjectType>) =>
             onChange(newAttrs, text.id)
           }
           onTextChange={(newText) => onTextChange(newText, text.id)}
+          onTextStyleChange={(style) => onTextStyleChange(style, text.id)} // Pass this prop
         />
       ))}
     </Layer>

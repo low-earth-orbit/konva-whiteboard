@@ -10,6 +10,7 @@ type Props = {
   onSelect: (e: any) => void;
   onChange: (newAttrs: Partial<CanvasObjectType>) => void;
   onTextChange: (newText: string) => void;
+  onTextStyleChange: (style: Partial<CanvasObjectType>) => void; // Add this prop
 };
 
 export default function TextField({
@@ -17,7 +18,8 @@ export default function TextField({
   isSelected,
   onSelect,
   onChange,
-  onTextChange
+  onTextChange,
+  onTextStyleChange, // Add this prop
 }: Props) {
   const textRef = useRef<Konva.Text>(null);
   const trRef = useRef<Konva.Transformer>(null);
@@ -194,6 +196,14 @@ export default function TextField({
     onTextChange(newText);
   };
 
+  const handleTextStyleChange = (style: Partial<CanvasObjectType>) => {
+    onTextStyleChange(style);
+    onChange({
+      ...objectProps,
+      ...style,
+    });
+  };
+
   return (
     <>
       <Text
@@ -236,6 +246,7 @@ export default function TextField({
           }
         }}
         onChange={handleTextChange}
+        onTextStyleChange={handleTextStyleChange} // Add this prop
       />
 
       {isSelected && (
