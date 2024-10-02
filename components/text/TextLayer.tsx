@@ -3,7 +3,6 @@ import { CanvasObjectType } from "../Canvas";
 import TextField from "./TextField";
 import { RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
-import { updateCanvasObject } from "@/redux/canvasSlice";
 import {
   setLineSpacing,
   setTextAlignment,

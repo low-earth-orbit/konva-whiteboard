@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuid } from "uuid";
 import { Stage } from "react-konva";
@@ -31,6 +31,8 @@ import TextPanel from "./toolbar/TextPanel";
 import { setStrokeColor, setStrokeWidth } from "@/redux/shapeSlice";
 import { Fab } from "@mui/material";
 import GitHubIcon from "./icons/GitHubIcon";
+import ZoomToolbar from "./toolbar/ZoomToolbar";
+import Konva from "konva";
 
 export interface StageSizeType {
   width: number;
@@ -96,6 +98,9 @@ export default function Canvas() {
 
   const [isShapePanelVisible, setShapePanelVisible] = useState(false);
   const [isTextPanelVisible, setTextPanelVisible] = useState(false);
+
+  const [zoomLevel, setZoomLevel] = useState(1); // Default zoom level = 100%
+  const stageRef = useRef<Konva.Stage | null>(null);
 
   // Dark mode listener
   useEffect(() => {
@@ -463,6 +468,7 @@ export default function Canvas() {
   return (
     <>
       <Stage
+        ref={stageRef}
         width={window.innerWidth}
         height={window.innerHeight}
         onMouseDown={handleMouseDown}
@@ -526,6 +532,7 @@ export default function Canvas() {
         selectedObjectId={selectedObjectId}
       />
       <Fab
+        id="github-fab"
         size="small"
         variant="extended"
         aria-label="Link to GitHub repository of this project"
@@ -544,6 +551,11 @@ export default function Canvas() {
         <GitHubIcon sx={{ mr: 1 }} />
         View Source
       </Fab>
+      <ZoomToolbar
+        zoomLevel={zoomLevel}
+        setZoomLevel={setZoomLevel}
+        stageRef={stageRef}
+      />
     </>
   );
 }
