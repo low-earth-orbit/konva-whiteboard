@@ -342,7 +342,7 @@ export default function Canvas() {
 
       // If the current selected tool is addText or add shapes
       if (selectedTool.includes("add")) {
-        const pos = e.target.getStage().getPointerPosition();
+        const pos = e.target.getStage().getRelativePointerPosition();
         const { x, y } = pos;
 
         // Add new object based on tool
@@ -371,7 +371,7 @@ export default function Canvas() {
 
       // If the current selected tool is eraser or pen
       if (selectedTool === "eraser" || selectedTool === "pen") {
-        const pos = e.target.getStage().getPointerPosition();
+        const pos = e.target.getStage().getRelativePointerPosition();
         const newLine: CanvasObjectType = {
           id: uuid(),
           tool: selectedTool, // eraser or pen
@@ -412,7 +412,7 @@ export default function Canvas() {
     // Creating new text/object is in progress
     if (isInProgress && newObject && newObject.type !== "ink") {
       const stage = e.target.getStage();
-      const point = stage.getPointerPosition();
+      const point = stage.getRelativePointerPosition();
 
       const width = Math.max(Math.abs(point.x - newObject.x!) || 5);
       const height = Math.max(Math.abs(point.y - newObject.y!) || 5);
@@ -436,7 +436,7 @@ export default function Canvas() {
     // Freehand drawing (eraser or pen) in progress
     if (isInProgress && newObject) {
       const stage = e.target.getStage();
-      const point = stage.getPointerPosition();
+      const point = stage.getRelativePointerPosition();
 
       const updatedObject = {
         ...newObject,
@@ -469,6 +469,7 @@ export default function Canvas() {
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
         onTouchStart={handleMouseDown}
+        draggable={selectedTool == "select"}
       >
         <InkLayer objects={canvasObjects} newObject={newObject} />
         <ShapeLayer
