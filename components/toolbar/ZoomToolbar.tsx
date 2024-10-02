@@ -6,6 +6,7 @@ import {
   IconButton,
   InputAdornment,
   Button,
+  Paper,
 } from "@mui/material";
 import FitScreenIcon from "@mui/icons-material/FitScreen";
 import AddIcon from "@mui/icons-material/Add";
@@ -101,11 +102,14 @@ export default function ZoomToolbar({
   };
 
   return (
-    <Box
+    <Paper
       sx={{
         position: "fixed",
         bottom: 20,
         right: 20,
+        height: 48,
+        borderRadius: 1,
+        boxShadow: 3,
         display: "flex",
         alignItems: "center",
         gap: 1,
@@ -128,7 +132,6 @@ export default function ZoomToolbar({
           }}
           sx={{
             width: 60,
-            marginRight: 0,
             input: { textAlign: "center" },
             "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
               {
@@ -148,6 +151,6 @@ export default function ZoomToolbar({
       <IconButton onClick={handleFit}>
         <FitScreenIcon />
       </IconButton>
-    </Box>
+    </Paper>
   );
 }
