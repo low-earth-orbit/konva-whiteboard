@@ -68,26 +68,30 @@ export default function ZoomToolbar({
       let largestHeight = 0;
       let minX = Infinity;
       let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
       // find the largest dimensions
       layers.forEach((layer) => {
         const layerRect = layer.getClientRect({ relativeTo: stage });
-        console.log(layerRect);
         const { x, y, width, height } = layerRect;
         if (width > 0 && height > 0) {
-          minX = Math.min(layerRect.x, minX);
-          minY = Math.min(layerRect.y, minY);
+          minX = Math.min(x, minX);
+          minY = Math.min(y, minY);
+          maxX = Math.max(largestWidth, x + width);
+          maxY = Math.max(largestHeight, y + height);
         }
-        largestWidth = Math.max(largestWidth, layerRect.width);
-        largestHeight = Math.max(largestHeight, layerRect.height);
       });
 
+      largestWidth = maxX - minX;
+      largestHeight = maxY - minY;
+
       if (largestWidth > 0 && largestHeight > 0) {
-        console.log(minX, minY);
         const stageSize = stage.getSize();
         // Calculate scale factors
         const scaleX = stageSize.width / largestWidth;
         const scaleY = stageSize.height / largestHeight;
-        const scaleValue = Math.min(scaleX, scaleY) * 0.9; // Scale down by 10%
+
+        const scaleValue = Math.min(scaleX, scaleY);
 
         const scale = Math.max(0.1, Math.min(scaleValue, 3));
 
@@ -112,8 +116,8 @@ export default function ZoomToolbar({
       scaleY: scale || 1,
       offsetX: x,
       offsetY: y,
-      x: 20, // slight spacing
-      y: 20, // slight spacing
+      x: 0,
+      y: 0,
       onFinish: () => {
         tween.destroy();
         stage.batchDraw();
