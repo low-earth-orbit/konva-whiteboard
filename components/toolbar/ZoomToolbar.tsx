@@ -11,6 +11,8 @@ import {
 import FitScreenIcon from "@mui/icons-material/FitScreen";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 type ToolbarProps = {
   zoomLevel: number;
@@ -23,6 +25,10 @@ export default function ZoomToolbar({
   setZoomLevel,
   stageRef,
 }: ToolbarProps) {
+  const canvasObjects = useSelector(
+    (state: RootState) => state.canvas.canvasObjects,
+  );
+
   const [inputValue, setInputValue] = useState<string>(
     (zoomLevel * 100).toFixed(0),
   );
@@ -57,15 +63,64 @@ export default function ZoomToolbar({
   const handleFit = () => {
     const stage = stageRef.current;
     if (stage) {
-      const containerWidth = stage.width();
-      const containerHeight = stage.height();
-      const scaleX = containerWidth / stage.getContent().offsetWidth;
-      const scaleY = containerHeight / stage.getContent().offsetHeight;
-      const fitZoom = Math.min(scaleX, scaleY); // Fit the content within the stage
-      setZoomLevel(fitZoom);
-      stage.scale({ x: fitZoom, y: fitZoom });
-      stage.batchDraw();
+      const layers = stage.getLayers();
+      let largestWidth = 0;
+      let largestHeight = 0;
+      let minX = Infinity;
+      let minY = Infinity;
+      // find the largest dimensions
+      layers.forEach((layer) => {
+        const layerRect = layer.getClientRect({ relativeTo: stage });
+        console.log(layerRect);
+        const { x, y, width, height } = layerRect;
+        if (width > 0 && height > 0) {
+          minX = Math.min(layerRect.x, minX);
+          minY = Math.min(layerRect.y, minY);
+        }
+        largestWidth = Math.max(largestWidth, layerRect.width);
+        largestHeight = Math.max(largestHeight, layerRect.height);
+      });
+
+      if (largestWidth > 0 && largestHeight > 0) {
+        console.log(minX, minY);
+        const stageSize = stage.getSize();
+        // Calculate scale factors
+        const scaleX = stageSize.width / largestWidth;
+        const scaleY = stageSize.height / largestHeight;
+        const scaleValue = Math.min(scaleX, scaleY) * 0.9; // Scale down by 10%
+
+        const scale = Math.max(0.1, Math.min(scaleValue, 3));
+
+        moveStage(stage, { x: minX, y: minY }, scale);
+        setZoomLevel(scale);
+      }
     }
+  };
+
+  const moveStage = (
+    stage: Konva.Stage,
+    location: { x: number; y: number },
+    scale: number,
+  ) => {
+    const { x, y } = location;
+
+    const tween = new Konva.Tween({
+      duration: 0.35,
+      easing: Konva.Easings.EaseInOut,
+      node: stage,
+      scaleX: scale || 1,
+      scaleY: scale || 1,
+      offsetX: x,
+      offsetY: y,
+      x: 20, // slight spacing
+      y: 20, // slight spacing
+      onFinish: () => {
+        tween.destroy();
+        stage.batchDraw();
+      },
+    });
+
+    tween.play();
   };
 
   // Allow any value while typing
