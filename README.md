@@ -1,6 +1,6 @@
 # Konva Whiteboard
 
-This is an work-in-progress hobby project aimed at creating a sketch board app, similar to [Microsoft Whiteboard](https://www.microsoft.com/en-ca/microsoft-365/microsoft-whiteboard/digital-whiteboard-app), or a graphic design tool like [Polotno](https://studio.polotno.com/).
+This is an work-in-progress hobby project aimed at creating a whiteboard app using Konva library.
 
 Demo: [Try it here](https://whiteboard.leohong.dev)
 
@@ -17,7 +17,7 @@ Although there isn’t a strict timeline, the project is divided into three phas
 
 - Phase 1: Front-end only, focusing on basic drawing and canvas functionality.
 - Phase 2: Introduce a backend and expand on front-end features.
-- Phase 3: Advanced features such as sharing, live edit, and user management.
+- Phase 3: Collaboration such as sharing, live edit, and user management.
 
 ## Implemented Features
 
@@ -50,6 +50,7 @@ Although there isn’t a strict timeline, the project is divided into three phas
   - Select object
   - Delete an object or clear the entire canvas
   - History (undo & redo)
+  - Zoom control
   - Keyboard shortcuts for delete/undo/redo actions
   - Persistent canvas data stored in browser's local storage
 

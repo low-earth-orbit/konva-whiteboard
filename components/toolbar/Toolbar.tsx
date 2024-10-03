@@ -129,7 +129,7 @@ function Toolbar({
 
   return (
     <div
-      className={`absolute bottom-5 left-1/2 transform -translate-x-1/2 ${toolbarBgColor}`}
+      className={`absolute bottom-2 left-1/2 transform -translate-x-1/2 ${toolbarBgColor}`}
     >
       <ButtonGroup
         variant="contained"

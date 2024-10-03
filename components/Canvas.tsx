@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuid } from "uuid";
 import { Stage } from "react-konva";
@@ -31,6 +31,9 @@ import TextPanel from "./toolbar/TextPanel";
 import { setStrokeColor, setStrokeWidth } from "@/redux/shapeSlice";
 import { Fab } from "@mui/material";
 import GitHubIcon from "./icons/GitHubIcon";
+import ZoomToolbar from "./toolbar/ZoomToolbar";
+import Konva from "konva";
+import { KonvaEventObject } from "konva/lib/Node";
 
 export interface StageSizeType {
   width: number;
@@ -96,6 +99,9 @@ export default function Canvas() {
 
   const [isShapePanelVisible, setShapePanelVisible] = useState(false);
   const [isTextPanelVisible, setTextPanelVisible] = useState(false);
+
+  const [zoomLevel, setZoomLevel] = useState(1); // Default zoom level = 100%
+  const stageRef = useRef<Konva.Stage | null>(null);
 
   // Dark mode listener
   useEffect(() => {
@@ -342,7 +348,7 @@ export default function Canvas() {
 
       // If the current selected tool is addText or add shapes
       if (selectedTool.includes("add")) {
-        const pos = e.target.getStage().getPointerPosition();
+        const pos = e.target.getStage().getRelativePointerPosition();
         const { x, y } = pos;
 
         // Add new object based on tool
@@ -371,7 +377,7 @@ export default function Canvas() {
 
       // If the current selected tool is eraser or pen
       if (selectedTool === "eraser" || selectedTool === "pen") {
-        const pos = e.target.getStage().getPointerPosition();
+        const pos = e.target.getStage().getRelativePointerPosition();
         const newLine: CanvasObjectType = {
           id: uuid(),
           tool: selectedTool, // eraser or pen
@@ -412,7 +418,7 @@ export default function Canvas() {
     // Creating new text/object is in progress
     if (isInProgress && newObject && newObject.type !== "ink") {
       const stage = e.target.getStage();
-      const point = stage.getPointerPosition();
+      const point = stage.getRelativePointerPosition();
 
       const width = Math.max(Math.abs(point.x - newObject.x!) || 5);
       const height = Math.max(Math.abs(point.y - newObject.y!) || 5);
@@ -436,7 +442,7 @@ export default function Canvas() {
     // Freehand drawing (eraser or pen) in progress
     if (isInProgress && newObject) {
       const stage = e.target.getStage();
-      const point = stage.getPointerPosition();
+      const point = stage.getRelativePointerPosition();
 
       const updatedObject = {
         ...newObject,
@@ -460,15 +466,55 @@ export default function Canvas() {
     }
   };
 
+  function handleWheelZoom(e: KonvaEventObject<WheelEvent>): void {
+    // stop default scrolling
+    e.evt.preventDefault();
+
+    const stage = stageRef.current;
+
+    if (stage) {
+      const oldScale = stage.scaleX();
+      const pointer = stage.getPointerPosition();
+
+      if (pointer) {
+        const mousePointTo = {
+          x: (pointer.x - stage.x()) / oldScale,
+          y: (pointer.y - stage.y()) / oldScale,
+        };
+
+        let direction = e.evt.deltaY < 0 ? 1 : -1;
+
+        const scaleBy = 1.05; // scale factor per wheel movement
+        const newScale =
+          direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+        const scale = Math.max(0.1, Math.min(newScale, 3)); // limit in range
+
+        stage.scale({ x: scale, y: scale });
+
+        var newPos = {
+          x: pointer.x - mousePointTo.x * scale,
+          y: pointer.y - mousePointTo.y * scale,
+        };
+        stage.position(newPos);
+
+        setZoomLevel(scale);
+      }
+    }
+  }
+
   return (
     <>
       <Stage
+        ref={stageRef}
         width={window.innerWidth}
         height={window.innerHeight}
         onMouseDown={handleMouseDown}
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
         onTouchStart={handleMouseDown}
+        draggable={selectedTool == "select"}
+        onWheel={(e) => handleWheelZoom(e)}
       >
         <InkLayer objects={canvasObjects} newObject={newObject} />
         <ShapeLayer
@@ -490,6 +536,7 @@ export default function Canvas() {
           }
           onChange={updateSelectedObject}
           setSidePanelVisible={setTextPanelVisible}
+          zoomLevel={zoomLevel}
         />
       </Stage>
       <Toolbar
@@ -525,13 +572,14 @@ export default function Canvas() {
         selectedObjectId={selectedObjectId}
       />
       <Fab
+        id="github-fab"
         size="small"
         variant="extended"
         aria-label="Link to GitHub repository of this project"
         style={{
           position: "fixed",
-          top: "16px",
-          left: "16px",
+          top: "8px",
+          left: "8px",
         }}
         onClick={() =>
           window.open(
@@ -543,6 +591,11 @@ export default function Canvas() {
         <GitHubIcon sx={{ mr: 1 }} />
         View Source
       </Fab>
+      <ZoomToolbar
+        zoomLevel={zoomLevel}
+        setZoomLevel={setZoomLevel}
+        stageRef={stageRef}
+      />
     </>
   );
 }
