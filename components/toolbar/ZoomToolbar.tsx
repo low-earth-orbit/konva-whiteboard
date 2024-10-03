@@ -93,7 +93,7 @@ export default function ZoomToolbar({
     if (!isNaN(value) && value >= 10 && value <= 300) {
       const stage = stageRef.current;
       if (stage) {
-        const newScale = Math.min(Math.max(value / 100, 0.1), 3);
+        const newScale = value / 100;
 
         const oldScale = stage.scaleX();
         const center = {
@@ -170,7 +170,7 @@ export default function ZoomToolbar({
           y: windowCenter.y - contentCenter.y * newScale,
         };
         // Move the stage with animation
-        moveStage(stage, newPos, newScale);
+        moveStage(stage, newPos, newScale, 0.1);
       } else {
         // Reset to original scale if no valid content
         moveStage(stage, { x: 0, y: 0 }, 1);
@@ -183,12 +183,13 @@ export default function ZoomToolbar({
     stage: Konva.Stage,
     offset: { x: number; y: number },
     scale: number,
+    animationDuration: number = 0,
   ) => {
     // update state
     setZoomLevel(scale);
 
     const tween = new Konva.Tween({
-      duration: 0.35,
+      duration: animationDuration,
       easing: Konva.Easings.EaseInOut,
       node: stage,
       scaleX: scale || 1,

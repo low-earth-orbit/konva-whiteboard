@@ -33,6 +33,7 @@ import { Fab } from "@mui/material";
 import GitHubIcon from "./icons/GitHubIcon";
 import ZoomToolbar from "./toolbar/ZoomToolbar";
 import Konva from "konva";
+import { KonvaEventObject } from "konva/lib/Node";
 
 export interface StageSizeType {
   width: number;
@@ -465,6 +466,47 @@ export default function Canvas() {
     }
   };
 
+  function handleWheelZoom(e: KonvaEventObject<WheelEvent>): void {
+    // stop default scrolling
+    e.evt.preventDefault();
+
+    const stage = stageRef.current;
+
+    if (stage) {
+      const oldScale = stage.scaleX();
+      const pointer = stage.getPointerPosition();
+
+      if (pointer) {
+        const mousePointTo = {
+          x: (pointer.x - stage.x()) / oldScale,
+          y: (pointer.y - stage.y()) / oldScale,
+        };
+
+        let direction = e.evt.deltaY < 0 ? 1 : -1;
+
+        if (e.evt.ctrlKey) {
+          direction = -direction;
+        }
+
+        const scaleBy = 1.05; // scale factor per wheel movement
+        const newScale =
+          direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+        const scale = Math.max(0.1, Math.min(newScale, 3)); // limit in range
+
+        stage.scale({ x: scale, y: scale });
+
+        var newPos = {
+          x: pointer.x - mousePointTo.x * scale,
+          y: pointer.y - mousePointTo.y * scale,
+        };
+        stage.position(newPos);
+
+        setZoomLevel(scale);
+      }
+    }
+  }
+
   return (
     <>
       <Stage
@@ -476,6 +518,7 @@ export default function Canvas() {
         onMouseup={handleMouseUp}
         onTouchStart={handleMouseDown}
         draggable={selectedTool == "select"}
+        onWheel={(e) => handleWheelZoom(e)}
       >
         <InkLayer objects={canvasObjects} newObject={newObject} />
         <ShapeLayer
