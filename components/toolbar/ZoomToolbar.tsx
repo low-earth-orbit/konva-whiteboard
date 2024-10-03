@@ -208,8 +208,8 @@ export default function ZoomToolbar({
     <Paper
       sx={{
         position: "fixed",
-        bottom: 20,
-        right: 20,
+        bottom: 8,
+        right: 8,
         height: 48,
         borderRadius: 1,
         boxShadow: 3,

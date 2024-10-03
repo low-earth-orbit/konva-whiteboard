@@ -538,8 +538,8 @@ export default function Canvas() {
         aria-label="Link to GitHub repository of this project"
         style={{
           position: "fixed",
-          top: "16px",
-          left: "16px",
+          top: "8px",
+          left: "8px",
         }}
         onClick={() =>
           window.open(
