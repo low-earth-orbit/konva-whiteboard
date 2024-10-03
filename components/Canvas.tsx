@@ -484,10 +484,6 @@ export default function Canvas() {
 
         let direction = e.evt.deltaY < 0 ? 1 : -1;
 
-        if (e.evt.ctrlKey) {
-          direction = -direction;
-        }
-
         const scaleBy = 1.05; // scale factor per wheel movement
         const newScale =
           direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
