@@ -50,6 +50,7 @@ Although there isn’t a strict timeline, the project is divided into three phas
   - Select object
   - Delete an object or clear the entire canvas
   - History (undo & redo)
+  - Zoom control
   - Keyboard shortcuts for delete/undo/redo actions
   - Persistent canvas data stored in browser's local storage
 
