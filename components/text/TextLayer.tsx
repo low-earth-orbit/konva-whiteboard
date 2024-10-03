@@ -22,6 +22,7 @@ type Props = {
     selectedObjectId: string,
   ) => void;
   setSidePanelVisible: (isVisible: boolean) => void;
+  zoomLevel: number;
 };
 
 export default function TextLayer({
@@ -31,6 +32,7 @@ export default function TextLayer({
   setSelectedObjectId,
   onChange,
   setSidePanelVisible,
+  zoomLevel,
 }: Props) {
   const dispatch = useDispatch();
 
@@ -85,6 +87,7 @@ export default function TextLayer({
           onChange={(newAttrs: Partial<CanvasObjectType>) =>
             onChange(newAttrs, text.id)
           }
+          zoomLevel={zoomLevel}
         />
       ))}
     </Layer>

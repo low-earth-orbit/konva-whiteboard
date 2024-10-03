@@ -540,6 +540,7 @@ export default function Canvas() {
           }
           onChange={updateSelectedObject}
           setSidePanelVisible={setTextPanelVisible}
+          zoomLevel={zoomLevel}
         />
       </Stage>
       <Toolbar

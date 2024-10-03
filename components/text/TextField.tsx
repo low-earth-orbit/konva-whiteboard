@@ -9,6 +9,7 @@ type Props = {
   isSelected: boolean;
   onSelect: (e: any) => void;
   onChange: (newAttrs: Partial<CanvasObjectType>) => void;
+  zoomLevel: number;
 };
 
 export default function TextField({
@@ -16,6 +17,7 @@ export default function TextField({
   isSelected,
   onSelect,
   onChange,
+  zoomLevel,
 }: Props) {
   const textRef = useRef<Konva.Text>(null);
   const trRef = useRef<Konva.Transformer>(null);
@@ -124,6 +126,7 @@ export default function TextField({
       textarea.style.textAlign = node.align();
       textarea.style.color = node.fill() as string;
       textarea.style.transformOrigin = "left top";
+      textarea.style.scale = zoomLevel.toString();
 
       // set rotation
       const rotation = node.rotation();
