@@ -140,6 +140,10 @@ export default function Canvas() {
           return `url(${basePath}rectangle.svg) 12 12, pointer`;
         case "addOval":
           return `url(${basePath}oval.svg) 12 12, pointer`;
+        case "addTriangle":
+          return `url(${basePath}triangle.svg) 12 12, pointer`;
+        case "addStar":
+          return `url(${basePath}star.svg) 12 12, pointer`;
         case "eraser":
           return `url(${basePath}erase.svg) 12 12, default`;
         default:
