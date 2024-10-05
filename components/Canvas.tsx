@@ -43,7 +43,6 @@ export interface StageSizeType {
 export interface CanvasObjectType {
   id: string;
   type: ObjectType;
-  tool?: ToolType;
   shapeName?: ShapeName;
   stroke?: string; // stroke color
   strokeWidth?: number;
@@ -63,7 +62,7 @@ export interface CanvasObjectType {
   lineHeight?: number;
 }
 
-export type ObjectType = "ink" | "shape" | "text";
+export type ObjectType = "ink" | "eraserStroke" | "shape" | "text";
 
 export type ToolType =
   | "select"
@@ -172,6 +171,24 @@ export default function Canvas() {
   useEffect(() => {
     localStorage.setItem("canvasState", JSON.stringify(canvasObjects));
   }, [canvasObjects]);
+
+  // Disable default trackpad zoom behavior globally
+  useEffect(() => {
+    const disableZoomAndScroll = (e: WheelEvent) => {
+      // Prevent zoom in/out triggered by ctrlKey + scroll or pinch zoom
+      // allow scroll
+      if (e.ctrlKey || e.deltaY < -1 || e.deltaY > 1) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener("wheel", disableZoomAndScroll, { passive: false });
+
+    // Cleanup on component unmount
+    return () => {
+      window.removeEventListener("wheel", disableZoomAndScroll);
+    };
+  }, []);
 
   const handleDelete = useCallback(() => {
     if (selectedObjectId === "") {
@@ -380,8 +397,7 @@ export default function Canvas() {
         const pos = e.target.getStage().getRelativePointerPosition();
         const newLine: CanvasObjectType = {
           id: uuid(),
-          tool: selectedTool, // eraser or pen
-          type: "ink",
+          type: selectedTool === "eraser" ? "eraserStroke" : "ink",
           points: [pos.x, pos.y],
           stroke: strokeColor,
           strokeWidth:
@@ -395,7 +411,8 @@ export default function Canvas() {
     // deselect object when clicked on empty area or clicked on an ink object (created by pen or eraser)
     if (
       e.target === e.target.getStage() ||
-      e.target.attrs.name.includes("ink")
+      e.target.attrs.name.includes("ink") ||
+      e.target.attrs.name.includes("eraserStroke")
     ) {
       dispatch(selectCanvasObject(""));
     }
@@ -403,7 +420,8 @@ export default function Canvas() {
     // side panel
     if (
       e.target === e.target.getStage() ||
-      e.target.attrs.name?.includes("ink")
+      e.target.attrs.name?.includes("ink") ||
+      e.target.attrs.name?.includes("eraserStroke")
     ) {
       setShapePanelVisible(false);
       setTextPanelVisible(false);
@@ -416,7 +434,12 @@ export default function Canvas() {
 
   const handleMouseMove = (e: any) => {
     // Creating new text/object is in progress
-    if (isInProgress && newObject && newObject.type !== "ink") {
+    if (
+      isInProgress &&
+      newObject &&
+      newObject.type !== "ink" &&
+      newObject.type !== "eraserStroke"
+    ) {
       const stage = e.target.getStage();
       const point = stage.getRelativePointerPosition();
 

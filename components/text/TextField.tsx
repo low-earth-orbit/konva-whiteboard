@@ -88,6 +88,8 @@ export default function TextField({
 
       // create textarea and add it to the document
       const textarea = document.createElement("textarea");
+      textarea.wrap = "soft";
+
       document.body.appendChild(textarea);
 
       // adjust the styles to match
@@ -127,6 +129,7 @@ export default function TextField({
       textarea.style.color = node.fill() as string;
       textarea.style.transformOrigin = "left top";
       textarea.style.scale = zoomLevel.toString();
+      textarea.style.textWrap = "wrap";
 
       // set rotation
       const rotation = node.rotation();
