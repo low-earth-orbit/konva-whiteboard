@@ -8,15 +8,21 @@ type Props = {
 
 export default function InkLayer({ objects, newObject }: Props) {
   const lines = [
-    ...objects.filter((obj: CanvasObjectType) => obj.type === "ink"),
-    ...(newObject && newObject.type === "ink" ? [newObject] : []),
+    ...objects.filter(
+      (obj: CanvasObjectType) =>
+        obj.type === "ink" || obj.type === "eraserStroke",
+    ),
+    ...(newObject &&
+    (newObject.type === "ink" || newObject.type === "eraserStroke")
+      ? [newObject]
+      : []),
   ];
 
   return (
     <Layer>
       {lines.map((line, i) => (
         <Line
-          name={`ink-${line.tool === "eraser" ? "eraser" : "pen"}`}
+          name={line.type}
           key={i}
           points={line.points}
           stroke={line.stroke}
@@ -25,7 +31,7 @@ export default function InkLayer({ objects, newObject }: Props) {
           lineCap="round"
           lineJoin="round"
           globalCompositeOperation={
-            line.tool === "eraser" ? "destination-out" : "source-over"
+            line.type === "eraserStroke" ? "destination-out" : "source-over"
           }
         />
       ))}

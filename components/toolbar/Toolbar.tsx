@@ -19,8 +19,8 @@ import {
   LineWeightRounded,
   CropSquareRounded,
   CircleOutlined,
-  ChangeHistoryOutlined,
-  StarBorderOutlined,
+  ChangeHistoryRounded,
+  StarBorderPurple500Rounded,
   TextFields,
   UndoRounded,
   RedoRounded,
@@ -356,7 +356,7 @@ function Toolbar({
               dispatch(selectCanvasObject("")); // clear selected object, if there is
             }}
           >
-            <ChangeHistoryOutlined />
+            <ChangeHistoryRounded />
           </IconButton>
         </Tooltip>
 
@@ -369,7 +369,7 @@ function Toolbar({
               dispatch(selectCanvasObject("")); // clear selected object, if there is
             }}
           >
-            <StarBorderOutlined />
+            <StarBorderPurple500Rounded />
           </IconButton>
         </Tooltip>
       </Popover>
