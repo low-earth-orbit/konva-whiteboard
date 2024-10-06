@@ -201,6 +201,12 @@ export default function Canvas() {
       }
     } else {
       dispatch(deleteCanvasObject(selectedObjectId));
+      // Update cursor style
+      const stage = stageRef.current;
+      if (stage) {
+        const container = stage.container();
+        container.style.cursor = "default";
+      }
     }
   }, [dispatch, selectedObjectId, canvasObjects]);
 
