@@ -34,6 +34,7 @@ import GitHubIcon from "./icons/GitHubIcon";
 import ZoomToolbar from "./toolbar/ZoomToolbar";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
+import { isPointInEraser } from "./eraserUtil";
 
 export interface StageSizeType {
   width: number;
@@ -84,6 +85,9 @@ export default function Canvas() {
   const { canvasObjects, selectedObjectId, selectedTool } = useSelector(
     (state: RootState) => state.canvas,
   );
+
+  console.log("canvasObjects =", canvasObjects);
+
   const { strokeWidth, strokeColor, fillColor } = useSelector(
     (state: RootState) => state.shape,
   );
@@ -418,7 +422,7 @@ export default function Canvas() {
       }
     }
 
-    // deselect object when clicked on empty area or clicked on an ink object (created by pen or eraser)
+    // deselect object when clicked on empty area or clicked on an ink / eraserStroke object
     if (
       e.target === e.target.getStage() ||
       e.target.attrs.name.includes("ink") ||
@@ -472,7 +476,7 @@ export default function Canvas() {
       return;
     }
 
-    // Freehand drawing (eraser or pen) in progress
+    // Freehand drawing or erasing in progress
     if (isInProgress && newObject) {
       const stage = e.target.getStage();
       const point = stage.getRelativePointerPosition();
@@ -489,12 +493,112 @@ export default function Canvas() {
   const handleMouseUp = () => {
     // Add object to store upon releasing mouse
     if (isInProgress) {
-      if (newObject) dispatch(addCanvasObject(newObject));
-
       if (selectedTool !== "pen" && selectedTool !== "eraser")
         dispatch(updateSelectedTool("select"));
 
-      setNewObject(null);
+      if (newObject) {
+        if (selectedTool !== "eraser") {
+          dispatch(addCanvasObject(newObject));
+        } else {
+          const eraserPoints = newObject.points; // Array of eraser points [x1, y1, x2, y2, ..., xn, yn]
+          const eraserWidth = Math.max(strokeWidth, 20); // Eraser size
+
+          if (eraserPoints) {
+            // Get all freehand drawn lines
+            const lines = canvasObjects.filter((obj) => obj.type === "ink");
+
+            lines.forEach((line) => {
+              const linePoints = line.points;
+
+              if (linePoints) {
+                let currentLinePoints: number[] = []; // Store points of the new line segment
+                let isNewSegment = false; // Flag to determine when to start a new line segment
+                const newLines: CanvasObjectType[] = []; // Store all new lines
+
+                // Process each segment of the line (two adjacent points)
+                for (let i = 0; i < linePoints.length - 2; i += 2) {
+                  const startPoint = { x: linePoints[i], y: linePoints[i + 1] };
+                  const endPoint = {
+                    x: linePoints[i + 2],
+                    y: linePoints[i + 3],
+                  };
+
+                  // Check if the start or end points of the segment are inside the eraser
+                  const isStartInEraser = isPointInEraser(
+                    startPoint,
+                    eraserPoints,
+                    eraserWidth,
+                  );
+                  const isEndInEraser = isPointInEraser(
+                    endPoint,
+                    eraserPoints,
+                    eraserWidth,
+                  );
+
+                  // If start is not in eraser, add it to the current segment
+                  if (!isStartInEraser) {
+                    if (!isNewSegment) {
+                      currentLinePoints.push(startPoint.x, startPoint.y);
+                      isNewSegment = true;
+                    }
+                  }
+
+                  // If the end is not in eraser, add it to the current segment
+                  if (!isEndInEraser) {
+                    if (isNewSegment) {
+                      currentLinePoints.push(endPoint.x, endPoint.y);
+                    }
+                  }
+
+                  // If the segment gets erased in the middle (one point in, one point out)
+                  if (!isStartInEraser && isEndInEraser) {
+                    if (currentLinePoints.length >= 4) {
+                      // Close the current segment
+                      // each line should have 2 points at a minimum
+                      newLines.push({
+                        id: uuid(),
+                        type: "ink",
+                        points: [...currentLinePoints],
+                        stroke: strokeColor,
+                        strokeWidth: strokeWidth,
+                      });
+                    }
+                    currentLinePoints = []; // Start a new segment
+                    isNewSegment = false;
+                  }
+
+                  if (isStartInEraser && !isEndInEraser) {
+                    // Start a new segment for the remaining part of the line
+                    currentLinePoints.push(endPoint.x, endPoint.y);
+                    isNewSegment = true;
+                  }
+                }
+
+                // Push the last segment if it exists
+                if (currentLinePoints.length >= 4) {
+                  newLines.push({
+                    id: uuid(),
+                    type: "ink",
+                    points: [...currentLinePoints],
+                    stroke: strokeColor,
+                    strokeWidth: strokeWidth,
+                  });
+                }
+
+                // Delete the original line
+                dispatch(deleteCanvasObject(line.id));
+
+                // Add the new lines
+                newLines.forEach((newLine) => {
+                  dispatch(addCanvasObject(newLine));
+                });
+              }
+            });
+          }
+        }
+
+        setNewObject(null);
+      }
       setIsInProgress(false);
     }
   };

@@ -27,7 +27,7 @@ export default function InkLayer({ objects, newObject }: Props) {
           points={line.points}
           stroke={line.stroke}
           strokeWidth={line.strokeWidth}
-          tension={0.5}
+          tension={0}
           lineCap="round"
           lineJoin="round"
           globalCompositeOperation={
