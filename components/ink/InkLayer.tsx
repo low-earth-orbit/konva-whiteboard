@@ -27,9 +27,10 @@ export default function InkLayer({ objects, newObject }: Props) {
           points={line.points}
           stroke={line.stroke}
           strokeWidth={line.strokeWidth}
-          tension={0}
+          tension={0.5}
           lineCap="round"
           lineJoin="round"
+          perfectDrawEnabled={false}
           globalCompositeOperation={
             line.type === "eraserStroke" ? "destination-out" : "source-over"
           }

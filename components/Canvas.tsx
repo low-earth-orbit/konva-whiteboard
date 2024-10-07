@@ -34,7 +34,7 @@ import GitHubIcon from "./icons/GitHubIcon";
 import ZoomToolbar from "./toolbar/ZoomToolbar";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
-import { isPointInEraser } from "./eraserUtil";
+import { isPointErased } from "./eraserUtil";
 
 export interface StageSizeType {
   width: number;
@@ -501,7 +501,7 @@ export default function Canvas() {
           dispatch(addCanvasObject(newObject));
         } else {
           const eraserPoints = newObject.points; // Array of eraser points [x1, y1, x2, y2, ..., xn, yn]
-          const eraserWidth = Math.max(strokeWidth, 20); // Eraser size
+          const eraserSize = Math.max(strokeWidth, 20); // Eraser size
 
           if (eraserPoints) {
             // Get all freehand drawn lines
@@ -524,15 +524,15 @@ export default function Canvas() {
                   };
 
                   // Check if the start or end points of the segment are inside the eraser
-                  const isStartInEraser = isPointInEraser(
+                  const isStartInEraser = isPointErased(
                     startPoint,
                     eraserPoints,
-                    eraserWidth,
+                    eraserSize,
                   );
-                  const isEndInEraser = isPointInEraser(
+                  const isEndInEraser = isPointErased(
                     endPoint,
                     eraserPoints,
-                    eraserWidth,
+                    eraserSize,
                   );
 
                   // If start is not in eraser, add it to the current segment
@@ -557,10 +557,10 @@ export default function Canvas() {
                       // each line should have 2 points at a minimum
                       newLines.push({
                         id: uuid(),
-                        type: "ink",
+                        type: line.type,
                         points: [...currentLinePoints],
-                        stroke: strokeColor,
-                        strokeWidth: strokeWidth,
+                        stroke: line.stroke,
+                        strokeWidth: line.strokeWidth,
                       });
                     }
                     currentLinePoints = []; // Start a new segment
@@ -578,10 +578,10 @@ export default function Canvas() {
                 if (currentLinePoints.length >= 4) {
                   newLines.push({
                     id: uuid(),
-                    type: "ink",
+                    type: line.type,
                     points: [...currentLinePoints],
-                    stroke: strokeColor,
-                    strokeWidth: strokeWidth,
+                    stroke: line.stroke,
+                    strokeWidth: line.strokeWidth,
                   });
                 }
 
