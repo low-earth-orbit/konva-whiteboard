@@ -171,7 +171,11 @@ export default function TextField({
 
       const handleOutsideClick = (e: any) => {
         if (e.target !== textarea) {
-          node.text(textarea.value);
+          onChange({
+            ...selectedProps,
+            text: textarea.value,
+          }); // Update text content
+
           removeTextarea();
         }
       };
