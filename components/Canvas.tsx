@@ -34,7 +34,7 @@ import GitHubIcon from "./icons/GitHubIcon";
 import ZoomToolbar from "./toolbar/ZoomToolbar";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
-import { isPointErased } from "./eraserUtil";
+import { arePointsEqual, isPointErased } from "./eraserUtil";
 
 export interface StageSizeType {
   width: number;
@@ -585,13 +585,19 @@ export default function Canvas() {
                   });
                 }
 
-                // Delete the original line
-                dispatch(deleteCanvasObject(line.id));
+                // if line is modified, delete original line and add new lines
+                if (
+                  !(
+                    newLines.length === 1 &&
+                    arePointsEqual(newLines[0].points || [], line.points || [])
+                  )
+                ) {
+                  dispatch(deleteCanvasObject(line.id));
 
-                // Add the new lines
-                newLines.forEach((newLine) => {
-                  dispatch(addCanvasObject(newLine));
-                });
+                  newLines.forEach((newLine) => {
+                    dispatch(addCanvasObject(newLine));
+                  });
+                }
               }
             });
           }
@@ -712,7 +718,6 @@ export default function Canvas() {
         id="github-fab"
         size="small"
         variant="extended"
-        aria-label="Link to GitHub repository of this project"
         style={{
           position: "fixed",
           top: "8px",

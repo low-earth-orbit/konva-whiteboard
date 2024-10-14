@@ -56,3 +56,8 @@ export function isPointErased(
   }
   return false;
 }
+
+export const arePointsEqual = (points1: number[], points2: number[]) => {
+  if (points1.length !== points2.length) return false;
+  return points1.every((point, index) => point === points2[index]);
+};
