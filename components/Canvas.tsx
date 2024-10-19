@@ -29,8 +29,6 @@ import {
 import ShapePanel from "./toolbar/ShapePanel";
 import TextPanel from "./toolbar/TextPanel";
 import { setStrokeColor, setStrokeWidth } from "@/redux/shapeSlice";
-import { Fab } from "@mui/material";
-import GitHubIcon from "./icons/GitHubIcon";
 import ZoomToolbar from "./toolbar/ZoomToolbar";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
