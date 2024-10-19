@@ -172,6 +172,7 @@ function Toolbar({
         <Tooltip title="Add shape">
           <IconButton
             aria-label="Add shape"
+            onClick={handleOpenShapesPopover}
             onMouseOver={handleOpenShapesPopover}
           >
             <ShapesIcon />
