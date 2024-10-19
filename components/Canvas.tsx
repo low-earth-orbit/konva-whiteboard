@@ -604,26 +604,6 @@ export default function Canvas() {
         onClose={() => setTextPanelVisible(false)}
         selectedObjectId={selectedObjectId}
       />
-      <Fab
-        id="github-fab"
-        size="small"
-        variant="extended"
-        aria-label="Link to GitHub repository of this project"
-        style={{
-          position: "fixed",
-          top: "8px",
-          left: "8px",
-        }}
-        onClick={() =>
-          window.open(
-            "https://github.com/low-earth-orbit/konva-whiteboard",
-            "_blank",
-          )
-        }
-      >
-        <GitHubIcon sx={{ mr: 1 }} />
-        View Source
-      </Fab>
       <ZoomToolbar
         zoomLevel={zoomLevel}
         setZoomLevel={setZoomLevel}

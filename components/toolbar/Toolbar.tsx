@@ -9,7 +9,6 @@ import {
   Tooltip,
 } from "@mui/material";
 
-import { HexColorPicker } from "react-colorful";
 import EraserIcon from "../icons/EraserIcon";
 import DrawIcon from "../icons/DrawIcon";
 import DeleteIcon from "../icons/DeleteIcon";
@@ -254,7 +253,7 @@ function Toolbar({
       </ButtonGroup>
 
       {/* colorPickerPopover */}
-      <Popover
+      {/* <Popover
         id="colorPickerPopover"
         open={isColorPickerAnchorElOpen}
         anchorEl={colorPickerAnchorEl}
@@ -273,7 +272,7 @@ function Toolbar({
           color={color}
           onChange={onSelectColor}
         />
-      </Popover>
+      </Popover> */}
 
       {/* lineWeightPopover */}
       <Popover

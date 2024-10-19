@@ -3,16 +3,11 @@ import {
   Box,
   Drawer,
   Typography,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
   Divider,
   IconButton,
   Slider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { HexColorPicker } from "react-colorful";
 import { LineWeightSliderValueLabel } from "./Toolbar";
 
 type Props = {
@@ -36,19 +31,14 @@ export default function ShapePanel({
   fillColor,
   onSelectFillColor,
 }: Props) {
-  const [colorPickerOpen, setColorPickerOpen] = React.useState(false);
-  const [isBorderPicker, setIsBorderPicker] = React.useState(true);
-
-  const handleColorPickerOpen = (isBorder: boolean) => {
-    setIsBorderPicker(isBorder);
-    setColorPickerOpen(true);
-  };
-
-  const handleColorChange = (color: string) => {
-    if (isBorderPicker) {
-      onSelectColor(color);
-    } else {
-      onSelectFillColor(color);
+  const handleColorChange = (event: any, type: string) => {
+    const color = event.target.value;
+    if (color) {
+      if (type === "border") {
+        onSelectColor(color);
+      } else if (type === "fill") {
+        onSelectFillColor(color);
+      }
     }
   };
 
@@ -98,68 +88,29 @@ export default function ShapePanel({
       <Divider />
       <Box sx={{ p: 2 }}>
         <Typography variant="subtitle2">Color</Typography>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-          <Box
-            sx={{
-              width: 24,
-              height: 24,
-              bgcolor: color,
-              border: "1px solid #555",
-              borderRadius: "50%",
-              mr: 2,
-            }}
-          />
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => handleColorPickerOpen(true)}
-          >
-            Change border color
-          </Button>
-        </Box>
+        <input
+          type="color"
+          value={color}
+          onChange={(e) => handleColorChange(e, "border")}
+        ></input>
       </Box>
 
       {/* Fill Color Section */}
       <Divider />
       <Box sx={{ p: 2 }}>
         <Typography variant="subtitle2">Fill</Typography>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-          <Box
-            sx={{
-              width: 24,
-              height: 24,
-              bgcolor: fillColor,
-              border: "1px solid #555",
-              borderRadius: "50%",
-              mr: 2,
-            }}
-          />
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => handleColorPickerOpen(false)}
-          >
-            Change fill color
-          </Button>
-        </Box>
+        <input
+          type="color"
+          value={fillColor}
+          onChange={(e) => handleColorChange(e, "fill")}
+        ></input>
       </Box>
-
-      {/* Color Picker Dialog */}
-      <Dialog open={colorPickerOpen} onClose={() => setColorPickerOpen(false)}>
-        <DialogTitle>{isBorderPicker ? "Border" : "Fill"}</DialogTitle>
-        <DialogContent sx={{ pt: 3 }}>
-          <HexColorPicker
-            color={isBorderPicker ? color : fillColor}
-            onChange={handleColorChange}
-          />
-        </DialogContent>
-      </Dialog>
     </>
   );
 
   return (
     <Drawer
-      anchor="right"
+      anchor="left"
       open={isOpen}
       onClose={onClose}
       variant="persistent"
