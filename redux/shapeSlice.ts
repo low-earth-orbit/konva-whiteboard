@@ -1,14 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface ShapeState {
-  strokeWidth: number;
-  strokeColor: string;
+  borderWidth: number;
+  borderColor: string;
   fillColor: string;
 }
 
 const initialState: ShapeState = {
-  strokeWidth: 5,
-  strokeColor: "#2986cc",
+  borderWidth: 5,
+  borderColor: "#2986cc",
   fillColor: "#FFFFFF",
 };
 
@@ -16,11 +16,11 @@ const shapeSlice = createSlice({
   name: "shape",
   initialState,
   reducers: {
-    setStrokeWidth(state, action: PayloadAction<number>) {
-      state.strokeWidth = action.payload;
+    setBorderWidth(state, action: PayloadAction<number>) {
+      state.borderWidth = action.payload;
     },
-    setStrokeColor(state, action: PayloadAction<string>) {
-      state.strokeColor = action.payload;
+    setBorderColor(state, action: PayloadAction<string>) {
+      state.borderColor = action.payload;
     },
     setFillColor(state, action: PayloadAction<string>) {
       state.fillColor = action.payload;
@@ -28,6 +28,6 @@ const shapeSlice = createSlice({
   },
 });
 
-export const { setStrokeWidth, setStrokeColor, setFillColor } =
+export const { setBorderWidth, setBorderColor, setFillColor } =
   shapeSlice.actions;
 export default shapeSlice.reducer;

@@ -33,11 +33,12 @@ const presetColors: string[] = [
 ];
 
 type Props = {
+  id: string;
   color: string;
-  onChange: (hex: string) => void;
+  onChange: (newColor: string) => void;
 };
 
-function MyColorPicker({ color, onChange }: Props) {
+function MyColorPicker({ id, color, onChange }: Props) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -54,9 +55,14 @@ function MyColorPicker({ color, onChange }: Props) {
     <>
       {/* Button to open the Popover with color picker */}
       <div style={{ marginTop: "10px" }}>
-        <Button aria-describedby={"myColorPickerPopover"} onClick={handleClick}>
+        <Button
+          id={`myColorPickerButton-${id}`}
+          aria-describedby={`myColorPickerPopover-${id}`}
+          onClick={handleClick}
+        >
           {/* Square color indicator */}
           <div
+            id={`myColorPickerColorIndicator-${id}`}
             style={{
               width: "20px",
               height: "20px",
@@ -71,7 +77,7 @@ function MyColorPicker({ color, onChange }: Props) {
 
       {/* Popover for color picker */}
       <Popover
-        id={"myColorPickerPopover"}
+        id={`myColorPickerPopover-${id}`}
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
@@ -88,6 +94,7 @@ function MyColorPicker({ color, onChange }: Props) {
         }}
       >
         <Sketch
+          id={`sketchPicker-${id}`}
           color={color}
           disableAlpha={true}
           presetColors={presetColors}

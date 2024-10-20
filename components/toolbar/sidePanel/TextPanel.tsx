@@ -175,6 +175,7 @@ export default function TextPanel({
       <Box sx={{ p: 2 }}>
         <Typography variant="subtitle2">Color</Typography>
         <MyColorPicker
+          id="textColorPicker"
           color={textColor}
           onChange={(newColor) => handleColorChange(newColor)}
         />

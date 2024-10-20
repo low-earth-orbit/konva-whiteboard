@@ -26,7 +26,11 @@ import {
   TEXT_DEFAULT_HEIGHT,
   TEXT_DEFAULT_WIDTH,
 } from "./text/textUtils";
-import { setStrokeColor, setStrokeWidth } from "@/redux/shapeSlice";
+import {
+  setBorderColor,
+  setBorderWidth,
+  setFillColor,
+} from "@/redux/shapeSlice";
 import ZoomToolbar from "./toolbar/ZoomToolbar";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
@@ -81,13 +85,8 @@ export default function Canvas() {
   const { canvasObjects, selectedObjectId, selectedTool } = useSelector(
     (state: RootState) => state.canvas,
   );
-  const { strokeWidth, strokeColor, fillColor } = useSelector(
+  const { borderWidth, borderColor, fillColor } = useSelector(
     (state: RootState) => state.shape,
-  );
-
-  // Find the selected object
-  const selectedObject = canvasObjects.find(
-    (obj) => obj.id === selectedObjectId,
   );
 
   const { textSize, textStyle, textColor, textAlignment, lineSpacing } =
@@ -268,9 +267,11 @@ export default function Canvas() {
   function updateStyle(property: keyof CanvasObjectType, value: any) {
     // Dynamically update state
     if (property === "strokeWidth") {
-      dispatch(setStrokeWidth(value)); // TODO: Ink property should separate from shape/text
+      dispatch(setBorderWidth(value)); // TODO: Ink property should separate from shape/text
     } else if (property === "stroke") {
-      dispatch(setStrokeColor(value)); // TODO: Ink property should separate from shape/text
+      dispatch(setBorderColor(value)); // TODO: Ink property should separate from shape/text
+    } else if (property === "fill") {
+      dispatch(setFillColor(value)); // TODO: Ink property should separate from shape/text
     }
 
     // Update object property
@@ -323,8 +324,8 @@ export default function Canvas() {
       id: newShapeId,
       shapeName,
       type: "shape" as const,
-      strokeWidth: strokeWidth,
-      stroke: strokeColor,
+      strokeWidth: borderWidth,
+      stroke: borderColor,
       fill: fillColor,
       x: x,
       y: y,
@@ -406,9 +407,9 @@ export default function Canvas() {
           id: uuid(),
           type: selectedTool === "eraser" ? "eraserStroke" : "ink",
           points: [pos.x, pos.y],
-          stroke: strokeColor,
+          stroke: borderColor,
           strokeWidth:
-            selectedTool === "eraser" ? Math.max(strokeWidth, 20) : strokeWidth,
+            selectedTool === "eraser" ? Math.max(borderWidth, 20) : borderWidth,
         };
         setNewObject(newLine);
         return;
@@ -557,10 +558,10 @@ export default function Canvas() {
       </Stage>
       <Toolbar
         objects={canvasObjects}
-        color={strokeColor}
+        color={borderColor}
         onSelectColor={(newColor) => updateStyle("stroke", newColor)}
         onDelete={handleDelete}
-        strokeWidth={strokeWidth}
+        strokeWidth={borderWidth}
         setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
         isDarkMode={isDarkMode}
       />
@@ -577,11 +578,8 @@ export default function Canvas() {
         onClose={() => {
           setIsSidePanelOpen(false);
         }}
-        strokeWidth={strokeWidth}
-        setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
-        color={strokeColor}
-        onSelectColor={(newColor) => updateStyle("stroke", newColor)}
-        fillColor={fillColor}
+        setBorderWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
+        onSelectBorderColor={(newColor) => updateStyle("stroke", newColor)}
         onSelectFillColor={(newColor) => updateStyle("fill", newColor)}
       />
       <ZoomToolbar

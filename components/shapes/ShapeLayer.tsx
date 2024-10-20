@@ -8,8 +8,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import {
   setFillColor,
-  setStrokeColor,
-  setStrokeWidth,
+  setBorderColor,
+  setBorderWidth,
 } from "@/redux/shapeSlice";
 
 type ShapesLayerProps = {
@@ -53,8 +53,8 @@ export default function ShapeLayer({
           setIsSidePanelOpen(true);
 
           // update settings to match selected shape's
-          dispatch(setStrokeWidth(shape.strokeWidth || 5));
-          dispatch(setStrokeColor(shape.stroke || "#2986cc"));
+          dispatch(setBorderWidth(shape.strokeWidth || 5));
+          dispatch(setBorderColor(shape.stroke || "#2986cc"));
           dispatch(setFillColor(shape.fill || "#FFFFFF"));
 
           // Update cursor style

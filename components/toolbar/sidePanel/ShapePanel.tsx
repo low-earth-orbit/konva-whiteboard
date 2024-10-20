@@ -10,36 +10,40 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { LineWeightSliderValueLabel } from "../Toolbar";
 import MyColorPicker from "@/components/MyColorPicker";
+import { RootState } from "@/redux/store";
+import { useSelector } from "react-redux";
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  strokeWidth: number;
-  setStrokeWidth: (newWidth: number) => void;
-  color: string;
-  onSelectColor: (newColor: string) => void;
-  fillColor: string;
+  setBorderWidth: (newWidth: number) => void;
+  onSelectBorderColor: (newColor: string) => void;
   onSelectFillColor: (newColor: string) => void;
 };
 
 export default function ShapePanel({
   isOpen,
   onClose,
-  strokeWidth,
-  setStrokeWidth,
-  color,
-  onSelectColor,
-  fillColor,
+  setBorderWidth,
+  onSelectBorderColor,
   onSelectFillColor,
 }: Props) {
-  const handleColorChange = (newColor: string, type: string) => {
-    if (type === "border") {
-      onSelectColor(newColor);
-    } else if (type === "fill") {
-      onSelectFillColor(newColor);
-    }
+  const handleBorderColorChange = (newColor: string) => {
+    onSelectBorderColor(newColor);
   };
 
+  const handleFillColorChange = (newColor: string) => {
+    console.log("handleFillColorChange newColor =", newColor);
+    onSelectFillColor(newColor);
+  };
+
+  const { borderWidth, borderColor, fillColor } = useSelector(
+    (state: RootState) => state.shape,
+  );
+
+  console.log("ShapePanel borderColor =", borderColor);
+
+  console.log("ShapePanel fillColor =", fillColor);
   const drawer = (
     <>
       {/* Title with Close Button */}
@@ -65,10 +69,10 @@ export default function ShapePanel({
           <Typography
             sx={{ mr: 2, width: 30, textAlign: "center", fontSize: "0.875rem" }}
           >
-            {strokeWidth}px
+            {borderWidth}px
           </Typography>
           <Slider
-            value={strokeWidth}
+            value={borderWidth}
             min={1}
             max={100}
             valueLabelDisplay="auto"
@@ -76,7 +80,7 @@ export default function ShapePanel({
               valueLabel: LineWeightSliderValueLabel,
             }}
             aria-label="Border width"
-            onChange={(_, value) => setStrokeWidth(value as number)}
+            onChange={(_, value) => setBorderWidth(value as number)}
             sx={{ flex: 1, mr: 2 }}
           />
         </Box>
@@ -87,8 +91,9 @@ export default function ShapePanel({
       <Box sx={{ p: 2 }}>
         <Typography variant="subtitle2">Color</Typography>
         <MyColorPicker
-          color={color}
-          onChange={(newColor) => handleColorChange(newColor, "border")}
+          id="shapeBorderColorPicker"
+          color={borderColor}
+          onChange={(newColor) => handleBorderColorChange(newColor)}
         />
       </Box>
 
@@ -97,8 +102,9 @@ export default function ShapePanel({
       <Box sx={{ p: 2 }}>
         <Typography variant="subtitle2">Fill</Typography>
         <MyColorPicker
+          id="shapeFillColorPicker"
           color={fillColor}
-          onChange={(newColor) => handleColorChange(newColor, "fill")}
+          onChange={(newColor) => handleFillColorChange(newColor)}
         />
       </Box>
     </>

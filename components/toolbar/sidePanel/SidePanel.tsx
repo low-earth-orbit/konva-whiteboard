@@ -7,22 +7,16 @@ import TextPanel from "./TextPanel";
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  strokeWidth: number;
-  setStrokeWidth: (newWidth: number) => void;
-  color: string;
-  onSelectColor: (newColor: string) => void;
-  fillColor: string;
+  setBorderWidth: (newWidth: number) => void;
+  onSelectBorderColor: (newColor: string) => void;
   onSelectFillColor: (newColor: string) => void;
 };
 
 export default function SidePanel({
   isOpen,
   onClose,
-  strokeWidth,
-  setStrokeWidth,
-  color,
-  onSelectColor,
-  fillColor,
+  setBorderWidth,
+  onSelectBorderColor,
   onSelectFillColor,
 }: Props) {
   const { canvasObjects, selectedObjectId } = useSelector(
@@ -42,11 +36,8 @@ export default function SidePanel({
       <ShapePanel
         isOpen={isOpen}
         onClose={onClose}
-        strokeWidth={strokeWidth}
-        setStrokeWidth={setStrokeWidth}
-        color={color}
-        onSelectColor={onSelectColor}
-        fillColor={fillColor}
+        setBorderWidth={setBorderWidth}
+        onSelectBorderColor={onSelectBorderColor}
         onSelectFillColor={onSelectFillColor}
       />
     );
