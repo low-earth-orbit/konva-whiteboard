@@ -1,21 +1,11 @@
 import * as React from "react";
-import {
-  Box,
-  Drawer,
-  Typography,
-  Divider,
-  IconButton,
-  Slider,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import { LineWeightSliderValueLabel } from "../Toolbar";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import ShapePanel from "./ShapePanel";
 import TextPanel from "./TextPanel";
 
 type Props = {
-  panelStatus: { isShapePanelVisible: boolean; isTextPanelVisible: boolean };
+  isOpen: boolean;
   onClose: () => void;
   strokeWidth: number;
   setStrokeWidth: (newWidth: number) => void;
@@ -26,7 +16,7 @@ type Props = {
 };
 
 export default function SidePanel({
-  panelStatus,
+  isOpen,
   onClose,
   strokeWidth,
   setStrokeWidth,
@@ -50,7 +40,7 @@ export default function SidePanel({
   if (isShapeSelected) {
     return (
       <ShapePanel
-        isOpen={panelStatus.isShapePanelVisible}
+        isOpen={isOpen}
         onClose={onClose}
         strokeWidth={strokeWidth}
         setStrokeWidth={setStrokeWidth}
@@ -65,7 +55,7 @@ export default function SidePanel({
   if (isTextSelected) {
     return (
       <TextPanel
-        isOpen={panelStatus.isTextPanelVisible}
+        isOpen={isOpen}
         onClose={onClose}
         selectedObjectId={selectedObjectId}
       />

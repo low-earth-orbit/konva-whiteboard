@@ -21,7 +21,7 @@ type Props = {
     newAttrs: Partial<CanvasObjectType>,
     selectedObjectId: string,
   ) => void;
-  setSidePanelVisible: (isVisible: boolean) => void;
+  setIsSidePanelOpen: (isVisible: boolean) => void;
   zoomLevel: number;
 };
 
@@ -31,7 +31,7 @@ export default function TextLayer({
   selectedObjectId,
   setSelectedObjectId,
   onChange,
-  setSidePanelVisible,
+  setIsSidePanelOpen,
   zoomLevel,
 }: Props) {
   const dispatch = useDispatch();
@@ -55,7 +55,7 @@ export default function TextLayer({
               setSelectedObjectId(text.id);
 
               // Open side panel
-              setSidePanelVisible(true);
+              setIsSidePanelOpen(true);
 
               // update settings to match selected text's
               dispatch(setTextSize(text.fontSize || 28));

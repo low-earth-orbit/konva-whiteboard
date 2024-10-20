@@ -26,8 +26,6 @@ import {
   TEXT_DEFAULT_HEIGHT,
   TEXT_DEFAULT_WIDTH,
 } from "./text/textUtils";
-import ShapePanel from "./toolbar/sidePanel/ShapePanel";
-import TextPanel from "./toolbar/sidePanel/TextPanel";
 import { setStrokeColor, setStrokeWidth } from "@/redux/shapeSlice";
 import ZoomToolbar from "./toolbar/ZoomToolbar";
 import Konva from "konva";
@@ -100,8 +98,7 @@ export default function Canvas() {
 
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false); // confirmation modal for delete button - clear canvas
 
-  const [isShapePanelVisible, setShapePanelVisible] = useState(false);
-  const [isTextPanelVisible, setTextPanelVisible] = useState(false);
+  const [isSidePanelOpen, setIsSidePanelOpen] = useState(true);
 
   const [zoomLevel, setZoomLevel] = useState(1); // Default zoom level = 100%
   const stageRef = useRef<Konva.Stage | null>(null);
@@ -295,8 +292,7 @@ export default function Canvas() {
   }
 
   const addTextField = (x: number, y: number) => {
-    setShapePanelVisible(false);
-    setTextPanelVisible(true);
+    setIsSidePanelOpen(true);
 
     const newObjectId = uuid();
     let newObject: CanvasObjectType = {
@@ -321,9 +317,7 @@ export default function Canvas() {
   };
 
   const addShape = (shapeName: ShapeName, x: number, y: number) => {
-    setTextPanelVisible(false);
-    setShapePanelVisible(true);
-
+    setIsSidePanelOpen(true);
     const newShapeId = uuid();
     const baseShape = {
       id: newShapeId,
@@ -368,7 +362,6 @@ export default function Canvas() {
 
     setNewObject(newShape);
     dispatch(selectCanvasObject(newShapeId));
-    setShapePanelVisible(true);
   };
 
   const handleMouseDown = (e: any) => {
@@ -429,20 +422,6 @@ export default function Canvas() {
       e.target.attrs.name.includes("eraserStroke")
     ) {
       dispatch(selectCanvasObject(""));
-    }
-
-    // side panel
-    if (
-      e.target === e.target.getStage() ||
-      e.target.attrs.name?.includes("ink") ||
-      e.target.attrs.name?.includes("eraserStroke")
-    ) {
-      setShapePanelVisible(false);
-      setTextPanelVisible(false);
-    } else if (e.target.attrs.name?.includes("text")) {
-      setShapePanelVisible(false);
-    } else if (e.target.attrs.name?.includes("shape")) {
-      setTextPanelVisible(false);
     }
   };
 
@@ -550,7 +529,7 @@ export default function Canvas() {
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
         onTouchStart={handleMouseDown}
-        draggable={selectedTool == "select"}
+        draggable={selectedTool === "select" && !selectedObjectId}
         onWheel={(e) => handleWheelZoom(e)}
       >
         <InkLayer objects={canvasObjects} newObject={newObject} />
@@ -562,7 +541,7 @@ export default function Canvas() {
           setSelectedObjectId={(newObjectId) =>
             dispatch(selectCanvasObject(newObjectId))
           }
-          setSidePanelVisible={setShapePanelVisible}
+          setIsSidePanelOpen={setIsSidePanelOpen}
         />
         <TextLayer
           objects={canvasObjects}
@@ -572,7 +551,7 @@ export default function Canvas() {
             dispatch(selectCanvasObject(newObjectId))
           }
           onChange={updateSelectedObject}
-          setSidePanelVisible={setTextPanelVisible}
+          setIsSidePanelOpen={setIsSidePanelOpen}
           zoomLevel={zoomLevel}
         />
       </Stage>
@@ -594,13 +573,9 @@ export default function Canvas() {
         isDarkMode={isDarkMode}
       />
       <SidePanel
-        panelStatus={{
-          isShapePanelVisible: isShapePanelVisible,
-          isTextPanelVisible: isTextPanelVisible,
-        }}
+        isOpen={isSidePanelOpen}
         onClose={() => {
-          if (selectedObject?.type === "shape") setShapePanelVisible(false);
-          if (selectedObject?.type === "text") setTextPanelVisible(false);
+          setIsSidePanelOpen(false);
         }}
         strokeWidth={strokeWidth}
         setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
