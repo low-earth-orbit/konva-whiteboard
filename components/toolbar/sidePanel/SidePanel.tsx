@@ -7,18 +7,9 @@ import TextPanel from "./TextPanel";
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  setBorderWidth: (newWidth: number) => void;
-  onSelectBorderColor: (newColor: string) => void;
-  onSelectFillColor: (newColor: string) => void;
 };
 
-export default function SidePanel({
-  isOpen,
-  onClose,
-  setBorderWidth,
-  onSelectBorderColor,
-  onSelectFillColor,
-}: Props) {
+export default function SidePanel({ isOpen, onClose }: Props) {
   const { canvasObjects, selectedObjectId } = useSelector(
     (state: RootState) => state.canvas,
   );
@@ -36,9 +27,7 @@ export default function SidePanel({
       <ShapePanel
         isOpen={isOpen}
         onClose={onClose}
-        setBorderWidth={setBorderWidth}
-        onSelectBorderColor={onSelectBorderColor}
-        onSelectFillColor={onSelectFillColor}
+        selectedObjectId={selectedObjectId}
       />
     );
   }

@@ -11,39 +11,53 @@ import CloseIcon from "@mui/icons-material/Close";
 import { LineWeightSliderValueLabel } from "../Toolbar";
 import MyColorPicker from "@/components/MyColorPicker";
 import { RootState } from "@/redux/store";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { CanvasObjectType } from "@/components/Canvas";
+import {
+  setBorderColor,
+  setBorderWidth,
+  setFillColor,
+} from "@/redux/shapeSlice";
+import { updateCanvasObject } from "@/redux/canvasSlice";
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  setBorderWidth: (newWidth: number) => void;
-  onSelectBorderColor: (newColor: string) => void;
-  onSelectFillColor: (newColor: string) => void;
+  selectedObjectId: string;
 };
 
 export default function ShapePanel({
   isOpen,
   onClose,
-  setBorderWidth,
-  onSelectBorderColor,
-  onSelectFillColor,
+  selectedObjectId,
 }: Props) {
-  const handleBorderColorChange = (newColor: string) => {
-    onSelectBorderColor(newColor);
-  };
+  const dispatch = useDispatch();
 
-  const handleFillColorChange = (newColor: string) => {
-    console.log("handleFillColorChange newColor =", newColor);
-    onSelectFillColor(newColor);
-  };
+  function updateShapeStyle(property: keyof CanvasObjectType, value: any) {
+    // Dynamically update state
+    if (property === "strokeWidth") {
+      dispatch(setBorderWidth(value));
+    } else if (property === "stroke") {
+      dispatch(setBorderColor(value));
+    } else if (property === "fill") {
+      dispatch(setFillColor(value));
+    }
+
+    // Update object property
+    if (selectedObjectId !== "") {
+      dispatch(
+        updateCanvasObject({
+          id: selectedObjectId,
+          updates: { [property]: value },
+        }),
+      );
+    }
+  }
 
   const { borderWidth, borderColor, fillColor } = useSelector(
     (state: RootState) => state.shape,
   );
 
-  console.log("ShapePanel borderColor =", borderColor);
-
-  console.log("ShapePanel fillColor =", fillColor);
   const drawer = (
     <>
       {/* Title with Close Button */}
@@ -80,7 +94,9 @@ export default function ShapePanel({
               valueLabel: LineWeightSliderValueLabel,
             }}
             aria-label="Border width"
-            onChange={(_, value) => setBorderWidth(value as number)}
+            onChange={(_, value) =>
+              updateShapeStyle("strokeWidth", value as number)
+            }
             sx={{ flex: 1, mr: 2 }}
           />
         </Box>
@@ -93,7 +109,7 @@ export default function ShapePanel({
         <MyColorPicker
           id="shapeBorderColorPicker"
           color={borderColor}
-          onChange={(newColor) => handleBorderColorChange(newColor)}
+          onChange={(newColor) => updateShapeStyle("stroke", newColor)}
         />
       </Box>
 
@@ -104,7 +120,7 @@ export default function ShapePanel({
         <MyColorPicker
           id="shapeFillColorPicker"
           color={fillColor}
-          onChange={(newColor) => handleFillColorChange(newColor)}
+          onChange={(newColor) => updateShapeStyle("fill", newColor)}
         />
       </Box>
     </>

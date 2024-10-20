@@ -264,27 +264,6 @@ export default function Canvas() {
     return null;
   }
 
-  function updateStyle(property: keyof CanvasObjectType, value: any) {
-    // Dynamically update state
-    if (property === "strokeWidth") {
-      dispatch(setBorderWidth(value)); // TODO: Ink property should separate from shape/text
-    } else if (property === "stroke") {
-      dispatch(setBorderColor(value)); // TODO: Ink property should separate from shape/text
-    } else if (property === "fill") {
-      dispatch(setFillColor(value)); // TODO: Ink property should separate from shape/text
-    }
-
-    // Update object property
-    if (selectedObjectId !== "") {
-      dispatch(
-        updateCanvasObject({
-          id: selectedObjectId,
-          updates: { [property]: value },
-        }),
-      );
-    }
-  }
-
   function updateSelectedObject(
     newAttrs: Partial<CanvasObjectType>,
     selectedObjectId: string,
@@ -558,11 +537,7 @@ export default function Canvas() {
       </Stage>
       <Toolbar
         objects={canvasObjects}
-        color={borderColor}
-        onSelectColor={(newColor) => updateStyle("stroke", newColor)}
         onDelete={handleDelete}
-        strokeWidth={borderWidth}
-        setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
         isDarkMode={isDarkMode}
       />
       <ConfirmationDialog
@@ -578,9 +553,6 @@ export default function Canvas() {
         onClose={() => {
           setIsSidePanelOpen(false);
         }}
-        setBorderWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
-        onSelectBorderColor={(newColor) => updateStyle("stroke", newColor)}
-        onSelectFillColor={(newColor) => updateStyle("fill", newColor)}
       />
       <ZoomToolbar
         zoomLevel={zoomLevel}

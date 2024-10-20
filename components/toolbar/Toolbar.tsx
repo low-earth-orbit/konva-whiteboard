@@ -50,22 +50,10 @@ export function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
 type ToolbarProps = {
   objects: CanvasObjectType[];
   onDelete: () => void;
-  color: string;
-  onSelectColor: (newColor: string) => void;
-  strokeWidth: number;
-  setStrokeWidth: (newWidth: number) => void;
   isDarkMode: boolean;
 };
 
-function Toolbar({
-  objects,
-  onDelete,
-  color,
-  onSelectColor,
-  strokeWidth,
-  setStrokeWidth,
-  isDarkMode,
-}: ToolbarProps) {
+function Toolbar({ objects, onDelete, isDarkMode }: ToolbarProps) {
   const dispatch = useDispatch();
 
   const { undoStack, redoStack } = useSelector(
@@ -119,9 +107,9 @@ function Toolbar({
     setLineWeightAnchorEl(null);
   };
 
-  const handleChangeStrokeWidth = (value: number) => {
-    setStrokeWidth(value);
-  };
+  // const handleChangeStrokeWidth = (value: number) => {
+  //   setStrokeWidth(value);
+  // };
 
   return (
     <div
@@ -276,7 +264,7 @@ function Toolbar({
       </Popover> */}
 
       {/* lineWeightPopover */}
-      <Popover
+      {/* <Popover
         id="lineWeightPopover"
         open={isLineWeightSliderAnchorElOpen}
         anchorEl={lineWeightAnchorEl}
@@ -303,7 +291,7 @@ function Toolbar({
             onChange={(_, value) => handleChangeStrokeWidth(value as number)}
           />
         </Box>
-      </Popover>
+      </Popover> */}
 
       {/* shapesPopover */}
       <Popover
