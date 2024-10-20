@@ -26,11 +26,6 @@ import {
   TEXT_DEFAULT_HEIGHT,
   TEXT_DEFAULT_WIDTH,
 } from "./text/textUtils";
-import {
-  setBorderColor,
-  setBorderWidth,
-  setFillColor,
-} from "@/redux/shapeSlice";
 import ZoomToolbar from "./toolbar/ZoomToolbar";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
@@ -88,9 +83,10 @@ export default function Canvas() {
   const { borderWidth, borderColor, fillColor } = useSelector(
     (state: RootState) => state.shape,
   );
-
   const { textSize, textStyle, textColor, textAlignment, lineSpacing } =
     useSelector((state: RootState) => state.text);
+  const { inkColor, inkWidth } = useSelector((state: RootState) => state.ink);
+  const { eraserSize } = useSelector((state: RootState) => state.eraser);
 
   const [isInProgress, setIsInProgress] = useState(false);
   const [newObject, setNewObject] = useState<CanvasObjectType | null>(null); // new text/shape object to be added to the canvas
@@ -386,9 +382,8 @@ export default function Canvas() {
           id: uuid(),
           type: selectedTool === "eraser" ? "eraserStroke" : "ink",
           points: [pos.x, pos.y],
-          stroke: borderColor,
-          strokeWidth:
-            selectedTool === "eraser" ? Math.max(borderWidth, 20) : borderWidth,
+          stroke: selectedTool === "eraser" ? undefined : inkColor,
+          strokeWidth: selectedTool === "eraser" ? eraserSize : inkWidth,
         };
         setNewObject(newLine);
         return;
