@@ -29,17 +29,17 @@ import { updateCanvasObject } from "@/redux/canvasSlice";
 import {
   getFontStyleStringFromTextStyleArray,
   getTextDecorationStringFromTextStyleArray,
-} from "../text/textUtils";
+} from "../../text/textUtils";
 
 type Props = {
-  onClose: () => void;
   isOpen: boolean;
+  onClose: () => void;
   selectedObjectId: string;
 };
 
 export default function TextPanel({
-  onClose,
   isOpen,
+  onClose,
   selectedObjectId,
 }: Props) {
   const dispatch = useDispatch();
@@ -223,8 +223,8 @@ export default function TextPanel({
 
   return (
     <Drawer
-      anchor="left"
       open={isOpen}
+      anchor="left"
       onClose={onClose}
       variant="persistent"
       PaperProps={{

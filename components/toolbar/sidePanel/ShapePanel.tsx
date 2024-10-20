@@ -8,11 +8,11 @@ import {
   Slider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { LineWeightSliderValueLabel } from "./Toolbar";
+import { LineWeightSliderValueLabel } from "../Toolbar";
 
 type Props = {
-  onClose: () => void;
   isOpen: boolean;
+  onClose: () => void;
   strokeWidth: number;
   setStrokeWidth: (newWidth: number) => void;
   color: string;
@@ -22,8 +22,8 @@ type Props = {
 };
 
 export default function ShapePanel({
-  onClose,
   isOpen,
+  onClose,
   strokeWidth,
   setStrokeWidth,
   color,
@@ -110,8 +110,8 @@ export default function ShapePanel({
 
   return (
     <Drawer
-      anchor="left"
       open={isOpen}
+      anchor="left"
       onClose={onClose}
       variant="persistent"
       PaperProps={{

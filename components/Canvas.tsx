@@ -26,12 +26,13 @@ import {
   TEXT_DEFAULT_HEIGHT,
   TEXT_DEFAULT_WIDTH,
 } from "./text/textUtils";
-import ShapePanel from "./toolbar/ShapePanel";
-import TextPanel from "./toolbar/TextPanel";
+import ShapePanel from "./toolbar/sidePanel/ShapePanel";
+import TextPanel from "./toolbar/sidePanel/TextPanel";
 import { setStrokeColor, setStrokeWidth } from "@/redux/shapeSlice";
 import ZoomToolbar from "./toolbar/ZoomToolbar";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
+import SidePanel from "./toolbar/sidePanel/SidePanel";
 
 export interface StageSizeType {
   width: number;
@@ -84,6 +85,11 @@ export default function Canvas() {
   );
   const { strokeWidth, strokeColor, fillColor } = useSelector(
     (state: RootState) => state.shape,
+  );
+
+  // Find the selected object
+  const selectedObject = canvasObjects.find(
+    (obj) => obj.id === selectedObjectId,
   );
 
   const { textSize, textStyle, textColor, textAlignment, lineSpacing } =
@@ -587,20 +593,21 @@ export default function Canvas() {
         description="Are you sure you want to clear the canvas? This action cannot be undone."
         isDarkMode={isDarkMode}
       />
-      <ShapePanel
-        isOpen={isShapePanelVisible}
-        onClose={() => setShapePanelVisible(false)}
+      <SidePanel
+        panelStatus={{
+          isShapePanelVisible: isShapePanelVisible,
+          isTextPanelVisible: isTextPanelVisible,
+        }}
+        onClose={() => {
+          if (selectedObject?.type === "shape") setShapePanelVisible(false);
+          if (selectedObject?.type === "text") setTextPanelVisible(false);
+        }}
         strokeWidth={strokeWidth}
         setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
         color={strokeColor}
         onSelectColor={(newColor) => updateStyle("stroke", newColor)}
         fillColor={fillColor}
         onSelectFillColor={(newColor) => updateStyle("fill", newColor)}
-      />
-      <TextPanel
-        isOpen={isTextPanelVisible}
-        onClose={() => setTextPanelVisible(false)}
-        selectedObjectId={selectedObjectId}
       />
       <ZoomToolbar
         zoomLevel={zoomLevel}
