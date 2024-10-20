@@ -30,6 +30,7 @@ import {
   getFontStyleStringFromTextStyleArray,
   getTextDecorationStringFromTextStyleArray,
 } from "../../text/textUtils";
+import MyColorPicker from "@/components/MyColorPicker";
 
 type Props = {
   isOpen: boolean;
@@ -73,17 +74,14 @@ export default function TextPanel({
     );
   };
 
-  const handleColorChange = (event: any) => {
-    const color = event.target.value;
-    if (color) {
-      dispatch(setTextColor(color));
-      dispatch(
-        updateCanvasObject({
-          id: selectedObjectId,
-          updates: { fill: color },
-        }),
-      );
-    }
+  const handleColorChange = (newColor: string) => {
+    dispatch(setTextColor(newColor));
+    dispatch(
+      updateCanvasObject({
+        id: selectedObjectId,
+        updates: { fill: newColor },
+      }),
+    );
   };
 
   const handleTextAlignChange = (
@@ -176,11 +174,10 @@ export default function TextPanel({
       <Divider />
       <Box sx={{ p: 2 }}>
         <Typography variant="subtitle2">Color</Typography>
-        <input
-          type="color"
-          value={textColor}
-          onChange={(e) => handleColorChange(e)}
-        ></input>
+        <MyColorPicker
+          color={textColor}
+          onChange={(newColor) => handleColorChange(newColor)}
+        />
       </Box>
 
       {/* Text Alignment Section */}

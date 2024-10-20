@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { LineWeightSliderValueLabel } from "../Toolbar";
+import MyColorPicker from "@/components/MyColorPicker";
 
 type Props = {
   isOpen: boolean;
@@ -31,14 +32,11 @@ export default function ShapePanel({
   fillColor,
   onSelectFillColor,
 }: Props) {
-  const handleColorChange = (event: any, type: string) => {
-    const color = event.target.value;
-    if (color) {
-      if (type === "border") {
-        onSelectColor(color);
-      } else if (type === "fill") {
-        onSelectFillColor(color);
-      }
+  const handleColorChange = (newColor: string, type: string) => {
+    if (type === "border") {
+      onSelectColor(newColor);
+    } else if (type === "fill") {
+      onSelectFillColor(newColor);
     }
   };
 
@@ -88,22 +86,20 @@ export default function ShapePanel({
       <Divider />
       <Box sx={{ p: 2 }}>
         <Typography variant="subtitle2">Color</Typography>
-        <input
-          type="color"
-          value={color}
-          onChange={(e) => handleColorChange(e, "border")}
-        ></input>
+        <MyColorPicker
+          color={color}
+          onChange={(newColor) => handleColorChange(newColor, "border")}
+        />
       </Box>
 
       {/* Fill Color Section */}
       <Divider />
       <Box sx={{ p: 2 }}>
         <Typography variant="subtitle2">Fill</Typography>
-        <input
-          type="color"
-          value={fillColor}
-          onChange={(e) => handleColorChange(e, "fill")}
-        ></input>
+        <MyColorPicker
+          color={fillColor}
+          onChange={(newColor) => handleColorChange(newColor, "fill")}
+        />
       </Box>
     </>
   );
