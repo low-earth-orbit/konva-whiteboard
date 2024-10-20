@@ -16,6 +16,8 @@ export default function Home() {
         ariaLabel="View source code on GitHub"
         bannerColor="#333"
         href="https://github.com/low-earth-orbit/konva-whiteboard"
+        target="_blank"
+        rel="noopener noreferrer"
       />
     </>
   );
