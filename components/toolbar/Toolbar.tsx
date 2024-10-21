@@ -159,9 +159,10 @@ function Toolbar({ objects, onDelete, isDarkMode }: ToolbarProps) {
         {/* shapes */}
         <Tooltip title="Add shape">
           <IconButton
+            aria-owns={isShapesAnchorElOpen ? "shapesPopover" : undefined}
+            aria-haspopup="true"
             aria-label="Add shape"
             onClick={handleOpenShapesPopover}
-            onMouseOver={handleOpenShapesPopover}
           >
             <ShapesIcon />
           </IconButton>
@@ -308,60 +309,58 @@ function Toolbar({ objects, onDelete, isDarkMode }: ToolbarProps) {
           horizontal: "center",
         }}
       >
-        <div onMouseLeave={handleCloseShapesPopover}>
-          {/* shapes */}
-          <Tooltip title="Add rectangle">
-            <IconButton
-              aria-label="Add rectangle"
-              onClick={() => {
-                handleCloseShapesPopover();
-                dispatch(updateSelectedTool("addRectangle"));
-                dispatch(selectCanvasObject("")); // clear selected object, if there is
-              }}
-            >
-              <CropSquareRounded />
-            </IconButton>
-          </Tooltip>
+        {/* shapes */}
+        <Tooltip title="Add rectangle">
+          <IconButton
+            aria-label="Add rectangle"
+            onClick={() => {
+              handleCloseShapesPopover();
+              dispatch(updateSelectedTool("addRectangle"));
+              dispatch(selectCanvasObject("")); // clear selected object, if there is
+            }}
+          >
+            <CropSquareRounded />
+          </IconButton>
+        </Tooltip>
 
-          <Tooltip title="Add oval">
-            <IconButton
-              aria-label="Add oval"
-              onClick={() => {
-                handleCloseShapesPopover();
-                dispatch(updateSelectedTool("addOval"));
-                dispatch(selectCanvasObject("")); // clear selected object, if there is
-              }}
-            >
-              <CircleOutlined />
-            </IconButton>
-          </Tooltip>
+        <Tooltip title="Add oval">
+          <IconButton
+            aria-label="Add oval"
+            onClick={() => {
+              handleCloseShapesPopover();
+              dispatch(updateSelectedTool("addOval"));
+              dispatch(selectCanvasObject("")); // clear selected object, if there is
+            }}
+          >
+            <CircleOutlined />
+          </IconButton>
+        </Tooltip>
 
-          <Tooltip title="Add triangle">
-            <IconButton
-              aria-label="Add triangle"
-              onClick={() => {
-                handleCloseShapesPopover();
-                dispatch(updateSelectedTool("addTriangle"));
-                dispatch(selectCanvasObject("")); // clear selected object, if there is
-              }}
-            >
-              <ChangeHistoryRounded />
-            </IconButton>
-          </Tooltip>
+        <Tooltip title="Add triangle">
+          <IconButton
+            aria-label="Add triangle"
+            onClick={() => {
+              handleCloseShapesPopover();
+              dispatch(updateSelectedTool("addTriangle"));
+              dispatch(selectCanvasObject("")); // clear selected object, if there is
+            }}
+          >
+            <ChangeHistoryRounded />
+          </IconButton>
+        </Tooltip>
 
-          <Tooltip title="Add star">
-            <IconButton
-              aria-label="Add star"
-              onClick={() => {
-                handleCloseShapesPopover();
-                dispatch(updateSelectedTool("addStar"));
-                dispatch(selectCanvasObject("")); // clear selected object, if there is
-              }}
-            >
-              <StarBorderPurple500Rounded />
-            </IconButton>
-          </Tooltip>
-        </div>
+        <Tooltip title="Add star">
+          <IconButton
+            aria-label="Add star"
+            onClick={() => {
+              handleCloseShapesPopover();
+              dispatch(updateSelectedTool("addStar"));
+              dispatch(selectCanvasObject("")); // clear selected object, if there is
+            }}
+          >
+            <StarBorderPurple500Rounded />
+          </IconButton>
+        </Tooltip>
       </Popover>
     </div>
   );
