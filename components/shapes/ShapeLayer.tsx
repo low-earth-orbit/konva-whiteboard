@@ -8,9 +8,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import {
   setFillColor,
-  setStrokeColor,
-  setStrokeWidth,
+  setBorderColor,
+  setBorderWidth,
 } from "@/redux/shapeSlice";
+import { setIsSidePanelOpen } from "@/redux/settingsSlice";
 
 type ShapesLayerProps = {
   objects: CanvasObjectType[];
@@ -21,7 +22,6 @@ type ShapesLayerProps = {
   ) => void;
   selectedObjectId: string;
   setSelectedObjectId: (id: string) => void;
-  setSidePanelVisible: (isVisible: boolean) => void;
 };
 
 export default function ShapeLayer({
@@ -30,11 +30,10 @@ export default function ShapeLayer({
   onChange,
   selectedObjectId,
   setSelectedObjectId,
-  setSidePanelVisible,
 }: ShapesLayerProps) {
   const dispatch = useDispatch();
 
-  const { selectedTool } = useSelector((state: RootState) => state.canvas);
+  const { selectedTool } = useSelector((state: RootState) => state.settings);
 
   const shapes = [
     ...objects.filter((obj: CanvasObjectType) => obj.type === "shape"),
@@ -50,11 +49,11 @@ export default function ShapeLayer({
           setSelectedObjectId(shape.id);
 
           // Show the side panel
-          setSidePanelVisible(true);
+          dispatch(setIsSidePanelOpen(true));
 
           // update settings to match selected shape's
-          dispatch(setStrokeWidth(shape.strokeWidth || 5));
-          dispatch(setStrokeColor(shape.stroke || "#2986cc"));
+          dispatch(setBorderWidth(shape.strokeWidth || 5));
+          dispatch(setBorderColor(shape.stroke || "#2986cc"));
           dispatch(setFillColor(shape.fill || "#FFFFFF"));
 
           // Update cursor style

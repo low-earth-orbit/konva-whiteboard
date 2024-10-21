@@ -11,6 +11,7 @@ import {
   setTextStyle,
 } from "@/redux/textSlice";
 import { convertTextPropertiesToTextStyleArray } from "./textUtils";
+import { setIsSidePanelOpen } from "@/redux/settingsSlice";
 
 type Props = {
   objects: CanvasObjectType[];
@@ -21,7 +22,6 @@ type Props = {
     newAttrs: Partial<CanvasObjectType>,
     selectedObjectId: string,
   ) => void;
-  setSidePanelVisible: (isVisible: boolean) => void;
   zoomLevel: number;
 };
 
@@ -31,12 +31,11 @@ export default function TextLayer({
   selectedObjectId,
   setSelectedObjectId,
   onChange,
-  setSidePanelVisible,
   zoomLevel,
 }: Props) {
   const dispatch = useDispatch();
 
-  const { selectedTool } = useSelector((state: RootState) => state.canvas);
+  const { selectedTool } = useSelector((state: RootState) => state.settings);
 
   const texts = [
     ...objects.filter((obj: CanvasObjectType) => obj.type === "text"),
@@ -55,7 +54,7 @@ export default function TextLayer({
               setSelectedObjectId(text.id);
 
               // Open side panel
-              setSidePanelVisible(true);
+              dispatch(setIsSidePanelOpen(true));
 
               // update settings to match selected text's
               dispatch(setTextSize(text.fontSize || 28));

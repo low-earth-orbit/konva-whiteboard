@@ -3,19 +3,13 @@ import {
   Box,
   Drawer,
   Typography,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
   Divider,
   IconButton,
   TextField,
-  Slider,
   ToggleButtonGroup,
   ToggleButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { HexColorPicker } from "react-colorful";
 import FormatBoldIcon from "@mui/icons-material/FormatBold";
 import FormatItalicIcon from "@mui/icons-material/FormatItalic";
 import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
@@ -35,25 +29,20 @@ import { updateCanvasObject } from "@/redux/canvasSlice";
 import {
   getFontStyleStringFromTextStyleArray,
   getTextDecorationStringFromTextStyleArray,
-} from "../text/textUtils";
+} from "../../text/textUtils";
+import MyColorPicker from "@/components/MyColorPicker";
 
 type Props = {
-  onClose: () => void;
   isOpen: boolean;
+  onClose: () => void;
   selectedObjectId: string;
 };
 
 export default function TextPanel({
-  onClose,
   isOpen,
+  onClose,
   selectedObjectId,
 }: Props) {
-  const [colorPickerOpen, setColorPickerOpen] = React.useState(false);
-
-  const handleColorPickerOpen = () => {
-    setColorPickerOpen(true);
-  };
-
   const dispatch = useDispatch();
   const { textSize, textStyle, textColor, textAlignment, lineSpacing } =
     useSelector((state: RootState) => state.text);
@@ -85,12 +74,12 @@ export default function TextPanel({
     );
   };
 
-  const handleColorChange = (color: string) => {
-    dispatch(setTextColor(color));
+  const handleColorChange = (newColor: string) => {
+    dispatch(setTextColor(newColor));
     dispatch(
       updateCanvasObject({
         id: selectedObjectId,
-        updates: { fill: color },
+        updates: { fill: newColor },
       }),
     );
   };
@@ -185,25 +174,11 @@ export default function TextPanel({
       <Divider />
       <Box sx={{ p: 2 }}>
         <Typography variant="subtitle2">Color</Typography>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-          <Box
-            sx={{
-              width: 24,
-              height: 24,
-              bgcolor: textColor,
-              border: "1px solid #555",
-              borderRadius: "50%",
-              mr: 2,
-            }}
-          />
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={handleColorPickerOpen}
-          >
-            Change text color
-          </Button>
-        </Box>
+        <MyColorPicker
+          id="textColorPicker"
+          color={textColor}
+          onChange={(newColor) => handleColorChange(newColor)}
+        />
       </Box>
 
       {/* Text Alignment Section */}
@@ -241,21 +216,13 @@ export default function TextPanel({
           sx={{ width: 80, mt: 1 }}
         />
       </Box>
-
-      {/* Color Picker Dialog */}
-      <Dialog open={colorPickerOpen} onClose={() => setColorPickerOpen(false)}>
-        <DialogTitle>Text Color</DialogTitle>
-        <DialogContent sx={{ pt: 3 }}>
-          <HexColorPicker color={textColor} onChange={handleColorChange} />
-        </DialogContent>
-      </Dialog>
     </>
   );
 
   return (
     <Drawer
-      anchor="right"
       open={isOpen}
+      anchor="left"
       onClose={onClose}
       variant="persistent"
       PaperProps={{

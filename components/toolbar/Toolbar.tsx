@@ -9,14 +9,11 @@ import {
   Tooltip,
 } from "@mui/material";
 
-import { HexColorPicker } from "react-colorful";
 import EraserIcon from "../icons/EraserIcon";
 import DrawIcon from "../icons/DrawIcon";
 import DeleteIcon from "../icons/DeleteIcon";
 import ShapesIcon from "../icons/ShapesIcon";
 import {
-  Palette,
-  LineWeightRounded,
   CropSquareRounded,
   CircleOutlined,
   ChangeHistoryRounded,
@@ -30,15 +27,13 @@ import { CanvasObjectType } from "../Canvas";
 
 import { RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  redo,
-  selectCanvasObject,
-  undo,
-  updateSelectedTool,
-} from "@/redux/canvasSlice";
+import { redo, selectCanvasObject, undo } from "@/redux/canvasSlice";
+import { updateSelectedTool } from "@/redux/settingsSlice";
 import SelectIcon from "../icons/SelectIcon";
+import { setIsSidePanelOpen } from "@/redux/settingsSlice";
+import { setEraserSize } from "@/redux/eraserSlice";
 
-export function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
+export function NumberSliderValueLabel(props: SliderValueLabelProps) {
   const { children, value } = props;
 
   return (
@@ -51,23 +46,12 @@ export function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
 type ToolbarProps = {
   objects: CanvasObjectType[];
   onDelete: () => void;
-  color: string;
-  onSelectColor: (newColor: string) => void;
-  strokeWidth: number;
-  setStrokeWidth: (newWidth: number) => void;
   isDarkMode: boolean;
 };
 
-function Toolbar({
-  objects,
-  onDelete,
-  color,
-  onSelectColor,
-  strokeWidth,
-  setStrokeWidth,
-  isDarkMode,
-}: ToolbarProps) {
+function Toolbar({ objects, onDelete, isDarkMode }: ToolbarProps) {
   const dispatch = useDispatch();
+  const { eraserSize } = useSelector((state: RootState) => state.eraser);
 
   const { undoStack, redoStack } = useSelector(
     (state: RootState) => state.canvas,
@@ -75,56 +59,33 @@ function Toolbar({
 
   const toolbarBgColor = isDarkMode ? "bg-gray-500" : "bg-white";
 
-  // color picker
-  const [colorPickerAnchorEl, setColorPickerAnchorEl] =
-    useState<HTMLButtonElement | null>(null);
-
-  const isColorPickerAnchorElOpen = Boolean(colorPickerAnchorEl);
-
-  const handleClickColorPickerButton = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    setColorPickerAnchorEl(event.currentTarget);
-  };
-
-  const handleCloseColorPicker = () => {
-    setColorPickerAnchorEl(null);
-  };
-
-  // shapes
+  // shapes popover
   const [shapesAnchorEl, setShapesAnchorEl] =
     useState<HTMLButtonElement | null>(null);
-
   const isShapesAnchorElOpen = Boolean(shapesAnchorEl);
-
-  const handleClickShapesButton = (
+  const handleOpenShapesPopover = (
     event: React.MouseEvent<HTMLButtonElement>,
   ) => {
     setShapesAnchorEl(event.currentTarget);
   };
-
   const handleCloseShapesPopover = () => {
     setShapesAnchorEl(null);
   };
 
   // stroke width
-  const [lineWeightAnchorEl, setLineWeightAnchorEl] =
+  const [eraserSizeAnchorEl, setEraserSizeAnchorEl] =
     useState<HTMLButtonElement | null>(null);
 
-  const isLineWeightSliderAnchorElOpen = Boolean(lineWeightAnchorEl);
+  const isEraserSizeAnchorElOpen = Boolean(eraserSizeAnchorEl);
 
-  const handleClickLineWeightButton = (
+  const handleClickEraserSizeButton = (
     event: React.MouseEvent<HTMLButtonElement>,
   ) => {
-    setLineWeightAnchorEl(event.currentTarget);
+    setEraserSizeAnchorEl(event.currentTarget);
   };
 
-  const handleCloseLineWeightSlider = () => {
-    setLineWeightAnchorEl(null);
-  };
-
-  const handleChangeStrokeWidth = (value: number) => {
-    setStrokeWidth(value);
+  const handleCloseEraserSizeSlider = () => {
+    setEraserSizeAnchorEl(null);
   };
 
   return (
@@ -151,6 +112,7 @@ function Toolbar({
           <IconButton
             aria-label="Draw"
             onClick={() => {
+              dispatch(setIsSidePanelOpen(true)); // Open side panel for configurations
               dispatch(updateSelectedTool("pen"));
               dispatch(selectCanvasObject("")); // clear selected object, if there is
             }}
@@ -174,28 +136,13 @@ function Toolbar({
 
         {/* shapes */}
         <Tooltip title="Add shape">
-          <IconButton aria-label="Add shape" onClick={handleClickShapesButton}>
+          <IconButton
+            aria-owns={isShapesAnchorElOpen ? "shapesPopover" : undefined}
+            aria-haspopup="true"
+            aria-label="Add shape"
+            onClick={handleOpenShapesPopover}
+          >
             <ShapesIcon />
-          </IconButton>
-        </Tooltip>
-
-        {/* line weight */}
-        <Tooltip title="Stroke width">
-          <IconButton
-            aria-label="Change stroke width"
-            onClick={handleClickLineWeightButton}
-          >
-            <LineWeightRounded />
-          </IconButton>
-        </Tooltip>
-
-        {/* color picker */}
-        <Tooltip title="Color">
-          <IconButton
-            aria-label="open color palette"
-            onClick={handleClickColorPickerButton}
-          >
-            <Palette />
           </IconButton>
         </Tooltip>
 
@@ -203,9 +150,10 @@ function Toolbar({
         <Tooltip title="Eraser">
           <IconButton
             aria-label="erase"
-            onClick={() => {
+            onClick={(e) => {
               dispatch(updateSelectedTool("eraser"));
               dispatch(selectCanvasObject("")); // clear selected object, if there is
+              handleClickEraserSizeButton(e);
             }}
           >
             <EraserIcon />
@@ -253,34 +201,11 @@ function Toolbar({
         </Tooltip>
       </ButtonGroup>
 
-      {/* colorPickerPopover */}
       <Popover
-        id="colorPickerPopover"
-        open={isColorPickerAnchorElOpen}
-        anchorEl={colorPickerAnchorEl}
-        onClose={handleCloseColorPicker}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-      >
-        <HexColorPicker
-          className="p-2"
-          color={color}
-          onChange={onSelectColor}
-        />
-      </Popover>
-
-      {/* lineWeightPopover */}
-      <Popover
-        id="lineWeightPopover"
-        open={isLineWeightSliderAnchorElOpen}
-        anchorEl={lineWeightAnchorEl}
-        onClose={handleCloseLineWeightSlider}
+        id="eraserSizePopover"
+        open={isEraserSizeAnchorElOpen}
+        anchorEl={eraserSizeAnchorEl}
+        onClose={handleCloseEraserSizeSlider}
         anchorOrigin={{
           vertical: "top",
           horizontal: "center",
@@ -296,11 +221,11 @@ function Toolbar({
             max={100}
             min={1}
             slots={{
-              valueLabel: LineWeightSliderValueLabel,
+              valueLabel: NumberSliderValueLabel,
             }}
             aria-label="Stroke width"
-            value={strokeWidth}
-            onChange={(_, value) => handleChangeStrokeWidth(value as number)}
+            value={eraserSize}
+            onChange={(_, value) => dispatch(setEraserSize(value as number))}
           />
         </Box>
       </Popover>

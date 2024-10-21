@@ -17,8 +17,8 @@ import {
   undo,
   redo,
   setCanvasObjects,
-  updateSelectedTool,
 } from "../redux/canvasSlice";
+import { updateSelectedTool } from "../redux/settingsSlice";
 import { SHAPE_DEFAULT_HEIGHT, SHAPE_DEFAULT_WIDTH } from "./shapes/shapeUtils";
 import {
   getFontStyleStringFromTextStyleArray,
@@ -26,14 +26,11 @@ import {
   TEXT_DEFAULT_HEIGHT,
   TEXT_DEFAULT_WIDTH,
 } from "./text/textUtils";
-import ShapePanel from "./toolbar/ShapePanel";
-import TextPanel from "./toolbar/TextPanel";
-import { setStrokeColor, setStrokeWidth } from "@/redux/shapeSlice";
-import { Fab } from "@mui/material";
-import GitHubIcon from "./icons/GitHubIcon";
 import ZoomToolbar from "./toolbar/ZoomToolbar";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
+import SidePanel from "./toolbar/sidePanel/SidePanel";
+import { setIsSidePanelOpen } from "@/redux/settingsSlice";
 
 export interface StageSizeType {
   width: number;
@@ -81,23 +78,22 @@ export default function Canvas() {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   const dispatch = useDispatch();
-  const { canvasObjects, selectedObjectId, selectedTool } = useSelector(
+  const { canvasObjects, selectedObjectId } = useSelector(
     (state: RootState) => state.canvas,
   );
-  const { strokeWidth, strokeColor, fillColor } = useSelector(
+  const { selectedTool } = useSelector((state: RootState) => state.settings);
+  const { borderWidth, borderColor, fillColor } = useSelector(
     (state: RootState) => state.shape,
   );
-
   const { textSize, textStyle, textColor, textAlignment, lineSpacing } =
     useSelector((state: RootState) => state.text);
+  const { inkColor, inkWidth } = useSelector((state: RootState) => state.ink);
+  const { eraserSize } = useSelector((state: RootState) => state.eraser);
 
   const [isInProgress, setIsInProgress] = useState(false);
   const [newObject, setNewObject] = useState<CanvasObjectType | null>(null); // new text/shape object to be added to the canvas
 
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false); // confirmation modal for delete button - clear canvas
-
-  const [isShapePanelVisible, setShapePanelVisible] = useState(false);
-  const [isTextPanelVisible, setTextPanelVisible] = useState(false);
 
   const [zoomLevel, setZoomLevel] = useState(1); // Default zoom level = 100%
   const stageRef = useRef<Konva.Stage | null>(null);
@@ -264,25 +260,6 @@ export default function Canvas() {
     return null;
   }
 
-  function updateStyle(property: keyof CanvasObjectType, value: any) {
-    // Dynamically update state
-    if (property === "strokeWidth") {
-      dispatch(setStrokeWidth(value)); // TODO: Ink property should separate from shape/text
-    } else if (property === "stroke") {
-      dispatch(setStrokeColor(value)); // TODO: Ink property should separate from shape/text
-    }
-
-    // Update object property
-    if (selectedObjectId !== "") {
-      dispatch(
-        updateCanvasObject({
-          id: selectedObjectId,
-          updates: { [property]: value },
-        }),
-      );
-    }
-  }
-
   function updateSelectedObject(
     newAttrs: Partial<CanvasObjectType>,
     selectedObjectId: string,
@@ -291,8 +268,7 @@ export default function Canvas() {
   }
 
   const addTextField = (x: number, y: number) => {
-    setShapePanelVisible(false);
-    setTextPanelVisible(true);
+    dispatch(setIsSidePanelOpen(true));
 
     const newObjectId = uuid();
     let newObject: CanvasObjectType = {
@@ -317,16 +293,14 @@ export default function Canvas() {
   };
 
   const addShape = (shapeName: ShapeName, x: number, y: number) => {
-    setTextPanelVisible(false);
-    setShapePanelVisible(true);
-
+    dispatch(setIsSidePanelOpen(true));
     const newShapeId = uuid();
     const baseShape = {
       id: newShapeId,
       shapeName,
       type: "shape" as const,
-      strokeWidth: strokeWidth,
-      stroke: strokeColor,
+      strokeWidth: borderWidth,
+      stroke: borderColor,
       fill: fillColor,
       x: x,
       y: y,
@@ -364,7 +338,6 @@ export default function Canvas() {
 
     setNewObject(newShape);
     dispatch(selectCanvasObject(newShapeId));
-    setShapePanelVisible(true);
   };
 
   const handleMouseDown = (e: any) => {
@@ -409,9 +382,8 @@ export default function Canvas() {
           id: uuid(),
           type: selectedTool === "eraser" ? "eraserStroke" : "ink",
           points: [pos.x, pos.y],
-          stroke: strokeColor,
-          strokeWidth:
-            selectedTool === "eraser" ? Math.max(strokeWidth, 20) : strokeWidth,
+          stroke: selectedTool === "eraser" ? inkColor : inkColor,
+          strokeWidth: selectedTool === "eraser" ? eraserSize : inkWidth,
         };
         setNewObject(newLine);
         return;
@@ -425,20 +397,6 @@ export default function Canvas() {
       e.target.attrs.name.includes("eraserStroke")
     ) {
       dispatch(selectCanvasObject(""));
-    }
-
-    // side panel
-    if (
-      e.target === e.target.getStage() ||
-      e.target.attrs.name?.includes("ink") ||
-      e.target.attrs.name?.includes("eraserStroke")
-    ) {
-      setShapePanelVisible(false);
-      setTextPanelVisible(false);
-    } else if (e.target.attrs.name?.includes("text")) {
-      setShapePanelVisible(false);
-    } else if (e.target.attrs.name?.includes("shape")) {
-      setTextPanelVisible(false);
     }
   };
 
@@ -546,7 +504,7 @@ export default function Canvas() {
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
         onTouchStart={handleMouseDown}
-        draggable={selectedTool == "select"}
+        draggable={selectedTool === "select" && !selectedObjectId}
         onWheel={(e) => handleWheelZoom(e)}
       >
         <InkLayer objects={canvasObjects} newObject={newObject} />
@@ -558,7 +516,6 @@ export default function Canvas() {
           setSelectedObjectId={(newObjectId) =>
             dispatch(selectCanvasObject(newObjectId))
           }
-          setSidePanelVisible={setShapePanelVisible}
         />
         <TextLayer
           objects={canvasObjects}
@@ -568,17 +525,12 @@ export default function Canvas() {
             dispatch(selectCanvasObject(newObjectId))
           }
           onChange={updateSelectedObject}
-          setSidePanelVisible={setTextPanelVisible}
           zoomLevel={zoomLevel}
         />
       </Stage>
       <Toolbar
         objects={canvasObjects}
-        color={strokeColor}
-        onSelectColor={(newColor) => updateStyle("stroke", newColor)}
         onDelete={handleDelete}
-        strokeWidth={strokeWidth}
-        setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
         isDarkMode={isDarkMode}
       />
       <ConfirmationDialog
@@ -589,41 +541,7 @@ export default function Canvas() {
         description="Are you sure you want to clear the canvas? This action cannot be undone."
         isDarkMode={isDarkMode}
       />
-      <ShapePanel
-        isOpen={isShapePanelVisible}
-        onClose={() => setShapePanelVisible(false)}
-        strokeWidth={strokeWidth}
-        setStrokeWidth={(newWidth) => updateStyle("strokeWidth", newWidth)}
-        color={strokeColor}
-        onSelectColor={(newColor) => updateStyle("stroke", newColor)}
-        fillColor={fillColor}
-        onSelectFillColor={(newColor) => updateStyle("fill", newColor)}
-      />
-      <TextPanel
-        isOpen={isTextPanelVisible}
-        onClose={() => setTextPanelVisible(false)}
-        selectedObjectId={selectedObjectId}
-      />
-      <Fab
-        id="github-fab"
-        size="small"
-        variant="extended"
-        aria-label="Link to GitHub repository of this project"
-        style={{
-          position: "fixed",
-          top: "8px",
-          left: "8px",
-        }}
-        onClick={() =>
-          window.open(
-            "https://github.com/low-earth-orbit/konva-whiteboard",
-            "_blank",
-          )
-        }
-      >
-        <GitHubIcon sx={{ mr: 1 }} />
-        View Source
-      </Fab>
+      <SidePanel />
       <ZoomToolbar
         zoomLevel={zoomLevel}
         setZoomLevel={setZoomLevel}
