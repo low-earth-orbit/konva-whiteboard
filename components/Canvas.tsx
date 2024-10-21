@@ -382,7 +382,7 @@ export default function Canvas() {
           id: uuid(),
           type: selectedTool === "eraser" ? "eraserStroke" : "ink",
           points: [pos.x, pos.y],
-          stroke: selectedTool === "eraser" ? undefined : inkColor,
+          stroke: selectedTool === "eraser" ? inkColor : inkColor,
           strokeWidth: selectedTool === "eraser" ? eraserSize : inkWidth,
         };
         setNewObject(newLine);

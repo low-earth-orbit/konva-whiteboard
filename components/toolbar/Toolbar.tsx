@@ -59,22 +59,6 @@ function Toolbar({ objects, onDelete, isDarkMode }: ToolbarProps) {
 
   const toolbarBgColor = isDarkMode ? "bg-gray-500" : "bg-white";
 
-  // color picker
-  const [colorPickerAnchorEl, setColorPickerAnchorEl] =
-    useState<HTMLButtonElement | null>(null);
-
-  const isColorPickerAnchorElOpen = Boolean(colorPickerAnchorEl);
-
-  const handleClickColorPickerButton = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    setColorPickerAnchorEl(event.currentTarget);
-  };
-
-  const handleCloseColorPicker = () => {
-    setColorPickerAnchorEl(null);
-  };
-
   // shapes popover
   const [shapesAnchorEl, setShapesAnchorEl] =
     useState<HTMLButtonElement | null>(null);
@@ -176,16 +160,6 @@ function Toolbar({ objects, onDelete, isDarkMode }: ToolbarProps) {
           </IconButton>
         </Tooltip>
 
-        {/* color picker */}
-        <Tooltip title="Color">
-          <IconButton
-            aria-label="open color palette"
-            onClick={handleClickColorPickerButton}
-          >
-            <Palette />
-          </IconButton>
-        </Tooltip>
-
         {/* eraser */}
         <Tooltip title="Eraser">
           <IconButton
@@ -239,28 +213,6 @@ function Toolbar({ objects, onDelete, isDarkMode }: ToolbarProps) {
           </span>
         </Tooltip>
       </ButtonGroup>
-
-      {/* colorPickerPopover */}
-      {/* <Popover
-        id="colorPickerPopover"
-        open={isColorPickerAnchorElOpen}
-        anchorEl={colorPickerAnchorEl}
-        onClose={handleCloseColorPicker}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-      >
-        <HexColorPicker
-          className="p-2"
-          color={color}
-          onChange={onSelectColor}
-        />
-      </Popover> */}
 
       {/* lineWeightPopover */}
       {/* <Popover
