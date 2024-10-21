@@ -8,7 +8,7 @@ import {
   Slider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { LineWeightSliderValueLabel } from "../Toolbar";
+import { NumberSliderValueLabel } from "../Toolbar";
 import MyColorPicker from "@/components/MyColorPicker";
 import { RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -91,7 +91,7 @@ export default function ShapePanel({
             max={100}
             valueLabelDisplay="auto"
             slots={{
-              valueLabel: LineWeightSliderValueLabel,
+              valueLabel: NumberSliderValueLabel,
             }}
             aria-label="Border width"
             onChange={(_, value) =>

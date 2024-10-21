@@ -14,8 +14,6 @@ import DrawIcon from "../icons/DrawIcon";
 import DeleteIcon from "../icons/DeleteIcon";
 import ShapesIcon from "../icons/ShapesIcon";
 import {
-  Palette,
-  LineWeightRounded,
   CropSquareRounded,
   CircleOutlined,
   ChangeHistoryRounded,
@@ -33,8 +31,9 @@ import { redo, selectCanvasObject, undo } from "@/redux/canvasSlice";
 import { updateSelectedTool } from "@/redux/settingsSlice";
 import SelectIcon from "../icons/SelectIcon";
 import { setIsSidePanelOpen } from "@/redux/settingsSlice";
+import { setEraserSize } from "@/redux/eraserSlice";
 
-export function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
+export function NumberSliderValueLabel(props: SliderValueLabelProps) {
   const { children, value } = props;
 
   return (
@@ -52,6 +51,7 @@ type ToolbarProps = {
 
 function Toolbar({ objects, onDelete, isDarkMode }: ToolbarProps) {
   const dispatch = useDispatch();
+  const { eraserSize } = useSelector((state: RootState) => state.eraser);
 
   const { undoStack, redoStack } = useSelector(
     (state: RootState) => state.canvas,
@@ -73,24 +73,20 @@ function Toolbar({ objects, onDelete, isDarkMode }: ToolbarProps) {
   };
 
   // stroke width
-  const [lineWeightAnchorEl, setLineWeightAnchorEl] =
+  const [eraserSizeAnchorEl, setEraserSizeAnchorEl] =
     useState<HTMLButtonElement | null>(null);
 
-  const isLineWeightSliderAnchorElOpen = Boolean(lineWeightAnchorEl);
+  const isEraserSizeAnchorElOpen = Boolean(eraserSizeAnchorEl);
 
-  const handleClickLineWeightButton = (
+  const handleClickEraserSizeButton = (
     event: React.MouseEvent<HTMLButtonElement>,
   ) => {
-    setLineWeightAnchorEl(event.currentTarget);
+    setEraserSizeAnchorEl(event.currentTarget);
   };
 
-  const handleCloseLineWeightSlider = () => {
-    setLineWeightAnchorEl(null);
+  const handleCloseEraserSizeSlider = () => {
+    setEraserSizeAnchorEl(null);
   };
-
-  // const handleChangeStrokeWidth = (value: number) => {
-  //   setStrokeWidth(value);
-  // };
 
   return (
     <div
@@ -150,23 +146,14 @@ function Toolbar({ objects, onDelete, isDarkMode }: ToolbarProps) {
           </IconButton>
         </Tooltip>
 
-        {/* line weight */}
-        <Tooltip title="Stroke width">
-          <IconButton
-            aria-label="Change stroke width"
-            onClick={handleClickLineWeightButton}
-          >
-            <LineWeightRounded />
-          </IconButton>
-        </Tooltip>
-
         {/* eraser */}
         <Tooltip title="Eraser">
           <IconButton
             aria-label="erase"
-            onClick={() => {
+            onClick={(e) => {
               dispatch(updateSelectedTool("eraser"));
               dispatch(selectCanvasObject("")); // clear selected object, if there is
+              handleClickEraserSizeButton(e);
             }}
           >
             <EraserIcon />
@@ -214,12 +201,11 @@ function Toolbar({ objects, onDelete, isDarkMode }: ToolbarProps) {
         </Tooltip>
       </ButtonGroup>
 
-      {/* lineWeightPopover */}
-      {/* <Popover
-        id="lineWeightPopover"
-        open={isLineWeightSliderAnchorElOpen}
-        anchorEl={lineWeightAnchorEl}
-        onClose={handleCloseLineWeightSlider}
+      <Popover
+        id="eraserSizePopover"
+        open={isEraserSizeAnchorElOpen}
+        anchorEl={eraserSizeAnchorEl}
+        onClose={handleCloseEraserSizeSlider}
         anchorOrigin={{
           vertical: "top",
           horizontal: "center",
@@ -235,14 +221,14 @@ function Toolbar({ objects, onDelete, isDarkMode }: ToolbarProps) {
             max={100}
             min={1}
             slots={{
-              valueLabel: LineWeightSliderValueLabel,
+              valueLabel: NumberSliderValueLabel,
             }}
             aria-label="Stroke width"
-            value={strokeWidth}
-            onChange={(_, value) => handleChangeStrokeWidth(value as number)}
+            value={eraserSize}
+            onChange={(_, value) => dispatch(setEraserSize(value as number))}
           />
         </Box>
-      </Popover> */}
+      </Popover>
 
       {/* shapesPopover */}
       <Popover
