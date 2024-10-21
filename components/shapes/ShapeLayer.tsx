@@ -11,6 +11,7 @@ import {
   setBorderColor,
   setBorderWidth,
 } from "@/redux/shapeSlice";
+import { setIsSidePanelOpen } from "@/redux/settingsSlice";
 
 type ShapesLayerProps = {
   objects: CanvasObjectType[];
@@ -21,7 +22,6 @@ type ShapesLayerProps = {
   ) => void;
   selectedObjectId: string;
   setSelectedObjectId: (id: string) => void;
-  setIsSidePanelOpen: (isVisible: boolean) => void;
 };
 
 export default function ShapeLayer({
@@ -30,7 +30,6 @@ export default function ShapeLayer({
   onChange,
   selectedObjectId,
   setSelectedObjectId,
-  setIsSidePanelOpen,
 }: ShapesLayerProps) {
   const dispatch = useDispatch();
 
@@ -50,7 +49,7 @@ export default function ShapeLayer({
           setSelectedObjectId(shape.id);
 
           // Show the side panel
-          setIsSidePanelOpen(true);
+          dispatch(setIsSidePanelOpen(true));
 
           // update settings to match selected shape's
           dispatch(setBorderWidth(shape.strokeWidth || 5));

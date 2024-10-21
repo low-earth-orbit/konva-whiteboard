@@ -1,15 +1,14 @@
 import * as React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import ShapePanel from "./ShapePanel";
 import TextPanel from "./TextPanel";
+import { setIsSidePanelOpen } from "@/redux/settingsSlice";
 
-type Props = {
-  isOpen: boolean;
-  onClose: () => void;
-};
+export default function SidePanel() {
+  const dispatch = useDispatch();
+  const { isSidePanelOpen } = useSelector((state: RootState) => state.settings);
 
-export default function SidePanel({ isOpen, onClose }: Props) {
   const { canvasObjects, selectedObjectId } = useSelector(
     (state: RootState) => state.canvas,
   );
@@ -25,8 +24,8 @@ export default function SidePanel({ isOpen, onClose }: Props) {
   if (isShapeSelected) {
     return (
       <ShapePanel
-        isOpen={isOpen}
-        onClose={onClose}
+        isOpen={isSidePanelOpen}
+        onClose={() => dispatch(setIsSidePanelOpen(false))}
         selectedObjectId={selectedObjectId}
       />
     );
@@ -35,8 +34,8 @@ export default function SidePanel({ isOpen, onClose }: Props) {
   if (isTextSelected) {
     return (
       <TextPanel
-        isOpen={isOpen}
-        onClose={onClose}
+        isOpen={isSidePanelOpen}
+        onClose={() => dispatch(setIsSidePanelOpen(false))}
         selectedObjectId={selectedObjectId}
       />
     );

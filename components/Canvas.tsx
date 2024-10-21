@@ -30,6 +30,7 @@ import ZoomToolbar from "./toolbar/ZoomToolbar";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
 import SidePanel from "./toolbar/sidePanel/SidePanel";
+import { setIsSidePanelOpen } from "@/redux/settingsSlice";
 
 export interface StageSizeType {
   width: number;
@@ -92,8 +93,6 @@ export default function Canvas() {
   const [newObject, setNewObject] = useState<CanvasObjectType | null>(null); // new text/shape object to be added to the canvas
 
   const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false); // confirmation modal for delete button - clear canvas
-
-  const [isSidePanelOpen, setIsSidePanelOpen] = useState(true);
 
   const [zoomLevel, setZoomLevel] = useState(1); // Default zoom level = 100%
   const stageRef = useRef<Konva.Stage | null>(null);
@@ -268,7 +267,7 @@ export default function Canvas() {
   }
 
   const addTextField = (x: number, y: number) => {
-    setIsSidePanelOpen(true);
+    dispatch(setIsSidePanelOpen(true));
 
     const newObjectId = uuid();
     let newObject: CanvasObjectType = {
@@ -293,7 +292,7 @@ export default function Canvas() {
   };
 
   const addShape = (shapeName: ShapeName, x: number, y: number) => {
-    setIsSidePanelOpen(true);
+    dispatch(setIsSidePanelOpen(true));
     const newShapeId = uuid();
     const baseShape = {
       id: newShapeId,
@@ -516,7 +515,6 @@ export default function Canvas() {
           setSelectedObjectId={(newObjectId) =>
             dispatch(selectCanvasObject(newObjectId))
           }
-          setIsSidePanelOpen={setIsSidePanelOpen}
         />
         <TextLayer
           objects={canvasObjects}
@@ -526,7 +524,6 @@ export default function Canvas() {
             dispatch(selectCanvasObject(newObjectId))
           }
           onChange={updateSelectedObject}
-          setIsSidePanelOpen={setIsSidePanelOpen}
           zoomLevel={zoomLevel}
         />
       </Stage>
@@ -543,12 +540,7 @@ export default function Canvas() {
         description="Are you sure you want to clear the canvas? This action cannot be undone."
         isDarkMode={isDarkMode}
       />
-      <SidePanel
-        isOpen={isSidePanelOpen}
-        onClose={() => {
-          setIsSidePanelOpen(false);
-        }}
-      />
+      <SidePanel />
       <ZoomToolbar
         zoomLevel={zoomLevel}
         setZoomLevel={setZoomLevel}
