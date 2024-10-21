@@ -33,7 +33,7 @@ export default function ShapeLayer({
 }: ShapesLayerProps) {
   const dispatch = useDispatch();
 
-  const { selectedTool } = useSelector((state: RootState) => state.canvas);
+  const { selectedTool } = useSelector((state: RootState) => state.settings);
 
   const shapes = [
     ...objects.filter((obj: CanvasObjectType) => obj.type === "shape"),

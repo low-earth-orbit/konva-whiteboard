@@ -35,7 +35,7 @@ export default function TextLayer({
 }: Props) {
   const dispatch = useDispatch();
 
-  const { selectedTool } = useSelector((state: RootState) => state.canvas);
+  const { selectedTool } = useSelector((state: RootState) => state.settings);
 
   const texts = [
     ...objects.filter((obj: CanvasObjectType) => obj.type === "text"),

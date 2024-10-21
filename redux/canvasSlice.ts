@@ -6,7 +6,6 @@ interface CanvasState {
   undoStack: CanvasObjectType[][];
   redoStack: CanvasObjectType[][];
   selectedObjectId: string;
-  selectedTool: ToolType;
 }
 
 const initialState: CanvasState = {
@@ -17,7 +16,6 @@ const initialState: CanvasState = {
   undoStack: [],
   redoStack: [],
   selectedObjectId: "",
-  selectedTool: "pen",
 };
 
 const canvasSlice = createSlice({
@@ -73,9 +71,6 @@ const canvasSlice = createSlice({
         state.canvasObjects = state.redoStack.pop()!;
       }
     },
-    updateSelectedTool(state, action: PayloadAction<ToolType>) {
-      state.selectedTool = action.payload;
-    },
   },
 });
 
@@ -88,7 +83,6 @@ export const {
   resetCanvas,
   undo,
   redo,
-  updateSelectedTool,
 } = canvasSlice.actions;
 
 export default canvasSlice.reducer;

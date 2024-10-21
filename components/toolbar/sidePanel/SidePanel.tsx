@@ -7,7 +7,9 @@ import { setIsSidePanelOpen } from "@/redux/settingsSlice";
 
 export default function SidePanel() {
   const dispatch = useDispatch();
-  const { isSidePanelOpen } = useSelector((state: RootState) => state.settings);
+  const { isSidePanelOpen, selectedTool } = useSelector(
+    (state: RootState) => state.settings,
+  );
 
   const { canvasObjects, selectedObjectId } = useSelector(
     (state: RootState) => state.canvas,
@@ -40,6 +42,8 @@ export default function SidePanel() {
       />
     );
   }
+
+  if (selectedTool === "pen") return <p>You selected pen tool.</p>;
 
   return null;
 }

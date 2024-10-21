@@ -29,13 +29,10 @@ import { CanvasObjectType } from "../Canvas";
 
 import { RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  redo,
-  selectCanvasObject,
-  undo,
-  updateSelectedTool,
-} from "@/redux/canvasSlice";
+import { redo, selectCanvasObject, undo } from "@/redux/canvasSlice";
+import { updateSelectedTool } from "@/redux/settingsSlice";
 import SelectIcon from "../icons/SelectIcon";
+import { setIsSidePanelOpen } from "@/redux/settingsSlice";
 
 export function LineWeightSliderValueLabel(props: SliderValueLabelProps) {
   const { children, value } = props;
@@ -135,6 +132,7 @@ function Toolbar({ objects, onDelete, isDarkMode }: ToolbarProps) {
           <IconButton
             aria-label="Draw"
             onClick={() => {
+              dispatch(setIsSidePanelOpen(true)); // Open side panel for configurations
               dispatch(updateSelectedTool("pen"));
               dispatch(selectCanvasObject("")); // clear selected object, if there is
             }}

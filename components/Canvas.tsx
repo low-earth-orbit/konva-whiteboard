@@ -17,8 +17,8 @@ import {
   undo,
   redo,
   setCanvasObjects,
-  updateSelectedTool,
 } from "../redux/canvasSlice";
+import { updateSelectedTool } from "../redux/settingsSlice";
 import { SHAPE_DEFAULT_HEIGHT, SHAPE_DEFAULT_WIDTH } from "./shapes/shapeUtils";
 import {
   getFontStyleStringFromTextStyleArray,
@@ -78,9 +78,10 @@ export default function Canvas() {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   const dispatch = useDispatch();
-  const { canvasObjects, selectedObjectId, selectedTool } = useSelector(
+  const { canvasObjects, selectedObjectId } = useSelector(
     (state: RootState) => state.canvas,
   );
+  const { selectedTool } = useSelector((state: RootState) => state.settings);
   const { borderWidth, borderColor, fillColor } = useSelector(
     (state: RootState) => state.shape,
   );
