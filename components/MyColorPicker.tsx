@@ -59,6 +59,10 @@ function MyColorPicker({ id, color, onChange }: Props) {
           id={`myColorPickerButton-${id}`}
           aria-describedby={`myColorPickerPopover-${id}`}
           onClick={handleClick}
+          style={{
+            color: color,
+          }}
+          size="small"
         >
           {/* Square color indicator */}
           <div
