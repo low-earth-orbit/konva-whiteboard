@@ -4,6 +4,7 @@ import { RootState } from "@/redux/store";
 import ShapePanel from "./ShapePanel";
 import TextPanel from "./TextPanel";
 import { setIsSidePanelOpen } from "@/redux/settingsSlice";
+import InkPanel from "./InkPanel";
 
 export default function SidePanel() {
   const dispatch = useDispatch();
@@ -43,7 +44,15 @@ export default function SidePanel() {
     );
   }
 
-  if (selectedTool === "pen") return <p>You selected pen tool.</p>;
+  if (selectedTool === "pen") {
+    return (
+      <InkPanel
+        isOpen={isSidePanelOpen}
+        onClose={() => dispatch(setIsSidePanelOpen(false))}
+        selectedObjectId={selectedObjectId}
+      />
+    );
+  }
 
   return null;
 }
