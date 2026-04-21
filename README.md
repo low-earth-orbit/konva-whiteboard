@@ -2,7 +2,7 @@
 
 This is an work-in-progress hobby project aimed at creating a whiteboard app using Konva library.
 
-Demo: [Try it here](https://whiteboard.leohong.dev)
+Demo: [Try it here](https://low-earth-orbit.github.io/konva-whiteboard/)
 
 Project management is handled through [Issues](https://github.com/low-earth-orbit/konva-whiteboard/issues), and discussions or suggestions can be made on the [Discussions](https://github.com/low-earth-orbit/konva-whiteboard/discussions) board.
 
