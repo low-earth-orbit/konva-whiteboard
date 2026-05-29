@@ -5,7 +5,7 @@ interface EraserState {
 }
 
 const initialState: EraserState = {
-  eraserSize: 5,
+  eraserSize: 20,
 };
 
 const eraserSlice = createSlice({

@@ -5,7 +5,6 @@ import {
   Group,
   Paper,
   Popover,
-  Slider,
   Tooltip,
   useComputedColorScheme,
   useMantineColorScheme,
@@ -33,7 +32,6 @@ import { RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { redo, selectCanvasObject, undo } from "@/redux/canvasSlice";
 import { updateSelectedTool, setIsSidePanelOpen } from "@/redux/settingsSlice";
-import { setEraserSize } from "@/redux/eraserSlice";
 
 type ToolbarProps = {
   objects: CanvasObjectType[];
@@ -44,7 +42,6 @@ const shapeTools = ["addRectangle", "addOval", "addTriangle", "addStar"];
 
 function Toolbar({ objects, onDelete }: ToolbarProps) {
   const dispatch = useDispatch();
-  const { eraserSize } = useSelector((state: RootState) => state.eraser);
   const { selectedTool } = useSelector((state: RootState) => state.settings);
   const { undoStack, redoStack } = useSelector(
     (state: RootState) => state.canvas,
@@ -54,7 +51,6 @@ function Toolbar({ objects, onDelete }: ToolbarProps) {
   const colorScheme = useComputedColorScheme("light");
 
   const [shapesOpened, setShapesOpened] = useState(false);
-  const [eraserOpened, setEraserOpened] = useState(false);
 
   const isShapeToolActive = shapeTools.includes(selectedTool);
 
@@ -192,40 +188,20 @@ function Toolbar({ objects, onDelete }: ToolbarProps) {
           </Popover.Dropdown>
         </Popover>
 
-        {/* eraser with size popover */}
-        <Popover
-          opened={eraserOpened}
-          onChange={setEraserOpened}
-          position="top"
-          offset={8}
-        >
-          <Popover.Target>
-            <Tooltip label="Eraser">
-              <ActionIcon
-                variant={selectedTool === "eraser" ? "filled" : "subtle"}
-                aria-label="Eraser"
-                aria-pressed={selectedTool === "eraser"}
-                onClick={() => {
-                  dispatch(updateSelectedTool("eraser"));
-                  dispatch(selectCanvasObject(""));
-                  setEraserOpened((o) => !o);
-                }}
-              >
-                <EraserIcon />
-              </ActionIcon>
-            </Tooltip>
-          </Popover.Target>
-          <Popover.Dropdown p="sm" style={{ width: 220 }}>
-            <Slider
-              label={(v) => `${v}px`}
-              max={100}
-              min={1}
-              aria-label="Eraser size"
-              value={eraserSize}
-              onChange={(value) => dispatch(setEraserSize(value))}
-            />
-          </Popover.Dropdown>
-        </Popover>
+        {/* eraser */}
+        <Tooltip label="Eraser">
+          <ActionIcon
+            variant={selectedTool === "eraser" ? "filled" : "subtle"}
+            aria-label="Eraser"
+            aria-pressed={selectedTool === "eraser"}
+            onClick={() => {
+              dispatch(updateSelectedTool("eraser"));
+              dispatch(selectCanvasObject(""));
+            }}
+          >
+            <EraserIcon />
+          </ActionIcon>
+        </Tooltip>
 
         <Divider orientation="vertical" mx={4} />
 
