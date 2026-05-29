@@ -1,0 +1,13 @@
+@layer tailwind-base, mantine, tailwind-utilities;
+@import "tailwindcss/preflight.css" layer(tailwind-base);
+@import "@mantine/core/styles.css" layer(mantine);
+@import "tailwindcss/utilities.css" layer(tailwind-utilities);
+@import "tailwindcss/theme.css";
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
