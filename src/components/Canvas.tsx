@@ -102,7 +102,10 @@ function strokeHitsEraser(
     return Math.hypot(ex - pts[0], ey - pts[1]) <= threshold;
   }
   for (let i = 0; i < pts.length - 2; i += 2) {
-    if (distToSegment(ex, ey, pts[i], pts[i + 1], pts[i + 2], pts[i + 3]) <= threshold) {
+    if (
+      distToSegment(ex, ey, pts[i], pts[i + 1], pts[i + 2], pts[i + 3]) <=
+      threshold
+    ) {
       return true;
     }
   }
@@ -457,11 +460,7 @@ export default function Canvas() {
 
   const handleMouseMove = (e: any) => {
     // Creating new text/object is in progress
-    if (
-      isInProgress &&
-      newObject &&
-      newObject.type !== "ink"
-    ) {
+    if (isInProgress && newObject && newObject.type !== "ink") {
       const stage = e.target.getStage();
       const point = stage.getRelativePointerPosition();
 
