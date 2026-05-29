@@ -63,11 +63,8 @@ export default function ShapeLayer({
             container.style.cursor = "grab";
           }
 
-          // TODO: #18
-          // console.log("e.target =", e.target);
-          // e.target.getParent().moveToTop(); // Upon select, move the object Group to top of canvas
-          // e.target.moveToTop(); // Upon select, move the object to top of canvas
-          // e.target.getLayer().batchDraw(); // Redraw
+          e.target.getParent().moveToTop();
+          e.target.getLayer()?.batchDraw();
         }
       },
       onChange: (newAttrs: Partial<CanvasObjectType>) =>

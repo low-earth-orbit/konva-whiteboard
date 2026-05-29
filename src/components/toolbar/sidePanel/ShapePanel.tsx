@@ -1,5 +1,6 @@
 import {
   ActionIcon,
+  Box,
   Divider,
   Group,
   Paper,
@@ -61,6 +62,7 @@ export default function ShapePanel({
         <Paper
           shadow="sm"
           radius="md"
+          withBorder
           style={{
             ...styles,
             position: "fixed",
@@ -80,7 +82,7 @@ export default function ShapePanel({
           </Group>
 
           <Divider />
-          <div style={{ padding: 16 }}>
+          <Box p="md">
             <Text size="sm" fw={600} mb="xs">
               Border width
             </Text>
@@ -98,22 +100,22 @@ export default function ShapePanel({
                 style={{ flex: 1 }}
               />
             </Group>
-          </div>
+          </Box>
 
           <Divider />
-          <div style={{ padding: 16 }}>
+          <Box p="md">
             <Text size="sm" fw={600}>
-              Color
+              Border color
             </Text>
             <MyColorPicker
               id="shapeBorderColorPicker"
               color={borderColor}
               onChange={(newColor) => updateShapeStyle("stroke", newColor)}
             />
-          </div>
+          </Box>
 
           <Divider />
-          <div style={{ padding: 16 }}>
+          <Box p="md">
             <Text size="sm" fw={600}>
               Fill
             </Text>
@@ -122,7 +124,7 @@ export default function ShapePanel({
               color={fillColor}
               onChange={(newColor) => updateShapeStyle("fill", newColor)}
             />
-          </div>
+          </Box>
         </Paper>
       )}
     </Transition>

@@ -1,5 +1,6 @@
 import {
   ActionIcon,
+  Box,
   Divider,
   Group,
   Paper,
@@ -49,6 +50,7 @@ export default function InkPanel({ isOpen, onClose, selectedObjectId }: Props) {
         <Paper
           shadow="sm"
           radius="md"
+          withBorder
           style={{
             ...styles,
             position: "fixed",
@@ -68,7 +70,7 @@ export default function InkPanel({ isOpen, onClose, selectedObjectId }: Props) {
           </Group>
 
           <Divider />
-          <div style={{ padding: 16 }}>
+          <Box p="md">
             <Text size="sm" fw={600} mb="xs">
               Size
             </Text>
@@ -86,10 +88,10 @@ export default function InkPanel({ isOpen, onClose, selectedObjectId }: Props) {
                 style={{ flex: 1 }}
               />
             </Group>
-          </div>
+          </Box>
 
           <Divider />
-          <div style={{ padding: 16 }}>
+          <Box p="md">
             <Text size="sm" fw={600}>
               Color
             </Text>
@@ -98,7 +100,7 @@ export default function InkPanel({ isOpen, onClose, selectedObjectId }: Props) {
               color={inkColor}
               onChange={(newColor) => updateInkStyle("stroke", newColor)}
             />
-          </div>
+          </Box>
         </Paper>
       )}
     </Transition>

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Ellipse, Group, Transformer } from "react-konva";
+import { transformerCursorHandlers } from "../konvaUtils";
 import { CanvasObjectType } from "../Canvas";
 import Konva from "konva";
 import {
@@ -58,6 +59,7 @@ export default function OvalShape({
         width={width}
         height={height}
         rotation={rotation}
+        draggable={isSelected}
         onClick={(e) => onSelect(e)}
         onTap={(e) => onSelect(e)}
         onDragEnd={(e) => {
@@ -117,36 +119,8 @@ export default function OvalShape({
           ref={trRef}
           flipEnabled={false}
           shouldOverdrawWholeArea
-          onMouseOver={(e) => {
-            const stage = e.target.getStage();
-            if (stage) {
-              const container = stage.container();
-              container.style.cursor = "grab";
-            }
-          }}
-          onMouseLeave={(e) => {
-            const stage = e.target.getStage();
-            if (stage) {
-              const container = stage.container();
-              container.style.cursor = ""; // Reset to tool's cursor
-            }
-          }}
-          onMouseDown={(e) => {
-            const stage = e.target.getStage();
-            if (stage) {
-              const container = stage.container();
-              container.style.cursor = "grabbing";
-            }
-          }}
-          onMouseUp={(e) => {
-            const stage = e.target.getStage();
-            if (stage) {
-              const container = stage.container();
-              container.style.cursor = "grab";
-            }
-          }}
+          {...transformerCursorHandlers}
           boundBoxFunc={(oldBox, newBox) => {
-            // Limit resize
             if (
               Math.abs(newBox.width) < SHAPE_MIN_WIDTH ||
               Math.abs(newBox.height) < SHAPE_MIN_HEIGHT

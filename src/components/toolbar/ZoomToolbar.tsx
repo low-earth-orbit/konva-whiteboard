@@ -196,7 +196,7 @@ export default function ZoomToolbar({
   };
 
   return (
-    <Paper shadow="sm" style={{ position: "fixed", bottom: 8, right: 8 }} p={4}>
+    <Paper shadow="sm" withBorder pos="fixed" bottom={8} right={8} p={4}>
       <Group gap={4} wrap="nowrap" align="center">
         <ActionIcon
           variant="subtle"
@@ -211,7 +211,10 @@ export default function ZoomToolbar({
           onBlur={handleInputBlur}
           onKeyDown={handleKeyDown}
           hideControls
-          styles={{ input: { width: 60, textAlign: "center" } }}
+          min={10}
+          max={300}
+          w={60}
+          styles={{ input: { textAlign: "center" } }}
           aria-label="Zoom level"
         />
         <ActionIcon

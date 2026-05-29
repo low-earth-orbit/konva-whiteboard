@@ -1,8 +1,13 @@
+import Konva from "konva";
 import { useEffect, useRef } from "react";
 import { Group, Line, Transformer } from "react-konva";
 import { CanvasObjectType } from "../Canvas";
-import Konva from "konva";
-import { getStrokeWidth } from "./shapeUtils";
+import {
+  getStrokeWidth,
+  SHAPE_MIN_HEIGHT,
+  SHAPE_MIN_WIDTH,
+} from "./shapeUtils";
+import { transformerCursorHandlers } from "../konvaUtils";
 
 type Props = {
   shapeProps: Partial<CanvasObjectType>;
@@ -64,6 +69,7 @@ export default function TriangleShape({
         width={width}
         height={height}
         rotation={rotation}
+        draggable={isSelected}
         onClick={(e) => onSelect(e)}
         onTap={(e) => onSelect(e)}
         onDragEnd={(e) => {
@@ -85,8 +91,8 @@ export default function TriangleShape({
               ...shapeProps,
               x: group.x(),
               y: group.y(),
-              width: Math.max(5, group.width() * scaleX),
-              height: Math.max(5, group.height() * scaleY),
+              width: Math.max(SHAPE_MIN_WIDTH, group.width() * scaleX),
+              height: Math.max(SHAPE_MIN_HEIGHT, group.height() * scaleY),
               rotation: group.rotation(),
             });
 
@@ -114,37 +120,12 @@ export default function TriangleShape({
           ref={trRef}
           flipEnabled={false}
           shouldOverdrawWholeArea
-          onMouseOver={(e) => {
-            const stage = e.target.getStage();
-            if (stage) {
-              const container = stage.container();
-              container.style.cursor = "grab";
-            }
-          }}
-          onMouseLeave={(e) => {
-            const stage = e.target.getStage();
-            if (stage) {
-              const container = stage.container();
-              container.style.cursor = ""; // Reset to tool's cursor
-            }
-          }}
-          onMouseDown={(e) => {
-            const stage = e.target.getStage();
-            if (stage) {
-              const container = stage.container();
-              container.style.cursor = "grabbing";
-            }
-          }}
-          onMouseUp={(e) => {
-            const stage = e.target.getStage();
-            if (stage) {
-              const container = stage.container();
-              container.style.cursor = "grab";
-            }
-          }}
+          {...transformerCursorHandlers}
           boundBoxFunc={(oldBox, newBox) => {
-            // limit resize
-            if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {
+            if (
+              Math.abs(newBox.width) < SHAPE_MIN_WIDTH ||
+              Math.abs(newBox.height) < SHAPE_MIN_HEIGHT
+            ) {
               return oldBox;
             }
             return newBox;

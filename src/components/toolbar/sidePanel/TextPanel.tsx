@@ -1,5 +1,6 @@
 import {
   ActionIcon,
+  Box,
   Button,
   Divider,
   Group,
@@ -112,6 +113,7 @@ export default function TextPanel({
         <Paper
           shadow="sm"
           radius="md"
+          withBorder
           style={{
             ...styles,
             position: "fixed",
@@ -131,7 +133,7 @@ export default function TextPanel({
           </Group>
 
           <Divider />
-          <div style={{ padding: 16 }}>
+          <Box p="md">
             <Text size="sm" fw={600} mb="xs">
               Size
             </Text>
@@ -144,46 +146,50 @@ export default function TextPanel({
               w={80}
               aria-label="Font size"
             />
-          </div>
+          </Box>
 
           <Divider />
-          <div style={{ padding: 16 }}>
+          <Box p="md">
             <Text size="sm" fw={600} mb="xs">
               Style
             </Text>
-            <Button.Group>
-              <Button
-                variant={textStyle.includes("bold") ? "filled" : "default"}
-                size="xs"
-                aria-label="Bold"
-                aria-pressed={textStyle.includes("bold")}
-                onClick={() => toggleStyle("bold")}
-              >
-                <IconBold size={16} />
-              </Button>
-              <Button
-                variant={textStyle.includes("italic") ? "filled" : "default"}
-                size="xs"
-                aria-label="Italic"
-                aria-pressed={textStyle.includes("italic")}
-                onClick={() => toggleStyle("italic")}
-              >
-                <IconItalic size={16} />
-              </Button>
-              <Button
-                variant={textStyle.includes("underline") ? "filled" : "default"}
-                size="xs"
-                aria-label="Underline"
-                aria-pressed={textStyle.includes("underline")}
-                onClick={() => toggleStyle("underline")}
-              >
-                <IconUnderline size={16} />
-              </Button>
-            </Button.Group>
-          </div>
+            <div role="group" aria-label="Text style">
+              <Button.Group>
+                <Button
+                  variant={textStyle.includes("bold") ? "filled" : "default"}
+                  size="xs"
+                  aria-label="Bold"
+                  aria-pressed={textStyle.includes("bold")}
+                  onClick={() => toggleStyle("bold")}
+                >
+                  <IconBold size={16} />
+                </Button>
+                <Button
+                  variant={textStyle.includes("italic") ? "filled" : "default"}
+                  size="xs"
+                  aria-label="Italic"
+                  aria-pressed={textStyle.includes("italic")}
+                  onClick={() => toggleStyle("italic")}
+                >
+                  <IconItalic size={16} />
+                </Button>
+                <Button
+                  variant={
+                    textStyle.includes("underline") ? "filled" : "default"
+                  }
+                  size="xs"
+                  aria-label="Underline"
+                  aria-pressed={textStyle.includes("underline")}
+                  onClick={() => toggleStyle("underline")}
+                >
+                  <IconUnderline size={16} />
+                </Button>
+              </Button.Group>
+            </div>
+          </Box>
 
           <Divider />
-          <div style={{ padding: 16 }}>
+          <Box p="md">
             <Text size="sm" fw={600}>
               Color
             </Text>
@@ -200,43 +206,45 @@ export default function TextPanel({
                 );
               }}
             />
-          </div>
+          </Box>
 
           <Divider />
-          <div style={{ padding: 16 }}>
+          <Box p="md">
             <Text size="sm" fw={600} mb="xs">
               Alignment
             </Text>
-            <Button.Group>
-              <Button
-                variant={textAlignment === "left" ? "filled" : "default"}
-                size="xs"
-                aria-label="Align left"
-                onClick={() => setAlignment("left")}
-              >
-                <IconAlignLeft size={16} />
-              </Button>
-              <Button
-                variant={textAlignment === "center" ? "filled" : "default"}
-                size="xs"
-                aria-label="Align center"
-                onClick={() => setAlignment("center")}
-              >
-                <IconAlignCenter size={16} />
-              </Button>
-              <Button
-                variant={textAlignment === "right" ? "filled" : "default"}
-                size="xs"
-                aria-label="Align right"
-                onClick={() => setAlignment("right")}
-              >
-                <IconAlignRight size={16} />
-              </Button>
-            </Button.Group>
-          </div>
+            <div role="group" aria-label="Text alignment">
+              <Button.Group>
+                <Button
+                  variant={textAlignment === "left" ? "filled" : "default"}
+                  size="xs"
+                  aria-label="Align left"
+                  onClick={() => setAlignment("left")}
+                >
+                  <IconAlignLeft size={16} />
+                </Button>
+                <Button
+                  variant={textAlignment === "center" ? "filled" : "default"}
+                  size="xs"
+                  aria-label="Align center"
+                  onClick={() => setAlignment("center")}
+                >
+                  <IconAlignCenter size={16} />
+                </Button>
+                <Button
+                  variant={textAlignment === "right" ? "filled" : "default"}
+                  size="xs"
+                  aria-label="Align right"
+                  onClick={() => setAlignment("right")}
+                >
+                  <IconAlignRight size={16} />
+                </Button>
+              </Button.Group>
+            </div>
+          </Box>
 
           <Divider />
-          <div style={{ padding: 16 }}>
+          <Box p="md">
             <Text size="sm" fw={600} mb="xs">
               Line spacing
             </Text>
@@ -249,7 +257,7 @@ export default function TextPanel({
               w={80}
               aria-label="Line spacing"
             />
-          </div>
+          </Box>
         </Paper>
       )}
     </Transition>

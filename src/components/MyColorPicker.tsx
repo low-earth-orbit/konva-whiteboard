@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Button, ColorPicker, Popover } from "@mantine/core";
+import {
+  ColorPicker,
+  ColorSwatch,
+  Group,
+  Popover,
+  Text,
+  UnstyledButton,
+} from "@mantine/core";
 
 const swatches: string[] = [
   "#000000",
@@ -45,26 +52,19 @@ function MyColorPicker({ id, color, onChange }: Props) {
       offset={5}
     >
       <Popover.Target>
-        <Button
+        <UnstyledButton
           id={`myColorPickerButton-${id}`}
-          variant="subtle"
-          size="sm"
-          mt="xs"
           onClick={() => setOpened((o) => !o)}
-          leftSection={
-            <div
-              style={{
-                width: 20,
-                height: 20,
-                backgroundColor: color,
-                border: "1px solid #ccc",
-                borderRadius: 2,
-              }}
-            />
-          }
+          mt="xs"
+          aria-label={`Pick color, current ${color}`}
         >
-          {color}
-        </Button>
+          <Group gap="xs" wrap="nowrap">
+            <ColorSwatch color={color} size={28} withShadow />
+            <Text size="sm" c="dimmed" tt="uppercase">
+              {color}
+            </Text>
+          </Group>
+        </UnstyledButton>
       </Popover.Target>
       <Popover.Dropdown p="xs">
         <ColorPicker

@@ -71,6 +71,13 @@ const canvasSlice = createSlice({
         state.canvasObjects = state.redoStack.pop()!;
       }
     },
+    moveObjectToTop(state, action: PayloadAction<string>) {
+      const idx = state.canvasObjects.findIndex((o) => o.id === action.payload);
+      if (idx !== -1) {
+        const [obj] = state.canvasObjects.splice(idx, 1);
+        state.canvasObjects.push(obj);
+      }
+    },
   },
 });
 
@@ -83,6 +90,7 @@ export const {
   resetCanvas,
   undo,
   redo,
+  moveObjectToTop,
 } = canvasSlice.actions;
 
 export default canvasSlice.reducer;

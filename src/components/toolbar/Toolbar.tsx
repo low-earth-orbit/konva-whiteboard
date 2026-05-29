@@ -1,18 +1,23 @@
 import { useState } from "react";
 import {
   ActionIcon,
+  Divider,
   Group,
   Paper,
   Popover,
   Slider,
   Tooltip,
+  useComputedColorScheme,
+  useMantineColorScheme,
 } from "@mantine/core";
 import {
   IconArrowBackUp,
   IconArrowForwardUp,
   IconCircle,
+  IconMoon,
   IconSquare,
   IconStar,
+  IconSun,
   IconTextSize,
   IconTriangle,
 } from "@tabler/icons-react";
@@ -35,19 +40,28 @@ type ToolbarProps = {
   onDelete: () => void;
 };
 
+const shapeTools = ["addRectangle", "addOval", "addTriangle", "addStar"];
+
 function Toolbar({ objects, onDelete }: ToolbarProps) {
   const dispatch = useDispatch();
   const { eraserSize } = useSelector((state: RootState) => state.eraser);
+  const { selectedTool } = useSelector((state: RootState) => state.settings);
   const { undoStack, redoStack } = useSelector(
     (state: RootState) => state.canvas,
   );
 
+  const { setColorScheme } = useMantineColorScheme();
+  const colorScheme = useComputedColorScheme("light");
+
   const [shapesOpened, setShapesOpened] = useState(false);
   const [eraserOpened, setEraserOpened] = useState(false);
+
+  const isShapeToolActive = shapeTools.includes(selectedTool);
 
   return (
     <Paper
       shadow="sm"
+      withBorder
       style={{
         position: "absolute",
         bottom: 8,
@@ -60,8 +74,9 @@ function Toolbar({ objects, onDelete }: ToolbarProps) {
         {/* select */}
         <Tooltip label="Select">
           <ActionIcon
-            variant="subtle"
+            variant={selectedTool === "select" ? "filled" : "subtle"}
             aria-label="Select"
+            aria-pressed={selectedTool === "select"}
             onClick={() => dispatch(updateSelectedTool("select"))}
           >
             <SelectIcon />
@@ -71,8 +86,9 @@ function Toolbar({ objects, onDelete }: ToolbarProps) {
         {/* pen */}
         <Tooltip label="Draw">
           <ActionIcon
-            variant="subtle"
+            variant={selectedTool === "pen" ? "filled" : "subtle"}
             aria-label="Draw"
+            aria-pressed={selectedTool === "pen"}
             onClick={() => {
               dispatch(setIsSidePanelOpen(true));
               dispatch(updateSelectedTool("pen"));
@@ -86,8 +102,9 @@ function Toolbar({ objects, onDelete }: ToolbarProps) {
         {/* text */}
         <Tooltip label="Add text">
           <ActionIcon
-            variant="subtle"
+            variant={selectedTool === "addText" ? "filled" : "subtle"}
             aria-label="Add text"
+            aria-pressed={selectedTool === "addText"}
             onClick={() => {
               dispatch(updateSelectedTool("addText"));
               dispatch(selectCanvasObject(""));
@@ -107,9 +124,10 @@ function Toolbar({ objects, onDelete }: ToolbarProps) {
           <Popover.Target>
             <Tooltip label="Add shape">
               <ActionIcon
-                variant="subtle"
+                variant={isShapeToolActive ? "filled" : "subtle"}
                 aria-label="Add shape"
                 aria-haspopup="true"
+                aria-pressed={isShapeToolActive}
                 onClick={() => setShapesOpened((o) => !o)}
               >
                 <ShapesIcon />
@@ -184,8 +202,9 @@ function Toolbar({ objects, onDelete }: ToolbarProps) {
           <Popover.Target>
             <Tooltip label="Eraser">
               <ActionIcon
-                variant="subtle"
+                variant={selectedTool === "eraser" ? "filled" : "subtle"}
                 aria-label="Eraser"
+                aria-pressed={selectedTool === "eraser"}
                 onClick={() => {
                   dispatch(updateSelectedTool("eraser"));
                   dispatch(selectCanvasObject(""));
@@ -207,6 +226,8 @@ function Toolbar({ objects, onDelete }: ToolbarProps) {
             />
           </Popover.Dropdown>
         </Popover>
+
+        <Divider orientation="vertical" mx={4} />
 
         {/* undo */}
         <Tooltip label="Undo">
@@ -242,6 +263,25 @@ function Toolbar({ objects, onDelete }: ToolbarProps) {
             onClick={onDelete}
           >
             <DeleteIcon />
+          </ActionIcon>
+        </Tooltip>
+
+        <Divider orientation="vertical" mx={4} />
+
+        {/* theme toggle */}
+        <Tooltip label={colorScheme === "dark" ? "Light mode" : "Dark mode"}>
+          <ActionIcon
+            variant="subtle"
+            aria-label="Toggle color scheme"
+            onClick={() =>
+              setColorScheme(colorScheme === "dark" ? "light" : "dark")
+            }
+          >
+            {colorScheme === "dark" ? (
+              <IconSun size={20} />
+            ) : (
+              <IconMoon size={20} />
+            )}
           </ActionIcon>
         </Tooltip>
       </Group>

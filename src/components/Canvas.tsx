@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
+import { useComputedColorScheme } from "@mantine/core";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuid } from "uuid";
 import { Stage } from "react-konva";
 import Toolbar from "./toolbar/Toolbar";
 import InkLayer from "./ink/InkLayer";
-import ShapeLayer from "./shapes/ShapeLayer";
+import ObjectLayer from "./ObjectLayer";
 import ConfirmationDialog from "./ConfirmationDialog";
-import TextLayer from "./text/TextLayer";
 import { RootState } from "../redux/store";
 import {
   addCanvasObject,
@@ -19,6 +19,7 @@ import {
   setCanvasObjects,
 } from "../redux/canvasSlice";
 import { updateSelectedTool } from "../redux/settingsSlice";
+import { setTextColor } from "../redux/textSlice";
 import { SHAPE_DEFAULT_HEIGHT, SHAPE_DEFAULT_WIDTH } from "./shapes/shapeUtils";
 import {
   getFontStyleStringFromTextStyleArray,
@@ -75,11 +76,8 @@ export type ShapeName = "rectangle" | "oval" | "triangle" | "star";
 
 export default function Canvas() {
   const [stageSize, setStageSize] = useState<StageSizeType>();
-  const [isDarkMode, setIsDarkMode] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches,
-  );
+  const colorScheme = useComputedColorScheme("light");
+  const isDarkMode = colorScheme === "dark";
   const dispatch = useDispatch();
   const { canvasObjects, selectedObjectId } = useSelector(
     (state: RootState) => state.canvas,
@@ -101,14 +99,10 @@ export default function Canvas() {
   const [zoomLevel, setZoomLevel] = useState(1); // Default zoom level = 100%
   const stageRef = useRef<Konva.Stage | null>(null);
 
-  // Dark mode listener
+  // Sync default text color with color scheme
   useEffect(() => {
-    const mql = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleThemeChange = (e: MediaQueryListEvent) =>
-      setIsDarkMode(e.matches);
-    mql.addEventListener("change", handleThemeChange);
-    return () => mql.removeEventListener("change", handleThemeChange);
-  }, []);
+    dispatch(setTextColor(isDarkMode ? "#ffffff" : "#000000"));
+  }, [isDarkMode, dispatch]);
 
   // update cursor style
   useEffect(() => {
@@ -489,6 +483,13 @@ export default function Canvas() {
 
   return (
     <>
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: isDarkMode ? "#1a1b1e" : "#ffffff",
+        }}
+      />
       <Stage
         ref={stageRef}
         width={window.innerWidth}
@@ -501,16 +502,7 @@ export default function Canvas() {
         onWheel={(e) => handleWheelZoom(e)}
       >
         <InkLayer objects={canvasObjects} newObject={newObject} />
-        <ShapeLayer
-          objects={canvasObjects}
-          newObject={newObject}
-          onChange={updateSelectedObject}
-          selectedObjectId={selectedObjectId}
-          setSelectedObjectId={(newObjectId) =>
-            dispatch(selectCanvasObject(newObjectId))
-          }
-        />
-        <TextLayer
+        <ObjectLayer
           objects={canvasObjects}
           newObject={newObject}
           selectedObjectId={selectedObjectId}

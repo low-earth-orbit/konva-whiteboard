@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Text, Transformer } from "react-konva";
+import { transformerCursorHandlers } from "../konvaUtils";
 import { CanvasObjectType } from "../Canvas";
 import Konva from "konva";
 import { TEXT_MIN_HEIGHT, TEXT_MIN_WIDTH } from "./textUtils";
@@ -192,6 +193,16 @@ export default function TextField({
         name={type}
         onClick={(e) => onSelect(e)}
         onTap={(e) => onSelect(e)}
+        onDblClick={handleDoubleClick}
+        onDblTap={handleDoubleClick}
+        onMouseEnter={(e) => {
+          const stage = e.target.getStage();
+          if (stage) stage.container().style.cursor = "pointer";
+        }}
+        onMouseLeave={(e) => {
+          const stage = e.target.getStage();
+          if (stage) stage.container().style.cursor = "";
+        }}
         ref={textRef}
         {...selectedProps}
         draggable={isSelected}
@@ -235,34 +246,7 @@ export default function TextField({
           flipEnabled={false}
           shouldOverdrawWholeArea
           onDblClick={handleDoubleClick}
-          onMouseOver={(e) => {
-            const stage = e.target.getStage();
-            if (stage) {
-              const container = stage.container();
-              container.style.cursor = "grab";
-            }
-          }}
-          onMouseLeave={(e) => {
-            const stage = e.target.getStage();
-            if (stage) {
-              const container = stage.container();
-              container.style.cursor = ""; // Reset to tool's cursor
-            }
-          }}
-          onMouseDown={(e) => {
-            const stage = e.target.getStage();
-            if (stage) {
-              const container = stage.container();
-              container.style.cursor = "grabbing";
-            }
-          }}
-          onMouseUp={(e) => {
-            const stage = e.target.getStage();
-            if (stage) {
-              const container = stage.container();
-              container.style.cursor = "grab";
-            }
-          }}
+          {...transformerCursorHandlers}
           boundBoxFunc={(oldBox, newBox) => {
             // limit resize
             if (
