@@ -9,17 +9,14 @@ If you're a committed contributor and would like to become a collaborator instea
 ## How to Contribute
 
 1. **Before You Start:**
-
    - **Ask the project owner to assign you the issue** you plan to work on.
 
 2. **Fork the Repository:**
    - Start by forking this repository to your own GitHub account.
 3. **Clone Your Fork:**
-
    - Clone your fork locally to work on your changes.
 
 4. **Create a Branch:**
-
    - Use a feature branch for your changes:
      ```bash
      git branch feature/your-feature-name
@@ -28,18 +25,15 @@ If you're a committed contributor and would like to become a collaborator instea
 5. **Make Your Changes:**
    - Work on your feature or fix. Make sure your code is clean and follows the project's style guidelines (e.g., Prettier, ESLint, TypeScript checks).
 6. **Write Tests:**
-
    - If applicable, write tests to cover your changes to ensure functionality doesn't break.
 
 7. **Commit Your Changes:**
-
    - Write clear, concise commit messages that explain the reasoning for your changes:
      ```bash
      git commit -m "Add feature: [brief description]"
      ```
 
 8. **Push Your Changes:**
-
    - Push your branch to your fork:
      ```bash
      git push origin feature/your-feature-name

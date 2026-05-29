@@ -1,4 +1,5 @@
 {
   "prettier.prettierPath": "./node_modules/prettier",
-  "cSpell.words": ["Konva", "reduxjs", "trackpad"]
+  "css.validate": false,
+  "cSpell.words": ["Konva", "reduxjs", "tabler", "trackpad", "mantine"]
 }

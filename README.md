@@ -8,8 +8,12 @@ Project management is handled through [Issues](https://github.com/low-earth-orbi
 
 ## Tech Stack
 
-- Front-end: `React`, `Redux`, `Next.js`, `Konva.js`,`Material UI`
-- Programming language: `TypeScript`
+- Framework: `Next.js 16` (App Router, static export)
+- UI: `React 19` + `Mantine UI` + `Tailwind CSS v4`
+- Canvas: `Konva.js` + `react-konva`
+- State: `Redux Toolkit`
+- Language: `TypeScript` (strict)
+- Tests: `Vitest` + `React Testing Library` (unit/component), `Playwright` (e2e)
 
 ## Roadmap
 
@@ -22,7 +26,6 @@ Although there isn’t a strict timeline, the project is divided into three phas
 ## Implemented Features
 
 - Supported canvas objects
-
   - Freehand inking
   - Text fields
   - Shapes
@@ -32,7 +35,6 @@ Although there isn’t a strict timeline, the project is divided into three phas
     - Star
 
 - Edit objects
-
   - Drag & move, resize, rotate objects
   - Edit shape
     - Border width
@@ -56,15 +58,18 @@ Although there isn’t a strict timeline, the project is divided into three phas
 
 ## Develop
 
-### Run
+### Commands
 
-To run the development server locally:
-
-```bash
-npm run dev
-```
-
-Then, open [http://localhost:3000](http://localhost:3000) in your browser to access the app.
+| Command                | Description                               |
+| ---------------------- | ----------------------------------------- |
+| `npm run dev`          | Start dev server at http://localhost:3000 |
+| `npm run build`        | Static export to `./out`                  |
+| `npm run lint`         | ESLint (zero warnings)                    |
+| `npm run typecheck`    | TypeScript check                          |
+| `npm run format`       | Prettier write                            |
+| `npm run format:check` | Prettier check                            |
+| `npm test`             | Vitest unit + component tests             |
+| `npm run test:e2e`     | Playwright e2e tests                      |
 
 ## Contributing & License
 
