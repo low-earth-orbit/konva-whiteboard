@@ -8,14 +8,8 @@ type Props = {
 
 export default function InkLayer({ objects, newObject }: Props) {
   const lines = [
-    ...objects.filter(
-      (obj: CanvasObjectType) =>
-        obj.type === "ink" || obj.type === "eraserStroke",
-    ),
-    ...(newObject &&
-    (newObject.type === "ink" || newObject.type === "eraserStroke")
-      ? [newObject]
-      : []),
+    ...objects.filter((obj: CanvasObjectType) => obj.type === "ink"),
+    ...(newObject && newObject.type === "ink" ? [newObject] : []),
   ];
 
   return (
@@ -30,9 +24,7 @@ export default function InkLayer({ objects, newObject }: Props) {
           tension={0.5}
           lineCap="round"
           lineJoin="round"
-          globalCompositeOperation={
-            line.type === "eraserStroke" ? "destination-out" : "source-over"
-          }
+          globalCompositeOperation="source-over"
         />
       ))}
     </Layer>

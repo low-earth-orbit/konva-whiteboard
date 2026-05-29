@@ -60,7 +60,7 @@ export interface CanvasObjectType {
   lineHeight?: number;
 }
 
-export type ObjectType = "ink" | "eraserStroke" | "shape" | "text";
+export type ObjectType = "ink" | "shape" | "text";
 
 export type ToolType =
   | "select"
@@ -73,6 +73,44 @@ export type ToolType =
   | "addStar";
 
 export type ShapeName = "rectangle" | "oval" | "triangle" | "star";
+
+function distToSegment(
+  px: number,
+  py: number,
+  ax: number,
+  ay: number,
+  bx: number,
+  by: number,
+): number {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const lenSq = dx * dx + dy * dy;
+  if (lenSq === 0) return Math.hypot(px - ax, py - ay);
+  const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / lenSq));
+  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+}
+
+function strokeHitsEraser(
+  obj: CanvasObjectType,
+  ex: number,
+  ey: number,
+  eraserRadius: number,
+): boolean {
+  const pts = obj.points!;
+  const threshold = eraserRadius + (obj.strokeWidth ?? 0) / 2;
+  if (pts.length === 2) {
+    return Math.hypot(ex - pts[0], ey - pts[1]) <= threshold;
+  }
+  for (let i = 0; i < pts.length - 2; i += 2) {
+    if (
+      distToSegment(ex, ey, pts[i], pts[i + 1], pts[i + 2], pts[i + 3]) <=
+      threshold
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
 
 export default function Canvas() {
   const [stageSize, setStageSize] = useState<StageSizeType>();
@@ -98,6 +136,32 @@ export default function Canvas() {
 
   const [zoomLevel, setZoomLevel] = useState(1); // Default zoom level = 100%
   const stageRef = useRef<Konva.Stage | null>(null);
+
+  function eraseAtPoint(x: number, y: number) {
+    const radius = eraserSize / 2;
+    canvasObjects
+      .filter((obj) => {
+        if (obj.type === "ink" && obj.points) {
+          return strokeHitsEraser(obj, x, y, radius);
+        }
+        if (
+          (obj.type === "shape" || obj.type === "text") &&
+          obj.x != null &&
+          obj.y != null &&
+          obj.width != null &&
+          obj.height != null
+        ) {
+          return (
+            x >= obj.x - radius &&
+            x <= obj.x + obj.width + radius &&
+            y >= obj.y - radius &&
+            y <= obj.y + obj.height + radius
+          );
+        }
+        return false;
+      })
+      .forEach((obj) => dispatch(deleteCanvasObject(obj.id)));
+  }
 
   // Sync default text color with color scheme
   useEffect(() => {
@@ -362,17 +426,25 @@ export default function Canvas() {
         return;
       }
 
-      // If the current selected tool is eraser or pen
-      if (selectedTool === "eraser" || selectedTool === "pen") {
+      // If the current selected tool is pen
+      if (selectedTool === "pen") {
         const pos = e.target.getStage().getRelativePointerPosition();
         const newLine: CanvasObjectType = {
           id: uuid(),
-          type: selectedTool === "eraser" ? "eraserStroke" : "ink",
+          type: "ink",
           points: [pos.x, pos.y],
-          stroke: selectedTool === "eraser" ? inkColor : inkColor,
-          strokeWidth: selectedTool === "eraser" ? eraserSize : inkWidth,
+          stroke: inkColor,
+          strokeWidth: inkWidth,
         };
         setNewObject(newLine);
+        return;
+      }
+
+      // If the current selected tool is eraser
+      if (selectedTool === "eraser") {
+        const pos = e.target.getStage().getRelativePointerPosition();
+        eraseAtPoint(pos.x, pos.y);
+        // isInProgress stays true so handleMouseMove keeps erasing on drag
         return;
       }
     }
@@ -380,8 +452,7 @@ export default function Canvas() {
     // deselect object when clicked on empty area or clicked on an ink object (created by pen or eraser)
     if (
       e.target === e.target.getStage() ||
-      e.target.attrs.name.includes("ink") ||
-      e.target.attrs.name.includes("eraserStroke")
+      e.target.attrs.name.includes("ink")
     ) {
       dispatch(selectCanvasObject(""));
     }
@@ -389,12 +460,7 @@ export default function Canvas() {
 
   const handleMouseMove = (e: any) => {
     // Creating new text/object is in progress
-    if (
-      isInProgress &&
-      newObject &&
-      newObject.type !== "ink" &&
-      newObject.type !== "eraserStroke"
-    ) {
+    if (isInProgress && newObject && newObject.type !== "ink") {
       const stage = e.target.getStage();
       const point = stage.getRelativePointerPosition();
 
@@ -417,7 +483,15 @@ export default function Canvas() {
       return;
     }
 
-    // Freehand drawing (eraser or pen) in progress
+    // Eraser in progress — delete strokes that intersect the current pointer
+    if (isInProgress && selectedTool === "eraser") {
+      const stage = e.target.getStage();
+      const point = stage.getRelativePointerPosition();
+      eraseAtPoint(point.x, point.y);
+      return;
+    }
+
+    // Pen drawing in progress
     if (isInProgress && newObject) {
       const stage = e.target.getStage();
       const point = stage.getRelativePointerPosition();

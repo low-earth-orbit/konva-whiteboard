@@ -7,7 +7,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Whiteboard",
+  title: "Konva Whiteboard",
   description: "A whiteboard app made with Konva.",
 };
 
