@@ -12,6 +12,7 @@ import {
 import {
   IconArrowBackUp,
   IconArrowForwardUp,
+  IconChevronUp,
   IconCircle,
   IconMoon,
   IconSquare,
@@ -24,7 +25,6 @@ import {
 import EraserIcon from "../icons/EraserIcon";
 import DrawIcon from "../icons/DrawIcon";
 import DeleteIcon from "../icons/DeleteIcon";
-import ShapesIcon from "../icons/ShapesIcon";
 import SelectIcon from "../icons/SelectIcon";
 
 import { CanvasObjectType } from "../Canvas";
@@ -38,7 +38,14 @@ type ToolbarProps = {
   onDelete: () => void;
 };
 
-const shapeTools = ["addRectangle", "addOval", "addTriangle", "addStar"];
+const shapeOptions = [
+  { tool: "addRectangle", label: "Rectangle", Icon: IconSquare },
+  { tool: "addOval", label: "Oval", Icon: IconCircle },
+  { tool: "addTriangle", label: "Triangle", Icon: IconTriangle },
+  { tool: "addStar", label: "Star", Icon: IconStar },
+] as const;
+
+const shapeTools: string[] = shapeOptions.map((s) => s.tool);
 
 function Toolbar({ objects, onDelete }: ToolbarProps) {
   const dispatch = useDispatch();
@@ -51,8 +58,19 @@ function Toolbar({ objects, onDelete }: ToolbarProps) {
   const colorScheme = useComputedColorScheme("light");
 
   const [shapesOpened, setShapesOpened] = useState(false);
+  const [lastShapeTool, setLastShapeTool] =
+    useState<(typeof shapeOptions)[number]["tool"]>("addRectangle");
 
   const isShapeToolActive = shapeTools.includes(selectedTool);
+  const activeShape =
+    shapeOptions.find((s) => s.tool === lastShapeTool) ?? shapeOptions[0];
+
+  const handleSelectShape = (tool: (typeof shapeOptions)[number]["tool"]) => {
+    setLastShapeTool(tool);
+    setShapesOpened(false);
+    dispatch(updateSelectedTool(tool));
+    dispatch(selectCanvasObject(""));
+  };
 
   return (
     <Paper
@@ -96,7 +114,7 @@ function Toolbar({ objects, onDelete }: ToolbarProps) {
         </Tooltip>
 
         {/* text */}
-        <Tooltip label="Add text">
+        <Tooltip label="Text">
           <ActionIcon
             variant={selectedTool === "addText" ? "filled" : "subtle"}
             aria-label="Add text"
@@ -110,80 +128,51 @@ function Toolbar({ objects, onDelete }: ToolbarProps) {
           </ActionIcon>
         </Tooltip>
 
-        {/* shapes popover */}
+        {/* shapes: MRU shape button + overflow popover */}
         <Popover
           opened={shapesOpened}
           onChange={setShapesOpened}
           position="top"
           offset={8}
         >
-          <Popover.Target>
-            <Tooltip label="Add shape">
+          <ActionIcon.Group>
+            <Tooltip label={activeShape.label}>
               <ActionIcon
                 variant={isShapeToolActive ? "filled" : "subtle"}
-                aria-label="Add shape"
-                aria-haspopup="true"
+                aria-label={`Add ${activeShape.label.toLowerCase()}`}
                 aria-pressed={isShapeToolActive}
-                onClick={() => setShapesOpened((o) => !o)}
+                onClick={() => handleSelectShape(activeShape.tool)}
               >
-                <ShapesIcon />
+                <activeShape.Icon size={20} />
               </ActionIcon>
             </Tooltip>
-          </Popover.Target>
+            <Popover.Target>
+              <Tooltip label="More" disabled={shapesOpened}>
+                <ActionIcon
+                  variant={isShapeToolActive ? "filled" : "subtle"}
+                  aria-label="More shapes"
+                  aria-haspopup="true"
+                  aria-expanded={shapesOpened}
+                  onClick={() => setShapesOpened((o) => !o)}
+                >
+                  <IconChevronUp size={14} />
+                </ActionIcon>
+              </Tooltip>
+            </Popover.Target>
+          </ActionIcon.Group>
           <Popover.Dropdown p={4}>
             <Group gap={4}>
-              <Tooltip label="Add rectangle">
-                <ActionIcon
-                  variant="subtle"
-                  aria-label="Add rectangle"
-                  onClick={() => {
-                    setShapesOpened(false);
-                    dispatch(updateSelectedTool("addRectangle"));
-                    dispatch(selectCanvasObject(""));
-                  }}
-                >
-                  <IconSquare size={20} />
-                </ActionIcon>
-              </Tooltip>
-              <Tooltip label="Add oval">
-                <ActionIcon
-                  variant="subtle"
-                  aria-label="Add oval"
-                  onClick={() => {
-                    setShapesOpened(false);
-                    dispatch(updateSelectedTool("addOval"));
-                    dispatch(selectCanvasObject(""));
-                  }}
-                >
-                  <IconCircle size={20} />
-                </ActionIcon>
-              </Tooltip>
-              <Tooltip label="Add triangle">
-                <ActionIcon
-                  variant="subtle"
-                  aria-label="Add triangle"
-                  onClick={() => {
-                    setShapesOpened(false);
-                    dispatch(updateSelectedTool("addTriangle"));
-                    dispatch(selectCanvasObject(""));
-                  }}
-                >
-                  <IconTriangle size={20} />
-                </ActionIcon>
-              </Tooltip>
-              <Tooltip label="Add star">
-                <ActionIcon
-                  variant="subtle"
-                  aria-label="Add star"
-                  onClick={() => {
-                    setShapesOpened(false);
-                    dispatch(updateSelectedTool("addStar"));
-                    dispatch(selectCanvasObject(""));
-                  }}
-                >
-                  <IconStar size={20} />
-                </ActionIcon>
-              </Tooltip>
+              {shapeOptions.map(({ tool, label, Icon }) => (
+                <Tooltip key={tool} label={label}>
+                  <ActionIcon
+                    variant={lastShapeTool === tool ? "light" : "subtle"}
+                    aria-label={`Add ${label.toLowerCase()}`}
+                    onClick={() => handleSelectShape(tool)}
+                  >
+                    <Icon size={20} />
+                  </ActionIcon>
+                </Tooltip>
+              ))}
             </Group>
           </Popover.Dropdown>
         </Popover>
