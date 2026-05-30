@@ -109,10 +109,6 @@ export default function Canvas() {
   // Eraser interaction state
   const [erasingIds, setErasingIds] = useState<Set<string>>(new Set()); // objects under the active erase stroke (dimmed, deleted on release)
   const [eraserTrail, setEraserTrail] = useState<number[]>([]); // [x0,y0,...] of the active erase stroke, canvas units
-  const [eraserCursor, setEraserCursor] = useState<{
-    x: number;
-    y: number;
-  } | null>(null); // pointer position for the on-canvas eraser disc
   const erasingIdsRef = useRef<Set<string>>(new Set()); // live mirror of erasingIds, read inside rapid pointer events
   const prevErasePointRef = useRef<{ x: number; y: number } | null>(null); // previous pointer (absolute px) for segment sampling
 
@@ -138,6 +134,9 @@ export default function Canvas() {
     }
 
     // Shapes & text — sample the eraser disc against the hit graph.
+    // Use getIntersection (a single hit-canvas pixel pick per sample) rather
+    // than getAllIntersections, which re-renders and reads pixels for every
+    // shape on the stage and is the main source of erase lag on busy canvases.
     const scale = stage.scaleX() || 1;
     const samples = sampleEraserDisc(
       abs,
@@ -145,10 +144,9 @@ export default function Canvas() {
       prevErasePointRef.current,
     );
     for (const p of samples) {
-      for (const node of stage.getAllIntersections(p)) {
-        const id = objectIdFromNode(node);
-        if (id) next.add(id);
-      }
+      const node = stage.getIntersection(p);
+      const id = node ? objectIdFromNode(node) : null;
+      if (id) next.add(id);
     }
     prevErasePointRef.current = abs;
 
@@ -185,41 +183,27 @@ export default function Canvas() {
   // update cursor style
   useEffect(() => {
     const getCursorStyle = () => {
-      const basePath = isDarkMode
-        ? "/mousePointer/dark/" // Path for dark mode SVGs
-        : "/mousePointer/light/"; // Path for light mode SVGs
-
       switch (selectedTool) {
         case "pen":
-          return `url(${basePath}add.svg) 12 12, crosshair`;
-        case "addText":
-          return `url(${basePath}text.svg) 12 12, text`;
-        case "addRectangle":
-          return `url(${basePath}rectangle.svg) 12 12, pointer`;
-        case "addOval":
-          return `url(${basePath}oval.svg) 12 12, pointer`;
-        case "addTriangle":
-          return `url(${basePath}triangle.svg) 12 12, pointer`;
-        case "addStar":
-          return `url(${basePath}star.svg) 12 12, pointer`;
         case "eraser":
-          // The eraser disc is drawn on-canvas (EraserOverlay); hide the OS cursor.
-          return "none";
+        case "addRectangle":
+        case "addOval":
+        case "addTriangle":
+        case "addStar":
+          return "crosshair";
+        case "addText":
+          return "text";
         default:
           return "default";
       }
     };
 
-    const resetCursor = () => {
-      document.body.style.cursor = getCursorStyle();
-    };
-
-    resetCursor();
+    document.body.style.cursor = getCursorStyle();
 
     return () => {
       document.body.style.cursor = "default";
     };
-  }, [isDarkMode, selectedTool]);
+  }, [selectedTool]);
 
   // load from local storage
   useEffect(() => {
@@ -478,7 +462,6 @@ export default function Canvas() {
     if (selectedTool === "eraser") {
       const stage = e.target.getStage();
       const point = stage.getRelativePointerPosition();
-      if (point) setEraserCursor({ x: point.x, y: point.y });
       if (isInProgress && point) {
         setEraserTrail((prev) => [...prev, point.x, point.y]);
         collectErasedAtPointer();
@@ -595,7 +578,6 @@ export default function Canvas() {
         onMouseup={handleMouseUp}
         onMouseLeave={() => {
           if (isInProgress && selectedTool === "eraser") commitErasing();
-          setEraserCursor(null);
         }}
         onTouchStart={handleMouseDown}
         draggable={selectedTool === "select" && !selectedObjectId}
@@ -621,7 +603,6 @@ export default function Canvas() {
           <EraserOverlay
             size={eraserSize}
             trail={eraserTrail}
-            cursor={eraserCursor}
             isDarkMode={isDarkMode}
           />
         )}
