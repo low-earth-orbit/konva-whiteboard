@@ -185,23 +185,26 @@ export default function Canvas() {
   // update cursor style
   useEffect(() => {
     const getCursorStyle = () => {
-      const basePath = isDarkMode
-        ? "/mousePointer/dark/" // Path for dark mode SVGs
-        : "/mousePointer/light/"; // Path for light mode SVGs
+      // Prefix with the deploy base path (e.g. "/konva-whiteboard" on GitHub
+      // Pages) so the SVG cursors resolve correctly in production.
+      const appBasePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+      const cursorPath = isDarkMode
+        ? `${appBasePath}/mousePointer/dark/` // Path for dark mode SVGs
+        : `${appBasePath}/mousePointer/light/`; // Path for light mode SVGs
 
       switch (selectedTool) {
         case "pen":
-          return `url(${basePath}add.svg) 12 12, crosshair`;
+          return `url(${cursorPath}add.svg) 12 12, crosshair`;
         case "addText":
-          return `url(${basePath}text.svg) 12 12, text`;
+          return `url(${cursorPath}text.svg) 12 12, text`;
         case "addRectangle":
-          return `url(${basePath}rectangle.svg) 12 12, pointer`;
+          return `url(${cursorPath}rectangle.svg) 12 12, pointer`;
         case "addOval":
-          return `url(${basePath}oval.svg) 12 12, pointer`;
+          return `url(${cursorPath}oval.svg) 12 12, pointer`;
         case "addTriangle":
-          return `url(${basePath}triangle.svg) 12 12, pointer`;
+          return `url(${cursorPath}triangle.svg) 12 12, pointer`;
         case "addStar":
-          return `url(${basePath}star.svg) 12 12, pointer`;
+          return `url(${cursorPath}star.svg) 12 12, pointer`;
         case "eraser":
           // The eraser disc is drawn on-canvas (EraserOverlay); hide the OS cursor.
           return "none";
