@@ -5,6 +5,7 @@ import { v4 as uuid } from "uuid";
 import { Stage } from "react-konva";
 import Toolbar from "./toolbar/Toolbar";
 import InkLayer from "./ink/InkLayer";
+import EraserOverlay from "./ink/EraserOverlay";
 import ObjectLayer from "./ObjectLayer";
 import ConfirmationDialog from "./ConfirmationDialog";
 import { RootState } from "../redux/store";
@@ -12,12 +13,18 @@ import {
   addCanvasObject,
   updateCanvasObject,
   deleteCanvasObject,
+  deleteCanvasObjects,
   selectCanvasObject,
   resetCanvas,
   undo,
   redo,
   setCanvasObjects,
 } from "../redux/canvasSlice";
+import {
+  objectIdFromNode,
+  sampleEraserDisc,
+  strokeHitsEraser,
+} from "./eraserUtils";
 import { updateSelectedTool } from "../redux/settingsSlice";
 import { setTextColor } from "../redux/textSlice";
 import { SHAPE_DEFAULT_HEIGHT, SHAPE_DEFAULT_WIDTH } from "./shapes/shapeUtils";
@@ -74,44 +81,6 @@ export type ToolType =
 
 export type ShapeName = "rectangle" | "oval" | "triangle" | "star";
 
-function distToSegment(
-  px: number,
-  py: number,
-  ax: number,
-  ay: number,
-  bx: number,
-  by: number,
-): number {
-  const dx = bx - ax;
-  const dy = by - ay;
-  const lenSq = dx * dx + dy * dy;
-  if (lenSq === 0) return Math.hypot(px - ax, py - ay);
-  const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / lenSq));
-  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
-}
-
-function strokeHitsEraser(
-  obj: CanvasObjectType,
-  ex: number,
-  ey: number,
-  eraserRadius: number,
-): boolean {
-  const pts = obj.points!;
-  const threshold = eraserRadius + (obj.strokeWidth ?? 0) / 2;
-  if (pts.length === 2) {
-    return Math.hypot(ex - pts[0], ey - pts[1]) <= threshold;
-  }
-  for (let i = 0; i < pts.length - 2; i += 2) {
-    if (
-      distToSegment(ex, ey, pts[i], pts[i + 1], pts[i + 2], pts[i + 3]) <=
-      threshold
-    ) {
-      return true;
-    }
-  }
-  return false;
-}
-
 export default function Canvas() {
   const [stageSize, setStageSize] = useState<StageSizeType>();
   const colorScheme = useComputedColorScheme("light");
@@ -137,30 +106,75 @@ export default function Canvas() {
   const [zoomLevel, setZoomLevel] = useState(1); // Default zoom level = 100%
   const stageRef = useRef<Konva.Stage | null>(null);
 
-  function eraseAtPoint(x: number, y: number) {
+  // Eraser interaction state
+  const [erasingIds, setErasingIds] = useState<Set<string>>(new Set()); // objects under the active erase stroke (dimmed, deleted on release)
+  const [eraserTrail, setEraserTrail] = useState<number[]>([]); // [x0,y0,...] of the active erase stroke, canvas units
+  const [eraserCursor, setEraserCursor] = useState<{
+    x: number;
+    y: number;
+  } | null>(null); // pointer position for the on-canvas eraser disc
+  const erasingIdsRef = useRef<Set<string>>(new Set()); // live mirror of erasingIds, read inside rapid pointer events
+  const prevErasePointRef = useRef<{ x: number; y: number } | null>(null); // previous pointer (absolute px) for segment sampling
+
+  // Accumulate objects whose visible outline the eraser disc touches at the
+  // current pointer. Ink strokes use exact geometry; filled shapes/text use
+  // Konva's hit graph so detection follows the rendered outline, not the
+  // bounding box. Hits stay marked until release (matching tldraw).
+  function collectErasedAtPointer() {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const rel = stage.getRelativePointerPosition();
+    const abs = stage.getPointerPosition();
+    if (!rel || !abs) return;
+
     const radius = eraserSize / 2;
-    canvasObjects
-      .filter((obj) => {
-        if (obj.type === "ink" && obj.points) {
-          return strokeHitsEraser(obj, x, y, radius);
-        }
-        if (
-          (obj.type === "shape" || obj.type === "text") &&
-          obj.x != null &&
-          obj.y != null &&
-          obj.width != null &&
-          obj.height != null
-        ) {
-          return (
-            x >= obj.x - radius &&
-            x <= obj.x + obj.width + radius &&
-            y >= obj.y - radius &&
-            y <= obj.y + obj.height + radius
-          );
-        }
-        return false;
-      })
-      .forEach((obj) => dispatch(deleteCanvasObject(obj.id)));
+    const next = new Set(erasingIdsRef.current);
+
+    // Ink strokes — precise distance-to-segment test in canvas units.
+    for (const obj of canvasObjects) {
+      if (obj.type === "ink" && obj.points) {
+        if (strokeHitsEraser(obj, rel.x, rel.y, radius)) next.add(obj.id);
+      }
+    }
+
+    // Shapes & text — sample the eraser disc against the hit graph.
+    const scale = stage.scaleX() || 1;
+    const samples = sampleEraserDisc(
+      abs,
+      radius * scale,
+      prevErasePointRef.current,
+    );
+    for (const p of samples) {
+      for (const node of stage.getAllIntersections(p)) {
+        const id = objectIdFromNode(node);
+        if (id) next.add(id);
+      }
+    }
+    prevErasePointRef.current = abs;
+
+    if (next.size !== erasingIdsRef.current.size) {
+      erasingIdsRef.current = next;
+      setErasingIds(next);
+    }
+  }
+
+  function startErasing() {
+    erasingIdsRef.current = new Set();
+    prevErasePointRef.current = null;
+    setErasingIds(new Set());
+    const stage = stageRef.current;
+    const rel = stage?.getRelativePointerPosition();
+    setEraserTrail(rel ? [rel.x, rel.y] : []);
+    collectErasedAtPointer();
+  }
+
+  function commitErasing() {
+    const ids = [...erasingIdsRef.current];
+    if (ids.length > 0) dispatch(deleteCanvasObjects(ids));
+    erasingIdsRef.current = new Set();
+    prevErasePointRef.current = null;
+    setErasingIds(new Set());
+    setEraserTrail([]);
   }
 
   // Sync default text color with color scheme
@@ -189,7 +203,8 @@ export default function Canvas() {
         case "addStar":
           return `url(${basePath}star.svg) 12 12, pointer`;
         case "eraser":
-          return `url(${basePath}erase.svg) 12 12, default`;
+          // The eraser disc is drawn on-canvas (EraserOverlay); hide the OS cursor.
+          return "none";
         default:
           return "default";
       }
@@ -442,8 +457,7 @@ export default function Canvas() {
 
       // If the current selected tool is eraser
       if (selectedTool === "eraser") {
-        const pos = e.target.getStage().getRelativePointerPosition();
-        eraseAtPoint(pos.x, pos.y);
+        startErasing();
         // isInProgress stays true so handleMouseMove keeps erasing on drag
         return;
       }
@@ -459,6 +473,19 @@ export default function Canvas() {
   };
 
   const handleMouseMove = (e: any) => {
+    // Eraser — follow the pointer with the on-canvas disc, and while pressed
+    // grow the trail and mark crossed objects.
+    if (selectedTool === "eraser") {
+      const stage = e.target.getStage();
+      const point = stage.getRelativePointerPosition();
+      if (point) setEraserCursor({ x: point.x, y: point.y });
+      if (isInProgress && point) {
+        setEraserTrail((prev) => [...prev, point.x, point.y]);
+        collectErasedAtPointer();
+      }
+      return;
+    }
+
     // Creating new text/object is in progress
     if (isInProgress && newObject && newObject.type !== "ink") {
       const stage = e.target.getStage();
@@ -483,14 +510,6 @@ export default function Canvas() {
       return;
     }
 
-    // Eraser in progress — delete strokes that intersect the current pointer
-    if (isInProgress && selectedTool === "eraser") {
-      const stage = e.target.getStage();
-      const point = stage.getRelativePointerPosition();
-      eraseAtPoint(point.x, point.y);
-      return;
-    }
-
     // Pen drawing in progress
     if (isInProgress && newObject) {
       const stage = e.target.getStage();
@@ -508,10 +527,13 @@ export default function Canvas() {
   const handleMouseUp = () => {
     // Add object to store upon releasing mouse
     if (isInProgress) {
-      if (newObject) dispatch(addCanvasObject(newObject));
+      if (selectedTool === "eraser") {
+        commitErasing();
+      } else {
+        if (newObject) dispatch(addCanvasObject(newObject));
 
-      if (selectedTool !== "pen" && selectedTool !== "eraser")
-        dispatch(updateSelectedTool("select"));
+        if (selectedTool !== "pen") dispatch(updateSelectedTool("select"));
+      }
 
       setNewObject(null);
       setIsInProgress(false);
@@ -571,11 +593,19 @@ export default function Canvas() {
         onMouseDown={handleMouseDown}
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
+        onMouseLeave={() => {
+          if (isInProgress && selectedTool === "eraser") commitErasing();
+          setEraserCursor(null);
+        }}
         onTouchStart={handleMouseDown}
         draggable={selectedTool === "select" && !selectedObjectId}
         onWheel={(e) => handleWheelZoom(e)}
       >
-        <InkLayer objects={canvasObjects} newObject={newObject} />
+        <InkLayer
+          objects={canvasObjects}
+          newObject={newObject}
+          erasingIds={selectedTool === "eraser" ? erasingIds : undefined}
+        />
         <ObjectLayer
           objects={canvasObjects}
           newObject={newObject}
@@ -585,7 +615,16 @@ export default function Canvas() {
           }
           onChange={updateSelectedObject}
           zoomLevel={zoomLevel}
+          erasingIds={selectedTool === "eraser" ? erasingIds : undefined}
         />
+        {selectedTool === "eraser" && (
+          <EraserOverlay
+            size={eraserSize}
+            trail={eraserTrail}
+            cursor={eraserCursor}
+            isDarkMode={isDarkMode}
+          />
+        )}
       </Stage>
       <Toolbar objects={canvasObjects} onDelete={handleDelete} />
       <ConfirmationDialog

@@ -50,6 +50,16 @@ const canvasSlice = createSlice({
       state.selectedObjectId = "";
       state.redoStack = [];
     },
+    deleteCanvasObjects(state, action: PayloadAction<string[]>) {
+      const ids = new Set(action.payload);
+      if (ids.size === 0) return;
+      state.undoStack.push(state.canvasObjects);
+      state.canvasObjects = state.canvasObjects.filter(
+        (obj) => !ids.has(obj.id),
+      );
+      state.selectedObjectId = "";
+      state.redoStack = [];
+    },
     selectCanvasObject(state, action: PayloadAction<string>) {
       state.selectedObjectId = action.payload;
     },
@@ -86,6 +96,7 @@ export const {
   addCanvasObject,
   updateCanvasObject,
   deleteCanvasObject,
+  deleteCanvasObjects,
   selectCanvasObject,
   resetCanvas,
   undo,
