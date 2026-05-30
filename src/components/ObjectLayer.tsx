@@ -1,6 +1,6 @@
 "use client";
 
-import { Layer } from "react-konva";
+import { Group, Layer } from "react-konva";
 import { useDispatch, useSelector } from "react-redux";
 import { CanvasObjectType } from "./Canvas";
 import { RootState } from "@/redux/store";
@@ -32,6 +32,7 @@ type Props = {
   setSelectedObjectId: (id: string) => void;
   onChange: (newAttrs: Partial<CanvasObjectType>, id: string) => void;
   zoomLevel: number;
+  erasingIds?: Set<string>;
 };
 
 export default function ObjectLayer({
@@ -41,6 +42,7 @@ export default function ObjectLayer({
   setSelectedObjectId,
   onChange,
   zoomLevel,
+  erasingIds,
 }: Props) {
   const dispatch = useDispatch();
   const { selectedTool } = useSelector((state: RootState) => state.settings);
@@ -132,5 +134,13 @@ export default function ObjectLayer({
     }
   };
 
-  return <Layer>{renderableObjects.map(renderObject)}</Layer>;
+  return (
+    <Layer>
+      {renderableObjects.map((obj) => (
+        <Group key={obj.id} opacity={erasingIds?.has(obj.id) ? 0.3 : 1}>
+          {renderObject(obj)}
+        </Group>
+      ))}
+    </Layer>
+  );
 }
