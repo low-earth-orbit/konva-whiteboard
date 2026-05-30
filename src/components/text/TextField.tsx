@@ -4,6 +4,8 @@ import { transformerCursorHandlers } from "../konvaUtils";
 import { CanvasObjectType } from "../Canvas";
 import Konva from "konva";
 import { TEXT_MIN_HEIGHT, TEXT_MIN_WIDTH } from "./textUtils";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 type Props = {
   objectProps: Partial<CanvasObjectType>;
@@ -22,6 +24,7 @@ export default function TextField({
 }: Props) {
   const textRef = useRef<Konva.Text>(null);
   const trRef = useRef<Konva.Transformer>(null);
+  const { selectedTool } = useSelector((state: RootState) => state.settings);
 
   useEffect(() => {
     if (isSelected && trRef.current && textRef.current) {
@@ -196,12 +199,16 @@ export default function TextField({
         onDblClick={handleDoubleClick}
         onDblTap={handleDoubleClick}
         onMouseEnter={(e) => {
-          const stage = e.target.getStage();
-          if (stage) stage.container().style.cursor = "pointer";
+          if (selectedTool === "select") {
+            const stage = e.target.getStage();
+            if (stage) stage.container().style.cursor = "pointer";
+          }
         }}
         onMouseLeave={(e) => {
-          const stage = e.target.getStage();
-          if (stage) stage.container().style.cursor = "";
+          if (selectedTool === "select") {
+            const stage = e.target.getStage();
+            if (stage) stage.container().style.cursor = "";
+          }
         }}
         ref={textRef}
         {...selectedProps}
